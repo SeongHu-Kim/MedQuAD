@@ -25,7 +25,7 @@ def test_tokenizer_deterministic_and_stemming_keeps_negations() -> None:
     assert "not" in stemmed and "no" in stemmed
 
 
-@pytest.mark.parametrize("text", ["", "   ", "!!!", "​", "<evidence id='E1'>", "*:* OR 1=1"])
+@pytest.mark.parametrize("text", ["", "   ", "!!!", "\u200b", "<evidence id='E1'>", "*:* OR 1=1"])
 def test_tokenizer_never_raises(text: str) -> None:
     assert isinstance(tokenize(text), list)
 

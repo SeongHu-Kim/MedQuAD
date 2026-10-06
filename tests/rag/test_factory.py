@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 import sys
 import types
 from pathlib import Path
@@ -66,3 +67,12 @@ def test_build_pipeline_without_model_factory_reports_unavailable(tmp_path: Path
     st = {x.name: x for x in p.readiness()}
     assert not st["generator:base"].ok and st["generator:base"].required
     assert p.available_modes() == frozenset()
+
+
+def test_pipeline_import_graph_has_no_tensorflow(tmp_path: Path) -> None:  # D-036
+    code = (
+        "import sys; from medquad_qa.rag.factory import build_pipeline; from medquad_qa.rag.factory import "
+        "_load_predictor; _load_predictor(); print('tensorflow' in sys.modules, 'keras' in sys.modules)"
+    )
+    out = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, check=True)  # noqa: S603
+    assert out.stdout.strip().splitlines()[-1] == "False False"

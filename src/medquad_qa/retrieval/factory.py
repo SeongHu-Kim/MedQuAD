@@ -66,19 +66,27 @@ def build_retriever(
         statuses.append(ComponentStatus(name="corpus", ok=False, required=True, detail=type(exc).__name__))
         return RetrievalBundle(None, None, statuses)
 
+    # dense_fallback: dense ranking, BM25 only as a fallback; neither is individually required.
+    fallback_mode = s.retriever == "dense_fallback"
     lexical: BM25Retriever | None = None
-    if s.retriever in ("bm25", "hybrid"):
+    if s.retriever in ("bm25", "hybrid", "dense_fallback"):
         try:
             lexical = BM25Retriever.from_settings(store, s)
             statuses.append(
-                ComponentStatus(name="retriever:bm25", ok=True, required=True, version=lexical.index_version)
+                ComponentStatus(
+                    name="retriever:bm25", ok=True, required=not fallback_mode, version=lexical.index_version
+                )
             )
         except ArtifactUnavailableError as exc:
-            statuses.append(ComponentStatus(name="retriever:bm25", ok=False, required=True, detail=str(exc)))
+            statuses.append(
+                ComponentStatus(
+                    name="retriever:bm25", ok=False, required=not fallback_mode, degraded=fallback_mode, detail=str(exc)
+                )
+            )
 
     dense: DenseRetriever | None = None
     dense_error: str | None = None
-    if s.retriever in ("dense", "hybrid"):
+    if s.retriever in ("dense", "hybrid", "dense_fallback"):
         try:
             # Check the active manifest first so a missing index never loads (or fetches) the model.
             active = resolve_active(s.index_dir, f"dense:{s.mode_suffix}")
@@ -99,7 +107,7 @@ def build_retriever(
                     name="retriever:dense",
                     ok=False,
                     required=s.retriever == "dense",
-                    degraded=s.retriever == "hybrid",
+                    degraded=s.retriever in ("hybrid", "dense_fallback"),
                     detail=dense_error,
                 )
             )
@@ -109,6 +117,10 @@ def build_retriever(
         retriever = lexical
     elif s.retriever == "dense":
         retriever = dense
+    elif fallback_mode and lexical is None:
+        retriever = dense  # no fallback available; dense alone (None if it failed too)
+        if dense is None:
+            statuses.append(ComponentStatus(name="retriever", ok=False, required=True, detail="no retriever"))
     elif lexical is not None:
         reranker = None
         if s.reranker_model and dense is not None:
@@ -127,6 +139,7 @@ def build_retriever(
             candidate_k=s.candidate_k,
             reranker=reranker,
             dense_error=dense_error,
+            fuse=not fallback_mode,
         )
     return RetrievalBundle(retriever, store, statuses)
 

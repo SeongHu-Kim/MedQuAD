@@ -2,8 +2,8 @@
 
 Owner: retrieval-engineer. Code: `src/medquad_qa/retrieval/`, `src/medquad_qa/rag/`. Tests: `tests/retrieval/`, `tests/rag/`.
 
-Status: implemented and tested on **synthetic fixtures** only. No MedQuAD retrieval or QA numbers exist yet; any
-future numbers will be added with the command and artifact that produced them.
+Status: implemented; indexes built on the frozen corpus `medquad-1.0.0-86e384302357`. The only MedQuAD numbers so far
+are DEV diagnostics (below). TEST numbers are produced by evaluation-safety-engineer.
 
 ## Retrievers
 
@@ -32,7 +32,8 @@ retriever-specific and uncalibrated; they are never medical confidence.
 > **exact-match lookup**, not semantic generalization. Benchmarks must use paraphrased queries and report the two
 > modes separately.
 
-- **Lexical fallback**: `MEDQUAD_RETRIEVER=bm25` imports neither torch nor Qdrant. In hybrid mode, if Qdrant/the
+- **Lexical fallback**: `MEDQUAD_RETRIEVER=bm25` imports neither torch nor Qdrant. `MEDQUAD_RETRIEVER=dense_fallback`
+  ranks with dense only (named `dense:*`) and falls back to BM25 with `lexical_fallback` when Qdrant is down. In hybrid mode, if Qdrant/the
   dense index is unavailable, results are BM25-only, named `bm25:*`, and carry the warning `lexical_fallback`.
 
 ## Index lifecycle
@@ -69,21 +70,26 @@ ReadinessReporter). Explicit langchain-core LCEL chain:
 
 Abstention order (first match wins):
 
-1. Personalized-advice rules (all modes; D-023) → `personalized_medical_advice`. Emergencies get an emergency message.
+1. Personalized-advice rules (`safety-v2`, all modes; D-023) → `personalized_medical_advice`. Emergencies (an event
+   or self-harm intent, not bare keywords) get an emergency-services message. Personal advice needs a specific
+   person (I/me/my, my/our <relative>) plus an advice cue: dose, safety for that person, choosing/starting/stopping a
+   treatment, diagnosis, judging one's own value, or what to do. Generic "we" questions are general information.
 2. No retrieved hits → `no_relevant_evidence`.
 3. Answerability gate rejects the evidence → `no_relevant_evidence`.
 4. No evidence fits the input budget → `insufficient_evidence`.
 5. Model emits `INSUFFICIENT_EVIDENCE` → `insufficient_evidence`.
 6. No valid citation: only invalid ones → `invalid_citations`; none at all → `missing_citations`.
 
-- **Prompts** (`PROMPT_VERSION = rag-v1+<sha8>`): evidence in `<evidence id="E#">` blocks with topic/source lines; the
+- **Prompts** (`PROMPT_VERSION = rag-v1+<sha8>` for RAG modes; `CLOSED_BOOK_PROMPT_VERSION = cb-v1+<sha8>` is
+  reported for base/finetuned, F-006): evidence in `<evidence id="E#">` blocks with topic/source lines; the
   system prompt says evidence is untrusted data, requires `[E#]` citations and the sentinel when evidence is
   insufficient.
 - **Sanitisation** (`san-v1`): in evidence, topic/source and the question, evidence/question/system tags, chat special
   tokens (`<|…|>`, `[INST]`, `<<SYS>>`), `[E#]` look-alikes, `mq-` record-ID look-alikes, the sentinel and
-  control/bidi characters are neutralised. Numbers, units, negations and punctuation are untouched.
-- **Citations** (D-010): `[E#]` → `[mq-…]`; a literal `[mq-…]` is kept only if supplied; anything else is stripped
-  and listed in `invalid_citation_ids`. Invariant: citations ⊆ supplied ⊆ retrieved.
+  control/bidi characters are neutralised. Invisible format characters (Unicode Cf) are removed and fullwidth/CJK
+  bracket look-alikes are folded to ASCII before matching (F-004). Numbers, units, negations and punctuation are untouched.
+- **Citations** (D-010): `[E#]` (and ranges like `[E1-E3]`) → `[mq-…]`; a literal `[mq-…]` or a bare `mq-…` is kept
+  only if supplied; anything else, bracketed or not, is stripped and listed in `invalid_citation_ids` (F-003). Invariant: citations ⊆ supplied ⊆ retrieved.
 - **Evidence budget** (D-022): evidence is fitted to the generator's `max_input_tokens` (3072) by keeping the longest
   rank-order prefix of whole hits (warning `evidence_truncated`). Exact counts via `generator.count_tokens` when
   available, otherwise a conservative estimate (3 chars/token).
@@ -92,10 +98,34 @@ Abstention order (first match wins):
   Without a fitted file the heuristic only rejects zero-overlap evidence (`heuristic-unfitted`).
   Predictor errors fall back to the heuristic with warning `answerability_fallback`.
 
+## DEV diagnostics (tuning set only; D-018)
+
+40 DEV items with gold IDs (`artifacts/evaluation/evalsets/dev.jsonl`, sha256 `2864f0c0…`), top_k 20. Small sample:
+one item = 0.025. Commands: `python -m medquad_qa.retrieval run --retriever <r> --mode <m> --top-k 20 --queries
+artifacts/evaluation/evalsets/dev.jsonl --out artifacts/indexes/runs/dev/<r>_<m>.jsonl`, then
+`python scripts/retrieval/score_dev_runs.py artifacts/evaluation/evalsets/dev.jsonl artifacts/indexes/runs/dev/*.jsonl`
+(output saved to `artifacts/indexes/runs/dev/scores_v2.txt`, gitignored).
+
+| run | R@1 | R@5 | R@10 | R@20 | MRR@20 |
+|---|---|---|---|---|---|
+| bm25:answer | 0.425 | 0.675 | 0.750 | 0.825 | 0.530 |
+| bm25:qa | 0.550 | 0.750 | 0.900 | 0.975 | 0.640 |
+| dense:answer | 0.725 | 0.850 | 0.875 | 0.900 | 0.787 |
+| dense:qa | 0.825 | 0.925 | 1.000 | 1.000 | 0.867 |
+| hybrid_rrf:answer | 0.550 | 0.800 | 0.900 | 0.950 | 0.659 |
+| hybrid_rrf:qa | 0.650 | 0.925 | 1.000 | 1.000 | 0.768 |
+| hybrid_rrf+ce:answer | 0.700 | 0.850 | 0.875 | 0.950 | 0.767 |
+| hybrid_rrf+ce:qa | 0.700 | 0.825 | 0.925 | 1.000 | 0.772 |
+
+DEV queries are paraphrases, so `*:qa` is not exact-match lookup here; it still benefits from indexing the original
+question text. Duplicate collapse (by duplicate_group_id+topic) did not change dense results on DEV.
+
 ## Limitations
 
 - Record-level citations only; MedQuAD's Kaggle export has no URLs (`source_url` stays null).
 - The safety rules are regular expressions: they will miss some personal-advice phrasings and may refuse some general
-  ones. They are a scope policy, not a clinical classifier.
+  ones. They are a scope policy, not a clinical classifier. The unit-test probes (40 personal / 40 general, written
+  while designing the rules plus the evaluator's illustrative E5 probes) all pass, which says nothing about unseen
+  phrasings; the residual miss and over-refusal rates are measured by the evaluator on Track C.
 - Sanitisation prevents forging prompt structure; it cannot guarantee that a model ignores natural-language
   instructions inside evidence.

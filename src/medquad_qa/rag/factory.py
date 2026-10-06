@@ -46,7 +46,7 @@ def _default_generator_status() -> Any:
 
 def _load_predictor() -> tuple[AnswerabilityPredictor | None, str | None]:
     try:
-        from medquad_qa.models import load_answerability_predictor  # type: ignore[attr-defined]
+        from medquad_qa.models import load_answerability_predictor
     except ImportError:
         return None, "predictor factory not available"
     try:

@@ -150,3 +150,22 @@ def test_factory_missing_corpus_never_raises(tmp_path) -> None:
     bundle = build_retriever(s)
     assert bundle.retriever is None
     assert bundle.statuses[0].name == "corpus" and not bundle.statuses[0].ok
+
+
+def test_dense_fallback_mode(built: tuple) -> None:
+    settings, store, emb, client = built
+    s = settings.model_copy(update={"retriever": "dense_fallback"})
+    bundle = build_retriever(s, store=store, embedder=emb, qdrant_client=client)
+    r = bundle.retriever
+    assert r is not None and r.name == "dense:answer"
+    st = {x.name: x for x in bundle.statuses}
+    assert not st["retriever:bm25"].required and not st["retriever:dense"].required
+    hits, name, warnings = r.retrieve_with_info("zorbatine rest fluids", 3)  # type: ignore[attr-defined]
+    dense_only = DenseRetriever.from_settings(store, settings, emb, client).retrieve("zorbatine rest fluids", 3)
+    assert name == "dense:answer" and warnings == []
+    assert [h.record_id for h in hits] == [h.record_id for h in dense_only]
+    assert r.index_version == dense_only[0].index_version
+    lex = BM25Retriever.in_memory(store)
+    fb = HybridRetriever(store, lex, _BrokenDense(), fuse=False)
+    hits, name, warnings = fb.retrieve_with_info("glimmer fever", 3)
+    assert name == "bm25:answer" and warnings == [LEXICAL_FALLBACK] and hits

@@ -48,6 +48,7 @@ from medquad_qa.rag.budget import EVIDENCE_TRUNCATED, fit_evidence, token_counte
 from medquad_qa.rag.citations import build_citations, validate_citations
 from medquad_qa.rag.gate import Gate, HeuristicGate
 from medquad_qa.rag.prompts import (
+    CLOSED_BOOK_PROMPT_VERSION,
     PROMPT_VERSION,
     EvidenceBlock,
     build_closed_book_messages,
@@ -322,7 +323,7 @@ class RagPipeline:
             index_version=(s.hits[0].index_version if s.hits else getattr(r, "index_version", None))
             if is_rag
             else None,
-            prompt_version=self.prompt_version,
+            prompt_version=self.prompt_version if is_rag else CLOSED_BOOK_PROMPT_VERSION,
             latency_ms=round((time.perf_counter() - s.t0) * 1000, 3),
             component_latency_ms=s.timings,
         )
@@ -401,6 +402,7 @@ class RagPipeline:
             "index_version": getattr(r, "index_version", None),
             "retriever": getattr(r, "name", None),
             "prompt_version": self.prompt_version,
+            "closed_book_prompt_version": CLOSED_BOOK_PROMPT_VERSION,
             "safety_rules_version": SAFETY_RULES_VERSION,
             "answerability_threshold_version": self.gate.threshold_version,
         }

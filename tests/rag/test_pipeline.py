@@ -113,6 +113,9 @@ def test_closed_book_modes(retriever, mode: str) -> None:
     assert not r.abstained and r.citations == [] and r.retrieved_record_ids == []
     assert r.retriever is None and r.index_version is None and r.answerability_gate is None
     assert set(r.component_latency_ms) == {"safety_rules", "prompt_build", "generation"}
+    from medquad_qa.rag.prompts import CLOSED_BOOK_PROMPT_VERSION
+
+    assert r.prompt_version == CLOSED_BOOK_PROMPT_VERSION  # F-006
 
 
 def test_finetuned_unavailable_raises_mode_unavailable(retriever) -> None:
@@ -223,7 +226,7 @@ def test_versions_and_readiness_never_raise(retriever) -> None:
     p = make_pipeline(retriever)
     v = p.versions()
     assert v["prompt_version"] == PROMPT_VERSION and v["model_version"] == "fake/base@0"
-    assert v["safety_rules_version"].startswith("safety-v1+")
+    assert v["safety_rules_version"].startswith("safety-v2+")
     names = {s.name for s in p.readiness()}
     assert {"generator:base", "generator:finetuned", "answerability"} <= names
     assert isinstance(p, RagPipeline)

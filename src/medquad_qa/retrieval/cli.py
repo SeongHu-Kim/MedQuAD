@@ -261,7 +261,7 @@ def _run_meta(args: argparse.Namespace, retriever: Any, queries: Path, n: int, e
     indexes = {}
     for kind in ("bm25", "dense"):
         version = active.get(f"{kind}:{s.mode_suffix}")
-        if version and (args.retriever in (kind, "hybrid")):
+        if version and (args.retriever in (kind, "hybrid", "dense_fallback")):
             m = load_manifest(s.index_dir, version)
             indexes[m.name] = {"index_version": version, "definition": m.definition}
     reranker = getattr(retriever, "reranker", None)
@@ -392,7 +392,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     for name, fn in (("query", cmd_query), ("run", cmd_run)):
         q = sub.add_parser(name, parents=[common])
-        q.add_argument("--retriever", choices=["bm25", "dense", "hybrid"], default="hybrid")
+        q.add_argument("--retriever", choices=["bm25", "dense", "dense_fallback", "hybrid"], default="hybrid")
         q.add_argument("--mode", choices=["answer", "question_answer"], default="answer")
         q.add_argument("--top-k", type=int, default=10)
         q.add_argument("--reranker", help="Cross-encoder model id (hybrid only).")

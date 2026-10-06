@@ -70,6 +70,9 @@ def test_cli_lifecycle_bm25(settings: RetrievalSettings, tmp_path: Path, capsys:
     assert [h["rank"] for h in rows[0]["hits"]] == [1, 2, 3]
     assert set(rows[0]["hits"][0]) == {"record_id", "chunk_id", "rank", "score"}  # IDs only, no text
     assert rows[1]["hits"] == []
+    from medquad_qa.evaluation.run_format import load_run  # evaluator-owned reader (D-024)
+
+    assert [r.example_id for r in load_run(out, expected_example_ids=["q0", "q1"])] == ["q0", "q1"]
 
     assert main(["query", "--retriever", "bm25", "--mode", "question_answer", "--top-k", "2", *a, "glimmer"]) == 0
     assert json.loads(capsys.readouterr().out)["retriever"] == "bm25:qa"

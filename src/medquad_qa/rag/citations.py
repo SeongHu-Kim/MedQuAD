@@ -15,10 +15,12 @@ from medquad_qa.contracts import Citation, RetrievalHit
 from medquad_qa.rag.prompts import SENTINEL
 
 # One bracket group holding labels/IDs: [E1], [E1, E2], [ e3 ], [mq-0123456789abcdef], [E1; mq-...]
-_GROUP_RE = re.compile(
-    r"\[\s*((?:E\s*\d+|mq-[0-9A-Za-z]+)(?:\s*[,;]\s*(?:E\s*\d+|mq-[0-9A-Za-z]+))*)\s*\]", re.IGNORECASE
-)
-_TOKEN_RE = re.compile(r"E\s*\d+|mq-[0-9A-Za-z]+", re.IGNORECASE)
+_ITEM = r"(?:E\s*\d+\s*[-\u2013]\s*E?\s*\d+|E\s*\d+|mq-[0-9A-Za-z]+)"
+_GROUP_RE = re.compile(rf"\[\s*({_ITEM}(?:\s*[,;]\s*{_ITEM})*)\s*\]", re.IGNORECASE)
+_TOKEN_RE = re.compile(r"E\s*\d+\s*[-\u2013]\s*E?\s*\d+|E\s*\d+|mq-[0-9A-Za-z]+", re.IGNORECASE)
+_RANGE_RE = re.compile(r"E\s*(\d+)\s*[-\u2013]\s*E?\s*(\d+)", re.IGNORECASE)
+_BARE_RID_RE = re.compile(r"\bmq-[0-9A-Za-z]+", re.IGNORECASE)
+_MAX_RANGE = 20
 _VALID_RID = re.compile(r"^mq-[0-9a-f]{16}$")
 _SENTINEL_RE = re.compile(r"\bINSUFFICIENT[_ ]EVIDENCE\b", re.IGNORECASE)
 SNIPPET_CHARS = 300
@@ -52,9 +54,20 @@ def validate_citations(text: str, supplied: Sequence[RetrievalHit]) -> CitationR
             return low
         return None
 
+    def _expand(tok: str) -> list[str]:
+        rng = _RANGE_RE.fullmatch(tok.strip())
+        if rng is None:
+            return [tok]
+        lo, hi = int(rng.group(1)), int(rng.group(2))
+        if lo < 1 or hi < lo or hi - lo >= _MAX_RANGE:
+            return [re.sub(r"\s+", "", tok)]  # nonsensical range: reported as invalid
+        return [f"E{i}" for i in range(lo, hi + 1)]
+
+    markers: list[str] = []
+
     def _replace(m: re.Match[str]) -> str:
         out: list[str] = []
-        for tok in _TOKEN_RE.findall(m.group(1)):
+        for tok in (t for raw in _TOKEN_RE.findall(m.group(1)) for t in _expand(raw)):
             rid = _resolve(tok)
             if rid is None:
                 raw = re.sub(r"\s+", "", tok)
@@ -66,9 +79,24 @@ def validate_citations(text: str, supplied: Sequence[RetrievalHit]) -> CitationR
             marker = f"[{rid}]"
             if marker not in out:
                 out.append(marker)
-        return "".join(out)
+        # protect validated markers from the bare-ID pass below
+        markers.extend(out)
+        return "".join(f"\x00{len(markers) - len(out) + i}\x00" for i in range(len(out)))
 
-    rewritten = _GROUP_RE.sub(_replace, text)
+    def _bare(m: re.Match[str]) -> str:
+        tok = m.group(0)
+        low = tok.lower()
+        if _VALID_RID.match(low) and low in supplied_ids:  # a bare supplied ID is a valid citation
+            if low not in cited:
+                cited.append(low)
+            return f"[{low}]"
+        if tok not in invalid:
+            invalid.append(tok)
+        return ""
+
+    rewritten = _GROUP_RE.sub(_replace, text.replace("\x00", ""))
+    rewritten = _BARE_RID_RE.sub(_bare, rewritten)  # F-003: unbracketed IDs are validated too
+    rewritten = re.sub(r"\x00(\d+)\x00", lambda m: markers[int(m.group(1))], rewritten)
     # tidy whitespace left by stripped markers (" ." -> ".")
     rewritten = re.sub(r"[ \t]+([.,;:!?])", r"\1", rewritten)
     rewritten = re.sub(r"[ \t]{2,}", " ", rewritten).strip()

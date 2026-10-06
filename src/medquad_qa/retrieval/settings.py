@@ -8,7 +8,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-RetrieverKind = Literal["bm25", "dense", "hybrid"]
+RetrieverKind = Literal["bm25", "dense", "dense_fallback", "hybrid"]
 IndexTextMode = Literal["answer", "question_answer"]
 
 #: Short suffix used in retriever names (D-024): ``bm25:answer``, ``hybrid_rrf:qa``.
@@ -51,7 +51,7 @@ class RetrievalSettings(BaseModel):
     rrf_k: int = Field(default=60, ge=1)
     collapse_duplicates: bool = False
     reranker_model: str | None = None
-    reranker_revision: str | None = None
+    reranker_revision: str | None = DEFAULT_RERANKER_REVISION
     rerank_depth: int = Field(default=20, ge=1)
 
     @classmethod

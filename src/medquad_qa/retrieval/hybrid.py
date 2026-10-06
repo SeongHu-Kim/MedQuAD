@@ -77,7 +77,10 @@ class CrossEncoderReranker:
 
 class HybridRetriever:
     """RRF(bm25, dense). If the dense side raises RetrieverUnavailableError the result is lexical-only,
-    named after the BM25 retriever, and ``retrieve_with_info`` reports the ``lexical_fallback`` warning."""
+    named after the BM25 retriever, and ``retrieve_with_info`` reports the ``lexical_fallback`` warning.
+
+    With ``fuse=False`` it is dense-only with the same lexical fallback (``MEDQUAD_RETRIEVER=dense_fallback``);
+    results are then named after the dense retriever (``dense:<mode>``)."""
 
     def __init__(
         self,
@@ -90,6 +93,7 @@ class HybridRetriever:
         candidate_k: int = 50,
         reranker: Any | None = None,
         dense_error: str | None = None,
+        fuse: bool = True,
     ) -> None:
         self.store = store
         self.lexical = lexical
@@ -98,16 +102,21 @@ class HybridRetriever:
         self.candidate_k = candidate_k
         self.reranker = reranker
         self.dense_error = dense_error
-        base = "hybrid_rrf+ce" if reranker is not None else "hybrid_rrf"
+        self.fuse = fuse
+        base = "hybrid_rrf" if fuse else "dense"
+        if reranker is not None:
+            base += "+ce"
         self.name = f"{base}:{MODE_SUFFIX[mode]}"
         self.corpus_version = store.corpus_version
         dense_version = dense.index_version if dense is not None else None
-        self.index_version = f"{lexical.index_version}+{dense_version}" if dense_version else lexical.index_version
+        if not fuse:
+            self.index_version = dense_version or lexical.index_version
+        else:
+            self.index_version = f"{lexical.index_version}+{dense_version}" if dense_version else lexical.index_version
 
     def retrieve_with_info(self, query: str, top_k: int) -> tuple[list[RetrievalHit], str, list[str]]:
         """Return (hits, retriever_name_actually_used, warnings)."""
         validate_top_k(top_k)
-        lex = self.lexical.search_records(query, self.candidate_k)
         dense_cands: list[RecordCandidate] | None = None
         if self.dense is not None:
             try:
@@ -115,12 +124,16 @@ class HybridRetriever:
             except RetrieverUnavailableError as exc:
                 log.warning("dense retriever unavailable, using lexical fallback: %s", type(exc).__name__)
         if dense_cands is None:
+            lex = self.lexical.search_records(query, max(top_k, self.candidate_k))
             return (
                 to_hits(self.store, lex[:top_k], self.lexical.name, self.lexical.index_version),
                 self.lexical.name,
                 [LEXICAL_FALLBACK],
             )
-        fused = rrf_fuse([lex, dense_cands], self.rrf_k)
+        if self.fuse:
+            fused = rrf_fuse([self.lexical.search_records(query, self.candidate_k), dense_cands], self.rrf_k)
+        else:
+            fused = dense_cands
         if self.reranker is not None:
             fused = self.reranker.rerank(query, fused, self.store)
         return to_hits(self.store, fused[:top_k], self.name, self.index_version), self.name, []
