@@ -58,6 +58,7 @@ _STATEMENTS = (
     r"\bmy \w+ (?:hurts?|aches?|is swollen|is bleeding|itches)\b",
 )
 _HEALTH_STATEMENT = "(?:" + "|".join(_STATEMENTS) + ")"
+_THIRD_PARTY_HARM = r"(?:hurting|harming|cutting|injuring) (?:themselves|himself|herself|themself)"
 _SUSPICION = (
     rf"\bi (?:think|suspect|worry|fear) (?:i|i'm|{_REL}|he|she) (?:\w+ )?(?:have|has|had|is|am|might|may|could|got)\b"
 )
@@ -75,10 +76,35 @@ RULES: tuple[tuple[str, str], ...] = (
         r"(?:suicide|killing myself|dying|death)|"
         r"don'?t want to (?:live|be alive|wake up))\b",
     ),
+    # ---- a specific person the asker knows has suicidal thoughts: crisis message (D-041)
+    (
+        "emergency",
+        rf"\b{_REL}\b[^?.!]{{0,40}}?\b(?:is|are|was|has been|have been|keeps|kept|started|been) (?:\w+ )?"
+        r"(?:thinking|talking) (?:about|of) (?:suicide|killing (?:themselves|himself|herself)|ending (?:their|his|her) "
+        r"(?:own )?life|dying)",
+    ),
+    (
+        "emergency",
+        rf"\b{_REL}\b[^?.!]{{0,40}}?\b(?:is|are|was|seems|sounds|feels|has been|have been|keeps|became) "
+        rf"(?:\w+ )?(?:suicidal|{_THIRD_PARTY_HARM})",
+    ),
+    (
+        "emergency",
+        rf"\b{_REL}\b[^?.!]{{0,40}}?\b(?:wants|wanted|keeps saying (?:he|she|they) wants?|says (?:he|she|they) wants?) "
+        r"to (?:die|end (?:it|it all|their life|his life|her life))",
+    ),
+    # ---- the asker seeking help for a suicidal / self-harming person: crisis resources (D-041)
+    (
+        "emergency",
+        r"\b(?:what (?:should|can|do|must) (?:i|we) do|how (?:do|can|should) (?:i|we) "
+        r"(?:help|support|talk to|deal with|handle|approach|save)|what (?:should|can) (?:i|we) say)\b[^?]*\b(?:suicid\w*|want(?:s|ing)? to die|"
+        rf"{_THIRD_PARTY_HARM}|kill(?:ing)? (?:themselves|himself|herself)|end(?:ing)? (?:their|his|her) (?:own )?life|"
+        r"self-?harm\w*)",
+    ),
     # ---- emergencies: events or intent, never bare keywords
     (
         "emergency",
-        rf"\b{_PERSON} (?:\w+ ){{0,3}}(?:took|swallowed|ate|drank|injected|overdosed|has overdosed|"
+        rf"\b{_PERSON}\b[^?.!]{{0,60}}?\b(?:took|swallowed|ate|drank|injected|overdosed|has overdosed|"
         r"just took|accidentally took)\b[^?.!]{0,60}(?:\d+|pills?|tablets?|capsules?|medicine|"
         r"medication|bottle|bleach|poison|detergent|battery|batteries|too much|too many|whole)",
     ),
@@ -220,16 +246,28 @@ RULES: tuple[tuple[str, str], ...] = (
     ),
 )
 
-# Asking how to support a third party with suicidal thoughts is general crisis-support information (F-008b):
-# after the emergency rules (an actual event or the asker's own ideation) it is not refused as personal advice.
+# Asking how to support a *generic* third party with suicidal thoughts is general crisis-support information
+# (F-008b): it is not refused. A *specific* person ("my friend/son is thinking about suicide") gets the crisis
+# message via the emergency rules, which run first.
 SUPPORT_INFO = (
-    r"\b(?:someone|somebody|anyone|a friend|my friend|friends|people|a loved one|loved ones|others|a person|"
-    rf"a family member|a student|a coworker|a colleague|{_REL})\b[^?]*\b(?:is |are |who is |who are )?(?:thinking|talking) "
+    r"\b(?:someone|somebody|anyone|a friend|friends|people|a loved one|loved ones|others|a person|"
+    r"a family member|a student|a coworker|a colleague|a child|a teen|a teenager)\b[^?]*\b(?:thinking|talking) "
     r"(?:about|of) (?:suicide|killing (?:themselves|himself|herself)|ending (?:their|his|her) (?:own )?life|dying)"
 )
 _COMPILED = tuple((rid, re.compile(p)) for rid, p in RULES)
 _SUPPORT_RE = re.compile(SUPPORT_INFO)
-SAFETY_RULES_VERSION = "safety-v2+" + hashlib.sha256((repr(RULES) + SUPPORT_INFO).encode()).hexdigest()[:8]
+_SUPPORT_ASK_RE = re.compile(
+    r"\b(?:how|what|ways?|tips?|signs?)\b[^?]*\b(?:support|help|talk|say|do|respond|recognize|approach|listen)\b"
+)
+_MEDICATION_RE = re.compile(
+    r"\b(?:pills?|tablets?|medications?|medicines?|meds|dose|doses|took|swallowed|overdos\w*)\b"
+)
+SAFETY_RULES_VERSION = (
+    "safety-v2+"
+    + hashlib.sha256(
+        (repr(RULES) + SUPPORT_INFO + _SUPPORT_ASK_RE.pattern + _MEDICATION_RE.pattern).encode()
+    ).hexdigest()[:8]
+)
 
 REFUSAL_MESSAGE = (
     "I can't give personal medical advice, such as whether you have a condition, what dose to take, whether a "
@@ -266,7 +304,9 @@ def _normalize(question: str) -> str:
 
 def check_question(question: str) -> SafetyDecision:
     q = _normalize(question)
-    support_info = _SUPPORT_RE.search(q) is not None
+    support_info = (
+        _SUPPORT_RE.search(q) is not None and _SUPPORT_ASK_RE.search(q) is not None and _MEDICATION_RE.search(q) is None
+    )
     for rule_id, pattern in _COMPILED:
         if support_info and rule_id != "emergency":
             break

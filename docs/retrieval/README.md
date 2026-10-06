@@ -120,6 +120,33 @@ artifacts/evaluation/evalsets/dev.jsonl --out artifacts/indexes/runs/dev/<r>_<m>
 DEV queries are paraphrases, so `*:qa` is not exact-match lookup here; it still benefits from indexing the original
 question text. Duplicate collapse (by duplicate_group_id+topic) did not change dense results on DEV.
 
+### Citation-prompt A/B on DEV (kept p1)
+
+Rule set in advance: keep the stricter per-sentence citation wording (p2, `rag-v1+d5509ca2`) only if citation coverage
+rises without more over-refusal or invalid citations. Same DEV queries, same model, greedy decoding,
+`dense_fallback` + `question_answer`, top_k 5. Coverage = share of answer sentences with ≥1 `[mq-…]` marker
+(`scripts/retrieval/citation_coverage_dev.py`).
+
+| prompt | answered | answerable abstained | invalid-citation answers | coverage |
+|---|---|---|---|---|
+| p1 `rag-v1+df593554` | 35 | 6 / 40 | 0 | 108/150 = 0.720 |
+| p2 `rag-v1+d5509ca2` | 37 | 4 / 40 | 0 | 82/150 = 0.547 |
+
+Coverage fell, so p1 stays (`rag-v1+df593554`). Logs: `artifacts/logs/pipeline_rag_dev60_20261006.log`,
+`artifacts/logs/pipeline_rag_dev60_p2_20261006.log`.
+
+## Frozen configuration for E4 (D-037)
+
+| item | value |
+|---|---|
+| corpus / split | `medquad-1.0.0-86e384302357` / `split-20261006-2f0fb25ee6d8` |
+| RAG retriever | `MEDQUAD_RETRIEVER=dense_fallback`, `MEDQUAD_INDEX_TEXT_MODE=question_answer` → `dense:qa` |
+| index versions | `dense-qa-dc6b6a345fca` (BGE-small @5c38ec7c), fallback `bm25-qa-d5f777b26f79` |
+| top_k | 5 |
+| prompts | RAG `rag-v1+df593554`; closed-book `cb-v1+a1f08aaf` |
+| safety rules | see `SAFETY_RULES_VERSION` in `src/medquad_qa/rag/safety.py` (final value in the freeze message) |
+| answerability gate | model-engineer's lexical LR, `answerability-lexlr@3defcd00a31f:maxf1-val:0.307172` |
+
 ## Limitations and disclosures
 
 - **Q+A index contains original questions.** The frozen RAG retriever (`dense:qa`, D-037) indexes each record's original

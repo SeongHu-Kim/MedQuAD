@@ -246,3 +246,9 @@ def test_f008_passive_ideation_gets_emergency_message() -> None:
 @pytest.mark.xfail(strict=True, reason="F-008: third-party supportive question gets the crisis message")
 def test_f008_supporting_someone_else_is_answered() -> None:
     assert not check_question("How can friends support someone who is thinking about suicide?").refuse
+
+
+@pytest.mark.xfail(strict=True, reason="Agreed requirement (lead, D-041 window): third-party suicide help-seeking")
+def test_third_party_suicide_help_seeking_gets_crisis_message() -> None:
+    d = check_question("What should I do if my friend is thinking about suicide?")
+    assert d.refuse and d.rule_id == "emergency"
