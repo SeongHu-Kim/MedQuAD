@@ -125,6 +125,11 @@ Current verified status. The "BLOCKED" Docker entries in the session-1 log above
   - Splits in records: 13,021 train, 1,648 validation, 1,667 test. Split groups: 3,464 / 471 / 390.
   - The teammate also ran an independent second build, which produced identical sha256 for all files.
 
+- **E3 verified by the lead:** `pytest tests/evaluation -m "not real_model"` shows 38 passed, and ruff and mypy are clean.
+  - NLI model: `MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli@6f5cf0a2…` (MIT, 369 MB, sha256 matches the HF LFS oid). The real_model NLI smoke test passed.
+  - The model-engineer real-generator tests are marked `real_model`/`gpu` and are excluded from `make test`.
+- **Open:** two cross-split topics differ only by a bracketed name ("bile duct cancer (cholangiocarcinoma)", "chronic fatigue syndrome (cfs)"). This is pending the evaluator's ruling during E1 sign-off.
+
 ## Resume checklist (session 2)
 
 1. `id | grep docker && docker info && docker compose version` — must succeed; else stop and report.
@@ -155,7 +160,7 @@ Status of every task below: **PENDING** (team not yet spawned).
 | D3 (COMPLETE) | Quality audit: missing, malformed, exact/near dups, lengths | D2 | `docs/data/audit_report.md` with actual counts from saved JSON |
 | D4 (PARTIAL: built, all blocking leakage checks are 0; awaiting evaluator sign-off) | Grouping (duplicate + split groups) + deterministic splits + leakage checks | D3, E1 review | split manifest + leakage check script passes; evaluator sign-off |
 | D5 | Training/eval exports for model-engineer & evaluator | D4 | export files + checksums in manifest |
-| D6 | Tests, data card, reproduction commands | D2–D5 | pytest tests/data green; data card cites artifacts |
+| D6 (PARTIAL: data card, split design, reproduction docs written; awaiting D4 sign-off) | Tests, data card, reproduction commands | D2–D5 | pytest tests/data green; data card cites artifacts |
 
 ### retrieval-engineer (owns retrieval/, rag/, configs/retrieval/, scripts/retrieval/, tests/retrieval/, tests/rag/, docs/retrieval/, artifacts/indexes/)
 | ID | Task | Depends | Acceptance |
@@ -171,8 +176,8 @@ Status of every task below: **PENDING** (team not yet spawned).
 | ID | Task | Depends | Acceptance |
 |---|---|---|---|
 | M1 (COMPLETE: plan received) | Discovery: model selection within Moderate budget (ARM64/CUDA13 compat), plan | — | plan w/ model id+revision+license, disk/runtime estimate |
-| M2 (IN PROGRESS) | Base inference adapter (Generator) | G1 | real generation on GPU + CPU-path smoke |
-| M3 | SFT export from approved train split; prompt-masked LoRA pipeline | D5 | smoke run (few steps) executes |
+| M2 (PARTIAL: code + 21 offline tests done; weights downloading; GPU real-generation pending) | Base inference adapter (Generator) | G1 | real generation on GPU + CPU-path smoke |
+| M3 (PARTIAL: pipeline + CPU tiny-model smoke done; waiting for D5 exports) | SFT export from approved train split; prompt-masked LoRA pipeline | D5 | smoke run (few steps) executes |
 | M4 | Full LoRA run + reload + generation test; MLflow logging | M3 | run manifest, loss curves, adapter reload test |
 | M5 | Answerability: statistical baseline + TF/Keras classifier, hard negatives, val-chosen threshold, calibration | D5, E1 label design | metrics JSON on val/test; calibration plot |
 | M6 | Model cards, run manifests, tests | M2–M5 | pytest green; cards cite artifacts |
@@ -192,7 +197,7 @@ Status of every task below: **PENDING** (team not yet spawned).
 |---|---|---|---|
 | E1 (COMPLETE: plan received) | Eval tracks, leakage controls, answerability label design; review D4 split design | — | written approval/requests to data-steward & model-engineer |
 | E2 | Frozen eval set (paraphrases, hard negatives, case types) with label provenance | D4 | manifest w/ checksum; no test-set tuning |
-| E3 (IN PROGRESS) | Metric harness: retrieval, citation validity/support, rubric, abstention, classifier, latency | G1 | unit tests on fixtures |
+| E3 (COMPLETE: harness + fixtures + threat model, 38 offline tests) | Metric harness: retrieval, citation validity/support, rubric, abstention, classifier, latency | G1 | unit tests on fixtures |
 | E4 | Run 4-way comparison (base / rag / finetuned / finetuned_rag) + retriever comparison | E2, E3, R5, M4 | saved metrics + failure examples |
 | E5 | Security/safety tests: injection, citations, personalized advice, malformed input, missing artifacts, secrets, logging | R5, S2 | severity-ranked findings + retests |
 | E6 | Independent evaluation report | E4, E5 | report citing artifacts |
