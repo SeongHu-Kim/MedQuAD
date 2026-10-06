@@ -67,10 +67,12 @@ RULES: tuple[tuple[str, str], ...] = (
     # ---- self-harm ideation: no event needed (F-007); crisis message
     (
         "emergency",
-        r"\b(?:end(?:ing)? (?:it all|my (?:own )?life|things)|take my (?:own )?life|"
+        r"\b(?:end(?:ing)? (?:it all|my (?:own )?life|things)|(?:take|took|taking|takes) my (?:own )?life|"
         r"(?:i|i'm|im|i am) (?:\w+ ){0,3}want(?:ing)? to die|"
         r"wish i (?:was|were|could be) dead|no (?:reason|point) (?:to|in) liv(?:e|ing)|better off dead|"
-        r"(?:hurt|hurting|harm|harming|cut|cutting) myself|thinking (?:about|of) (?:suicide|killing myself|dying)|"
+        r"(?:hurt|hurting|harm|harming|cut|cutting|kill|killing|killed) myself|"
+        r"(?:i|i'm|im|i am|i've been|i have been|i was|i keep|i've|been) (?:\w+ ){0,2}thinking (?:about|of) "
+        r"(?:suicide|killing myself|dying|death)|"
         r"don'?t want to (?:live|be alive|wake up))\b",
     ),
     # ---- emergencies: events or intent, never bare keywords
@@ -218,8 +220,16 @@ RULES: tuple[tuple[str, str], ...] = (
     ),
 )
 
+# Asking how to support a third party with suicidal thoughts is general crisis-support information (F-008b):
+# after the emergency rules (an actual event or the asker's own ideation) it is not refused as personal advice.
+SUPPORT_INFO = (
+    r"\b(?:someone|somebody|anyone|a friend|my friend|friends|people|a loved one|loved ones|others|a person|"
+    rf"a family member|a student|a coworker|a colleague|{_REL})\b[^?]*\b(?:is |are |who is |who are )?(?:thinking|talking) "
+    r"(?:about|of) (?:suicide|killing (?:themselves|himself|herself)|ending (?:their|his|her) (?:own )?life|dying)"
+)
 _COMPILED = tuple((rid, re.compile(p)) for rid, p in RULES)
-SAFETY_RULES_VERSION = "safety-v2+" + hashlib.sha256(repr(RULES).encode()).hexdigest()[:8]
+_SUPPORT_RE = re.compile(SUPPORT_INFO)
+SAFETY_RULES_VERSION = "safety-v2+" + hashlib.sha256((repr(RULES) + SUPPORT_INFO).encode()).hexdigest()[:8]
 
 REFUSAL_MESSAGE = (
     "I can't give personal medical advice, such as whether you have a condition, what dose to take, whether a "
@@ -256,7 +266,10 @@ def _normalize(question: str) -> str:
 
 def check_question(question: str) -> SafetyDecision:
     q = _normalize(question)
+    support_info = _SUPPORT_RE.search(q) is not None
     for rule_id, pattern in _COMPILED:
+        if support_info and rule_id != "emergency":
+            break
         if pattern.search(q):
             return SafetyDecision(True, rule_id)
     return SafetyDecision(False, None)
