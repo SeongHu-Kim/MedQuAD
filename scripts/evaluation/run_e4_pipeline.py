@@ -43,6 +43,31 @@ def git_sha() -> str:
         return "unknown"
 
 
+def read_done(path: Path) -> dict[str, dict[str, Any]]:
+    """Rows already written (resume). A trailing partial line from a killed run is truncated away."""
+    rows: dict[str, dict[str, Any]] = {}
+    if not path.exists():
+        return rows
+    data = path.read_bytes()
+    good_end = 0
+    for line in data.splitlines(keepends=True):
+        if not line.endswith(b"\n"):
+            break
+        try:
+            row = json.loads(line)
+        except json.JSONDecodeError:
+            break
+        if row["example_id"] in rows:
+            raise ValueError(f"{path}: duplicated example_id {row['example_id']}")
+        rows[row["example_id"]] = row
+        good_end += len(line)
+    if good_end != len(data):
+        with path.open("r+b") as fh:
+            fh.truncate(good_end)
+        print(f"{path.name}: truncated {len(data) - good_end} bytes of partial output", file=sys.stderr)
+    return rows
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--evalset", required=True)
@@ -98,10 +123,9 @@ def main() -> int:
     for mode in args.modes:
         rag = mode in RAG_MODES
         path = out / "per_item" / f"{set_name}__{mode}.jsonl"
-        done = set()
-        if path.exists():
-            done = {json.loads(line)["example_id"] for line in path.open(encoding="utf-8") if line.strip()}
-        n_err = n_skip = 0
+        done = set(read_done(path))
+        n_resumed = len(done)
+        n_err = n_skip = n_new = 0
         started = datetime.now(UTC).isoformat(timespec="seconds")
         tm = time.perf_counter()
         with path.open("a", encoding="utf-8") as fh:
@@ -119,13 +143,24 @@ def main() -> int:
                         gate=pipe.gate,
                     )
                 rid = f"e4-{set_name}-{mode}-{e.example_id}"
-                row: dict[str, Any] = {"example_id": e.example_id, "mode": mode}
+                row: dict[str, Any] = {
+                    "example_id": e.example_id,
+                    "mode": mode,
+                    "eval_split": e.eval_split,
+                    "case_type": e.case_type,
+                    "label_provenance": e.label_provenance,
+                    "question_provenance": e.question_provenance,
+                    "reviewer": e.reviewer,
+                }
+                ti = time.perf_counter()
                 try:
                     resp = runner.answer(QARequest(question=e.question, experiment_mode=mode, top_k=TOP_K), rid)
                     row["response"] = resp.model_dump(mode="json")
                 except MedQuADError as exc:
                     n_err += 1
                     row["error"] = type(exc).__name__
+                row["item_wall_ms"] = round((time.perf_counter() - ti) * 1000, 1)
+                n_new += 1
                 fh.write(json.dumps(row, ensure_ascii=False) + "\n")
                 fh.flush()
         meta = {
@@ -134,6 +169,10 @@ def main() -> int:
             "mode": mode,
             "n_examples": len(examples),
             "n_errors_this_session": n_err,
+            "n_resumed_rows": n_resumed,
+            "n_new_rows_this_session": n_new,
+            "n_rows_total": len(read_done(path)),
+            "evalset_manifest_sha256": sha256_file(f"{args.evalset}.manifest.json"),
             "n_skipped_fixture_items": n_skip,
             "top_k": TOP_K,
             "versions": versions,
