@@ -56,6 +56,7 @@ def main() -> int:
     ap.add_argument("--device", default="auto")
     ap.add_argument("--prompt-builder", choices=["default", "pipeline"], default="pipeline")
     ap.add_argument("--out-root", default=None, help="defaults to MEDQUAD_MODEL_DIR (artifacts/models)")
+    ap.add_argument("--expect-prompt-version", default=None, help="abort unless the builder version equals this")
     args = ap.parse_args()
 
     exports = Path(args.exports_dir)
@@ -66,6 +67,9 @@ def main() -> int:
         return 2
     settings = ModelSettings.from_env()
     builder, builder_name = _message_builder(args.prompt_builder)
+    if args.expect_prompt_version and builder_name != args.expect_prompt_version:
+        print(f"prompt version {builder_name!r} != expected {args.expect_prompt_version!r}; aborting", file=sys.stderr)
+        return 3
     config = SFTTrainConfig.from_yaml(args.config)
     versions = {**_data_versions(), "message_builder": builder_name}
 
@@ -82,6 +86,10 @@ def main() -> int:
         message_builder=builder,
         data_versions=versions,
     )
+    recorded = manifest["adapter"]["manifest"]["message_builder"]
+    if args.expect_prompt_version and recorded != args.expect_prompt_version:
+        print(f"adapter manifest records {recorded!r}, expected {args.expect_prompt_version!r}", file=sys.stderr)
+        return 4
     t = manifest["training"]
     summary = {
         "run_id": manifest["run_id"],

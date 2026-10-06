@@ -3,6 +3,7 @@
   .venv/bin/python scripts/training/train_answerability.py --stage pairs
   .venv/bin/python scripts/training/train_answerability.py --stage baseline
   .venv/bin/python scripts/training/train_answerability.py --stage keras        # TensorFlow; own process (D-014)
+  .venv/bin/python scripts/training/train_answerability.py --stage scores       # IDs-only per-pair scores
   .venv/bin/python scripts/training/train_answerability.py --stage compare
 
 Thresholds are max-F1 on VALIDATION pairs (D-018); test pairs are scored once with the frozen threshold.
@@ -61,6 +62,34 @@ def _write(result: dict[str, Any], path: Path) -> None:
     print(json.dumps({**head, **brief}, indent=2))
 
 
+def stage_scores() -> None:
+    """IDs-only per-pair scores for the evaluator's independent metric recomputation (no text)."""
+    import numpy as np
+
+    from medquad_qa.training.answerability_pairs import is_own_answer
+
+    pairs = _load_pairs()
+    for run, model in (("lexical_lr", "lr_baseline"), ("keras_bigru", "keras_bigru")):
+        thr = json.loads((OUT / run / "threshold.json").read_text())
+        (OUT / run / "scores_threshold.json").write_text(json.dumps({"model": model, **thr}, indent=2) + "\n")
+        for split, short in (("validation", "val"), ("test", "test")):
+            scores = np.load(OUT / run / f"{short}_scores.npy")
+            assert len(scores) == len(pairs[split]), (run, split)
+            with (OUT / run / f"scores_{split}.jsonl").open("w", encoding="utf-8") as f:
+                for p, sc in zip(pairs[split], scores, strict=True):
+                    row = {
+                        "pair_id": p.pair_id,
+                        "label": p.label,
+                        "score": float(sc),
+                        "own_answer": is_own_answer(p),
+                        "negative_type": p.negative_type,
+                        "model": model,
+                        "threshold_version": thr["threshold_version"],
+                    }
+                    f.write(json.dumps(row) + "\n")
+        print(f"wrote scores for {run}")
+
+
 def stage_compare() -> None:
     from medquad_qa.training.classifier_metrics import plot_reliability
 
@@ -86,7 +115,7 @@ def stage_compare() -> None:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--stage", choices=["pairs", "baseline", "keras", "compare"], required=True)
+    ap.add_argument("--stage", choices=["pairs", "baseline", "keras", "scores", "compare"], required=True)
     args = ap.parse_args()
     if args.stage == "pairs":
         stage_pairs()
@@ -96,6 +125,8 @@ def main() -> int:
         from medquad_qa.training.keras_answerability import train_keras
 
         _write(train_keras(_load_pairs(), OUT / "keras_bigru"), OUT / "keras_bigru" / "metrics.json")
+    elif args.stage == "scores":
+        stage_scores()
     else:
         stage_compare()
     return 0

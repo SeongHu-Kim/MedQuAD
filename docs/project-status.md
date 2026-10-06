@@ -191,7 +191,7 @@ Status of every task below: **PENDING** (team not yet spawned).
 | M2 (COMPLETE: real CUDA bf16 and CPU generation tests pass; bench: load 5.9 s, ~19.9 tok/s single, ~150 tok/s at batch 8, peak 8.2 GiB CUDA) | Base inference adapter (Generator) | G1 | real generation on GPU + CPU-path smoke |
 | M3 (COMPLETE: SFT export + token report + 3 smoke runs; 8.85 s/step uncontended) | SFT export from approved train split; prompt-masked LoRA pipeline | D5 | smoke run (few steps) executes |
 | M4 (IN PROGRESS: run sft-main-20261006-081347-3f16e30e launched 08:13:42Z, 790 steps, prompt guard cb-v1+a1f08aaf, 2.5 h cap) | Full LoRA run + reload + generation test; MLflow logging | M3 | run manifest, loss curves, adapter reload test |
-| M5 (PARTIAL: pairs built (ans-pairs-v1, C1–C4); LR baseline test ROC-AUC 0.784 excl. own-answer; Keras pending) | Answerability: statistical baseline + TF/Keras classifier, hard negatives, val-chosen threshold, calibration | D5, E1 label design | metrics JSON on val/test; calibration plot |
+| M5 (COMPLETE: LR baseline + Keras BiGRU trained; test excl. own-answer ROC-AUC 0.784 vs 0.934; score files sent to the evaluator for an independent recompute) | Answerability: statistical baseline + TF/Keras classifier, hard negatives, val-chosen threshold, calibration | D5, E1 label design | metrics JSON on val/test; calibration plot |
 | M6 | Model cards, run manifests, tests | M2–M5 | pytest green; cards cite artifacts |
 
 ### service-platform-engineer (owns api/, ui/, observability/, configs/service/, configs/monitoring/, scripts/service/, scripts/ops/, tests/api/, tests/observability/, deploy/, .github/workflows/, docs/service/, docs/operations/)

@@ -1,0 +1,6 @@
+{
+  "model": "keras_bigru",
+  "threshold": 0.48916861414909363,
+  "threshold_version": "answerability-keras-bigru@0897a41639ce:maxf1-val:0.489169",
+  "threshold_rule": "max_f1_on_validation"
+}

@@ -1,0 +1,67 @@
+{
+  "pair_rule_version": "ans-pairs-v1",
+  "inputs": {
+    "train": {
+      "sha256": "819e783c515aa1e6c1f8eee25b180664c5d6707d81fc23b6a4641d1d440000ec",
+      "corpus_version": "medquad-1.0.0-86e384302357",
+      "split_version": "split-20261006-2f0fb25ee6d8"
+    },
+    "validation": {
+      "sha256": "9033931b6fe0512a2674e31cdb93a69ee2422dd75e953d8bc17fd0b64fa12436",
+      "corpus_version": "medquad-1.0.0-86e384302357",
+      "split_version": "split-20261006-2f0fb25ee6d8"
+    },
+    "test": {
+      "sha256": "1fa115fe2941f89882389f54cd7c2c4f5aa1cfa193105435340e90b5e1d27688",
+      "corpus_version": "medquad-1.0.0-86e384302357",
+      "split_version": "split-20261006-2f0fb25ee6d8"
+    }
+  },
+  "splits": {
+    "train": {
+      "n": 30506,
+      "n_pos": 15253,
+      "n_pos_self": 12636,
+      "n_pos_sib": 2617,
+      "negatives_by_type": {
+        "easy_random": 5562,
+        "same_topic_diff_qtype": 4551,
+        "lexical_hard_bm25": 5140
+      },
+      "n_questions": 12636,
+      "n_split_groups": 3338,
+      "c2_dropped_negatives": 4,
+      "questions_without_negative": 0
+    },
+    "validation": {
+      "n": 3960,
+      "n_pos": 1980,
+      "n_pos_self": 1610,
+      "n_pos_sib": 370,
+      "negatives_by_type": {
+        "same_topic_diff_qtype": 642,
+        "lexical_hard_bm25": 631,
+        "easy_random": 707
+      },
+      "n_questions": 1610,
+      "n_split_groups": 428,
+      "c2_dropped_negatives": 0,
+      "questions_without_negative": 0
+    },
+    "test": {
+      "n": 3876,
+      "n_pos": 1938,
+      "n_pos_self": 1612,
+      "n_pos_sib": 326,
+      "negatives_by_type": {
+        "lexical_hard_bm25": 664,
+        "same_topic_diff_qtype": 564,
+        "easy_random": 710
+      },
+      "n_questions": 1612,
+      "n_split_groups": 446,
+      "c2_dropped_negatives": 0,
+      "questions_without_negative": 0
+    }
+  }
+}

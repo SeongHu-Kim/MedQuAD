@@ -1,0 +1,5 @@
+{
+  "threshold": 0.30717192611099,
+  "threshold_version": "answerability-lexlr@3defcd00a31f:maxf1-val:0.307172",
+  "threshold_rule": "max_f1_on_validation"
+}
