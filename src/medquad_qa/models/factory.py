@@ -62,6 +62,9 @@ def get_backend(settings: ModelSettings) -> GeneratorBackend:
                 dtype=dtype,
                 attn_implementation=cfg.attn_implementation,
                 local_files_only=settings.local_files_only,
+                # mmap-backed weights copy to the GB10 GPU at ~150 MB/s (page faults); reading the files into
+                # memory first loads in ~5 s instead of ~50 s (docs/models/inference.md)
+                disable_mmap=True,
             )
         except (OSError, ValueError) as exc:
             raise ArtifactUnavailableError(f"cannot load generator {cfg.base_version}: {exc}") from exc

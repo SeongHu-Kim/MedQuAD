@@ -87,6 +87,36 @@ Adapter resolution: `MEDQUAD_ADAPTER_DIR`, else `<MEDQUAD_MODEL_DIR>/adapters/CU
 - Real weights: `.venv/bin/pytest tests/models/test_models_real_generator.py -m real_model` (GPU test marked `gpu`;
   CPU smoke marked `slow`).
 
+## Host-specific notes (GB10, torch 2.14.1+cu130)
+
+- **Triton / `Python.h`:** torch 2.14 routes some aten ops (e.g. the rotary-embedding outer product) to Triton
+  kernels that JIT-compile a C driver against `Python.h`. This host has no python3.12-dev headers, so the first
+  CUDA forward failed with `fatal error: Python.h: No such file or directory`. `models.torch_runtime.apply_native_jit_guard()`
+  (called on every model load) deregisters those optional overrides and torch uses its aten kernels.
+  `TORCH_DISABLE_NATIVE_JIT=1` set before importing torch has the same effect. `torch.compile` and static-cache
+  generation (which compiles) are unavailable for the same reason; nothing here uses them.
+- **Load time:** with memory-mapped safetensors, copying the weights to the GPU ran at ~150 MB/s (page faults on
+  untouched pages), so a load took ~50 s. Loading with `disable_mmap=True` takes ~5–6 s. Process RSS peaks at
+  ~12 GiB during load because the files are read into memory first.
+
+## Measured (bench JSON is the source of truth)
+
+From `artifacts/models/bench/generator_base_cuda.json` (bf16, CUDA, greedy, max_new_tokens 256, repetition
+penalty 1.05; 5 single prompts + one ~3,050-token prompt + one batch of 8):
+
+| Metric | Value |
+|---|---|
+| Load (`load_generator("base")`) | 5.9 s |
+| Single request, 256 new tokens | median 12.9 s (~19.9 tokens/s) |
+| ~3,050-token prompt, 64 new tokens | 4.1 s |
+| Batch of 8 (`generate_batch`) | 13.5 s wall, ~150 tokens/s aggregate |
+| Peak CUDA allocated / reserved | 8.2 / 8.5 GiB |
+| Peak process RSS | 12.1 GiB |
+
+Consequences: at ~20 tokens/s a single request with `max_new_tokens` above ~1,000 would exceed the 60 s deadline
+and raise `GenerationTimeoutError`; offline evaluation should use `generate_batch`.
+CPU fp32 smoke (`generator_base_cpu_smoke.json`): load 5.7 s, ~1.3 tokens/s, RSS 23.7 GiB. Usable for smoke tests only.
+
 ## Evidence
 
 - `artifacts/models/manifests/base_model.json`: revision, licence, per-file sha256.

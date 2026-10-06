@@ -26,6 +26,11 @@ artifacts/models/**/*.onnx
 artifacts/models/**/*.joblib
 artifacts/models/**/*.skops
 artifacts/models/mlruns-local/
+artifacts/models/answerability/**/pairs_*.jsonl
+!artifacts/models/answerability/**/pairs_manifest_*.jsonl
+artifacts/models/answerability/**/model.json
+artifacts/models/answerability/**/*.npy
+artifacts/models/runs/**/trainer/
 artifacts/models/**/checkpoint-*/
 artifacts/indexes/*
 !artifacts/indexes/manifests/

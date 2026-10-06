@@ -1,0 +1,58 @@
+{
+  "model_version": "Qwen/Qwen3-4B-Instruct-2507@cdbee75f17c01a7cc42f958dc650907174af0554",
+  "variant": "base",
+  "device": "cpu",
+  "dtype": "torch.float32",
+  "generation": {
+    "params": {
+      "max_new_tokens": 16,
+      "temperature": 0.0,
+      "top_p": 1.0,
+      "seed": null
+    },
+    "repetition_penalty": 1.05,
+    "max_input_tokens": 3072
+  },
+  "load_s": 5.65153696500056,
+  "warmup_latency_ms": 6078.542935999394,
+  "single": {
+    "n": 1,
+    "latency_ms_median": 12107.711877999463,
+    "latency_ms_max": 12107.711877999463,
+    "completion_tokens": [
+      16
+    ],
+    "prompt_tokens": [
+      36
+    ],
+    "finish_reasons": [
+      "length"
+    ],
+    "tokens_per_s_median": 1.3214718157501821
+  },
+  "samples": [
+    {
+      "question": "What is high blood pressure?",
+      "answer_head": "High blood pressure, also known as **hypertension**, is a condition in"
+    }
+  ],
+  "memory": {
+    "cuda_max_allocated_gib": 0.0,
+    "cuda_max_reserved_gib": 0.0,
+    "process_max_rss_gib": 23.744396209716797,
+    "system_mem_available_gib_before": 113.15369415283203,
+    "system_mem_available_gib_after": 94.7142448425293,
+    "note": "GB10 unified memory: nvidia-smi reports N/A; CUDA numbers come from the torch caching allocator."
+  },
+  "env": {
+    "torch": "2.14.1+cu130",
+    "cuda": "13.0",
+    "transformers": "5.18.0",
+    "gpu": "NVIDIA GB10",
+    "machine": "aarch64",
+    "python": "3.12.3",
+    "git_sha": "0e6f773651013ad2f6d11cf81b3aec16dd8beff1",
+    "torch_native_triton_ops": "disabled (Python.h missing; triton op overrides deregistered)"
+  },
+  "created_at_utc": "2026-10-06T07:31:10+00:00"
+}

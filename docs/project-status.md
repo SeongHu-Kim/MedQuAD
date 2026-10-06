@@ -185,7 +185,7 @@ Status of every task below: **PENDING** (team not yet spawned).
 | ID | Task | Depends | Acceptance |
 |---|---|---|---|
 | M1 (COMPLETE: plan received) | Discovery: model selection within Moderate budget (ARM64/CUDA13 compat), plan | — | plan w/ model id+revision+license, disk/runtime estimate |
-| M2 (PARTIAL: real Qwen3-4B CUDA bf16 generation PASSED with the D-030 guard; base manifest has 12 files, 8.06 GB, sha256 verified; GPU bench running) | Base inference adapter (Generator) | G1 | real generation on GPU + CPU-path smoke |
+| M2 (COMPLETE: real CUDA bf16 and CPU generation tests pass; bench: load 5.9 s, ~19.9 tok/s single, ~150 tok/s at batch 8, peak 8.2 GiB CUDA) | Base inference adapter (Generator) | G1 | real generation on GPU + CPU-path smoke |
 | M3 (PARTIAL: pipeline + CPU tiny-model smoke done; waiting for D5 exports) | SFT export from approved train split; prompt-masked LoRA pipeline | D5 | smoke run (few steps) executes |
 | M4 | Full LoRA run + reload + generation test; MLflow logging | M3 | run manifest, loss curves, adapter reload test |
 | M5 | Answerability: statistical baseline + TF/Keras classifier, hard negatives, val-chosen threshold, calibration | D5, E1 label design | metrics JSON on val/test; calibration plot |

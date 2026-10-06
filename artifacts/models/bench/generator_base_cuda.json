@@ -1,0 +1,117 @@
+{
+  "model_version": "Qwen/Qwen3-4B-Instruct-2507@cdbee75f17c01a7cc42f958dc650907174af0554",
+  "variant": "base",
+  "device": "cuda",
+  "dtype": "torch.bfloat16",
+  "generation": {
+    "params": {
+      "max_new_tokens": 256,
+      "temperature": 0.0,
+      "top_p": 1.0,
+      "seed": null
+    },
+    "repetition_penalty": 1.05,
+    "max_input_tokens": 3072
+  },
+  "load_s": 5.9238147779997234,
+  "warmup_latency_ms": 781.6854220000096,
+  "single": {
+    "n": 5,
+    "latency_ms_median": 12855.85195800013,
+    "latency_ms_max": 12921.241897999607,
+    "completion_tokens": [
+      256,
+      243,
+      256,
+      256,
+      256
+    ],
+    "prompt_tokens": [
+      36,
+      40,
+      39,
+      36,
+      41
+    ],
+    "finish_reasons": [
+      "length",
+      "stop",
+      "length",
+      "length",
+      "length"
+    ],
+    "tokens_per_s_median": 19.91311045244983
+  },
+  "samples": [
+    {
+      "question": "What is high blood pressure?",
+      "answer_head": "High blood pressure, also known as **hypertension**, is a condition in which the force of blood against the walls of the arteries is consistently too high. Blood pressure is measured in millimeters of mercury (mmHg) and is expressed as two numbers:\n\n- **Systolic pressure** (the top number): the pres"
+    },
+    {
+      "question": "What are common symptoms of iron deficiency anemia?",
+      "answer_head": "Common symptoms of iron deficiency anemia include:\n\n- **Fatigue and weakness** \u2013 due to reduced oxygen delivery to tissues  \n- **Pale skin** \u2013 especially in the face, lips, and nail beds  \n- **Shortness of breath** \u2013 especially during physical activity  \n- **Dizziness or lightheadedness** \u2013 from dec"
+    },
+    {
+      "question": "How is type 2 diabetes usually diagnosed?",
+      "answer_head": "Type 2 diabetes is usually diagnosed through a combination of clinical evaluation and laboratory tests. The most common diagnostic methods include:\n\n1. **Fasting Blood Glucose Test (FPG):**  \n   - A blood glucose level of **126 mg/dL (7.0 mmol/L) or higher** on two separate occasions is diagnostic o"
+    },
+    {
+      "question": "What can trigger migraine headaches?",
+      "answer_head": "Migraine headaches can be triggered by a wide variety of factors, and each person may have different triggers. Common migraine triggers include:\n\n1. **Hormonal Changes**  \n   - Menstruation (especially around ovulation or menstruation)  \n   - Pregnancy  \n   - Menopause  \n   - Birth control pills or "
+    },
+    {
+      "question": "What is asthma and how is it managed in general?",
+      "answer_head": "**Asthma** is a chronic respiratory condition characterized by inflammation and narrowing of the airways (bronchial tubes), leading to symptoms such as wheezing, coughing (especially at night or early morning), shortness of breath, and chest tightness. The airway inflammation makes them hyperrespons"
+    }
+  ],
+  "long_prompt": {
+    "n": 1,
+    "latency_ms_median": 4072.1037329994942,
+    "latency_ms_max": 4072.1037329994942,
+    "completion_tokens": [
+      64
+    ],
+    "prompt_tokens": [
+      3051
+    ],
+    "finish_reasons": [
+      "length"
+    ],
+    "tokens_per_s_median": 15.716691959823399
+  },
+  "batch": {
+    "batch_size": 8,
+    "wall_s": 13.523394279000058,
+    "completion_tokens_total": 2022,
+    "aggregate_tokens_per_s": 149.51867543637943,
+    "finish_reasons": [
+      "length",
+      "stop",
+      "length",
+      "length",
+      "length",
+      "length",
+      "stop",
+      "length"
+    ]
+  },
+  "memory": {
+    "cuda_max_allocated_gib": 8.221779823303223,
+    "cuda_max_reserved_gib": 8.51953125,
+    "process_max_rss_gib": 12.051742553710938,
+    "system_mem_available_gib_before": 112.47333908081055,
+    "system_mem_available_gib_after": 102.02841567993164,
+    "note": "GB10 unified memory: nvidia-smi reports N/A; CUDA numbers come from the torch caching allocator."
+  },
+  "env": {
+    "torch": "2.14.1+cu130",
+    "cuda": "13.0",
+    "transformers": "5.18.0",
+    "gpu": "NVIDIA GB10",
+    "machine": "aarch64",
+    "python": "3.12.3",
+    "git_sha": "0e6f773651013ad2f6d11cf81b3aec16dd8beff1",
+    "torch_native_triton_ops": "disabled (Python.h missing; triton op overrides deregistered)"
+  },
+  "created_at_utc": "2026-10-06T07:30:39+00:00"
+}

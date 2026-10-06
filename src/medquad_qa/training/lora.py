@@ -271,6 +271,7 @@ def load_base_for_training(base: GeneratorConfig, device: torch.device, bf16: bo
         dtype=dtype,
         attn_implementation=base.attn_implementation,
         local_files_only=True,
+        disable_mmap=True,  # see models.factory.get_backend
     )
     return model.to(device), tokenizer  # type: ignore[arg-type]
 
