@@ -38,6 +38,9 @@ def leakage_report(
         "split_group_cross_split": len(_cross_split_keys(split_group_ids, splits)),
         "duplicate_group_cross_split": len(_cross_split_keys(duplicate_group_ids, splits)),
         "topic_key_cross_split": len(_cross_split_keys([topic_key(t) for t in topics], splits)),
+        "bracket_stripped_topic_cross_split": len(
+            _cross_split_keys([bracket_stripped_topic_key(t) for t in topics], splits)
+        ),
         "normalized_question_cross_split": len(_cross_split_keys([match_key(q) for q in questions], splits)),
         "non_boilerplate_answer_cross_split": len(_cross_split_keys(non_boiler_answers, splits)),
         "near_dup_pairs_cross_split": sum(1 for p in near_dup_pairs if splits[p.a] != splits[p.b]),
@@ -46,7 +49,8 @@ def leakage_report(
     boiler_cross = _cross_split_keys([a if b else None for a, b in zip(answers, boilerplate, strict=True)], splits)
     residual_cross = [p for p in residual_pairs if splits[p.a] != splits[p.b]]
 
-    # Diagnostic: topics that only merge after removing parenthetical text, and straddle splits.
+    # Listing (the cross-split condition itself is the blocking check above): topics that merge only
+    # after removing parenthetical text, with the splits they touch.
     bracket_topics: dict[str, set[str]] = defaultdict(set)
     for t in topics:
         bk = bracket_stripped_topic_key(t)
@@ -82,7 +86,6 @@ def leakage_report(
                 for p in residual_cross
             ],
             "bracket_stripped_topic_merges": len(bracket_merges),
-            "bracket_stripped_topic_merges_cross_split": sum(1 for m in bracket_merges if len(m["splits"]) > 1),
             "bracket_stripped_topic_merge_list": bracket_merges,
         },
     }

@@ -38,7 +38,7 @@
     },
     "quality_flags": {
       "answer_starts_with_question": 4040,
-      "boilerplate_answer": 530,
+      "boilerplate_answer": 478,
       "collapsed_exact_duplicates": 32,
       "malformed_question": 619,
       "missing_topic": 14,
@@ -60,7 +60,6 @@
       },
       "GARD": {
         "answer_starts_with_question": 3956,
-        "boilerplate_answer": 49,
         "repeated_bullets": 12,
         "short_answer": 1
       },
@@ -81,7 +80,6 @@
       },
       "NIDDK": {
         "answer_starts_with_question": 2,
-        "boilerplate_answer": 3,
         "collapsed_exact_duplicates": 32,
         "malformed_question": 40,
         "repeated_bullets": 47,
@@ -219,7 +217,7 @@
       "NINDS": 1088
     }
   },
-  "corpus_version": "medquad-1.0.0-34d97c16127f",
+  "corpus_version": "medquad-1.0.0-86e384302357",
   "exclusions": {
     "by_detail": {
       "non_informative_answer:heading_only": 6,
@@ -245,35 +243,36 @@
     "total": 76
   },
   "grouping": {
-    "boilerplate_answers": 20,
-    "boilerplate_records": 530,
-    "duplicate_groups": 16123,
-    "duplicate_groups_multi_record": 168,
-    "duplicate_groups_multi_topic": 143,
+    "boilerplate_answers": 8,
+    "boilerplate_records": 478,
+    "duplicate_groups": 16050,
+    "duplicate_groups_multi_record": 190,
+    "duplicate_groups_multi_topic": 164,
     "edges": {
-      "exact_answer": 37,
+      "bracket_topic": 11620,
+      "exact_answer": 77,
       "exact_qa_pair": 0,
-      "near_dup": 260,
-      "question": 2002,
-      "template_near_dup": 513,
-      "topic": 11581
+      "near_dup": 377,
+      "question": 2049,
+      "template_near_dup": 662,
+      "topic": 11611
     },
-    "near_dup_pairs_j_ge_threshold": 260,
-    "records_in_multi_topic_duplicate_groups": 325,
-    "residual_template_pairs_j_0_5_to_threshold": 1042,
+    "near_dup_pairs_j_ge_threshold": 377,
+    "records_in_multi_topic_duplicate_groups": 418,
+    "residual_template_pairs_j_0_5_to_threshold": 2215,
     "split_group_size": {
-      "count": 4325,
-      "mean": 3.78,
+      "count": 4212,
+      "mean": 3.88,
       "p0": 1,
-      "p100": 481,
+      "p100": 510,
       "p25": 1,
       "p5": 1,
       "p50": 2,
       "p75": 5,
       "p95": 10
     },
-    "split_groups": 4325,
-    "template_near_dup_pairs_j_ge_threshold": 513
+    "split_groups": 4212,
+    "template_near_dup_pairs_j_ge_threshold": 662
   },
   "raw": {
     "exact_duplicates": {
@@ -293,9 +292,9 @@
         "rows_in_repeated_values": 80
       },
       "normalized_question_key": {
-        "distinct_values_repeated": 1413,
-        "extra_copies": 2063,
-        "rows_in_repeated_values": 3476
+        "distinct_values_repeated": 1454,
+        "extra_copies": 2110,
+        "rows_in_repeated_values": 3564
       }
     },
     "lengths_raw_nonempty": {
@@ -463,5 +462,5 @@
     "source_rows": 16412
   },
   "source_sha256": "f9fe9e60ea69dbbd5a6987e63d041e54e2048d09e317df830b6ba3387e706d53",
-  "split_version": "split-20261006-c759a1668f89"
+  "split_version": "split-20261006-2f0fb25ee6d8"
 }

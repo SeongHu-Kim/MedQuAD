@@ -4,7 +4,7 @@ Owner of this register: **lead** (transferred from evaluation-safety-engineer by
 
 | ID | Severity | Status | Title | Owner |
 |---|---|---|---|---|
-| F-001 | medium | open | Cross-split leakage missed by data leakage report | data-steward |
+| F-001 | medium | fixed, retest pending | Cross-split leakage missed by data leakage report | data-steward |
 
 ## F-001: Cross-split leakage missed by data leakage report
 
@@ -25,4 +25,6 @@ Owner of this register: **lead** (transferred from evaluation-safety-engineer by
   - (b) Count boilerplate by distinct topic family, or exclude an answer from boilerplate when it contains its own topic name.
   - (c) Add a near-dup check that catches content duplicates across differing topics.
   - (d) Regenerate the split and refreeze.
-- **Retest:** pending (same script).
+- **Fix (data-steward, D-031):** broader fold keys, family-aware boilerplate, near-dup df≤25. New versions: corpus `medquad-1.0.0-fe532d5cd2f6`, split `split-20261006-dd1d7f31e9bc`.
+- **Lead pre-check (not the official retest):** `verify_splits.py` exit 0, passed=true, all cross-split overlap counts 0.
+- **Retest:** pending (evaluation-safety-engineer).

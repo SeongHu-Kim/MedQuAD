@@ -24,8 +24,12 @@ BOILER = "SYNTHETIC boilerplate: these resources address diagnosis and managemen
 # (question, answer, source, focus_area) - SYNTHETIC
 SYNTHETIC_ROWS: list[tuple[str, str, str, str]] = [
     ("What is (are) Alphaitis ?", LONG_A, "SRC1", "Alphaitis"),
-    ("What are the treatments for Alphaitis ?", "Rest  and   fluids are advised; do NOT use 5 mg doses.", "SRC1",
-     "Alphaitis"),
+    (
+        "What are the treatments for Alphaitis ?",
+        "Rest  and   fluids are advised; do NOT use 5 mg doses.",
+        "SRC1",
+        "Alphaitis",
+    ),
     ("What is (are) Alphaitis ?", LONG_A, "SRC2", "alphaitis"),  # same topic, other source/case
     ("What is (are) Betaosis ?", LONG_B, "SRC1", "Betaosis"),
     ("What is (are) Betaosis ?", LONG_B, "SRC1", "Betaosis"),  # exact full-row duplicate
@@ -42,8 +46,12 @@ SYNTHETIC_ROWS: list[tuple[str, str, str, str]] = [
 ]
 for i in range(30):  # filler topics so every split receives groups
     SYNTHETIC_ROWS.append(
-        (f"What is (are) Filler{i} ?", f"Filler{i} is SYNTHETIC filler number {i} with unique words w{i}a w{i}b.",
-         f"SRC{i % 3 + 1}", f"Filler{i}")
+        (
+            f"What is (are) Filler{i} ?",
+            f"Filler{i} is SYNTHETIC filler number {i} with unique words w{i}a w{i}b.",
+            f"SRC{i % 3 + 1}",
+            f"Filler{i}",
+        )
     )
 
 
@@ -53,5 +61,3 @@ def write_csv(path: Path, rows: list[tuple[str, str, str, str]], header: list[st
         w.writerow(header)
         w.writerows(rows)
     return path
-
-

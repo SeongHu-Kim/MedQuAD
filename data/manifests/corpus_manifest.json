@@ -1,8 +1,8 @@
 {
   "contracts_version": "1.1.1",
   "corpus_path": "data/processed/corpus.jsonl",
-  "corpus_sha256": "34d97c16127fe59137d244534067a2fbba4c5a5b73f80dcffabb913681b3cb5f",
-  "corpus_version": "medquad-1.0.0-34d97c16127f",
+  "corpus_sha256": "86e384302357346db556387b687369bb407bb5870e70c08c7b0b6facc695ab4b",
+  "corpus_version": "medquad-1.0.0-86e384302357",
   "excluded_by_detail": {
     "non_informative_answer:heading_only": 6,
     "non_informative_answer:question_only": 17

@@ -113,15 +113,85 @@ def test_leakage_report_detects_overlap() -> None:
     )
     by_group = {sg: SPLITS[k % 3] for k, sg in enumerate(sorted(set(g.split_group_ids)))}
     good = [by_group[sg] for sg in g.split_group_ids]
-    rep = leakage_report(split_group_ids=g.split_group_ids, duplicate_group_ids=g.duplicate_group_ids,
-                         splits=good, **common)
+    rep = leakage_report(
+        split_group_ids=g.split_group_ids, duplicate_group_ids=g.duplicate_group_ids, splits=good, **common
+    )
     assert rep["passed"], rep["blocking_checks"]
 
     bad = list(good)
     bad[1] = next(s for s in SPLITS if s != good[0])  # split the exact-duplicate pair
-    rep = leakage_report(split_group_ids=g.split_group_ids, duplicate_group_ids=g.duplicate_group_ids,
-                         splits=bad, **common)
+    rep = leakage_report(
+        split_group_ids=g.split_group_ids, duplicate_group_ids=g.duplicate_group_ids, splits=bad, **common
+    )
     assert not rep["passed"]
     b = rep["blocking_checks"]
     assert b["non_boilerplate_answer_cross_split"] == 1 and b["topic_key_cross_split"] == 1
     assert b["normalized_question_cross_split"] == 1 and b["split_group_cross_split"] == 1
+
+
+def test_family_shared_answer_is_not_boilerplate() -> None:
+    """F-001 regression: one answer copied across numbered subtypes is content and must link them."""
+    fam = "Noonix syndrome is a SYNTHETIC disorder affecting many parts of the body in several ways."
+    items = [
+        GroupInput(f"mq-00000000000000a{i}", f"What is Noonix syndrome {i}?", fam, f"Noonix syndrome {i}")
+        for i in range(1, 5)
+    ]
+    g = build_groups(items, GroupingConfig())
+    assert g.boilerplate == [False] * 4
+    assert len(set(g.split_group_ids)) == 1 and len(set(g.duplicate_group_ids)) == 1
+
+
+_CONTENT = (
+    "SYNTHETIC prevention trial text: researchers test whether a daily pill lowers the chance of a new tumour "
+    "in people at high risk, and volunteers are followed for ten years with yearly scans and blood tests."
+)
+# One pair per F-001 class (+ CR3 bracket alias). Each pair must be linked AND, if split apart, detected.
+F001_CASES = {
+    "topic_key_cross_split": (
+        GroupInput("mq-00000000000000b1", "What causes it?", "SYNTHETIC answer one.", "Coffin-Lowry syndrome"),
+        GroupInput("mq-00000000000000b2", "How is it treated?", "SYNTHETIC answer two.", "Coffin Lowry Syndrome"),
+    ),
+    "normalized_question_cross_split": (
+        GroupInput("mq-00000000000000c1", "What is Graves' disease?", "SYNTHETIC answer three.", None),
+        GroupInput("mq-00000000000000c2", "What is Graves disease ?", "SYNTHETIC answer four.", None),
+    ),
+    "non_boilerplate_answer_cross_split": (  # family-shared answer (3 subtypes) is content, not boilerplate
+        GroupInput("mq-00000000000000d1", "What is N1?", "SYNTHETIC Noonix text shared.", "Noonix syndrome 1"),
+        GroupInput("mq-00000000000000d2", "What is N2?", "SYNTHETIC Noonix text shared.", "Noonix syndrome 2"),
+        GroupInput("mq-00000000000000d3", "What is N3?", "SYNTHETIC Noonix text shared.", "Noonix syndrome 3"),
+    ),
+    "near_dup_pairs_cross_split": (  # same content, different topics, not exact
+        GroupInput("mq-00000000000000e1", "Prevention of A?", _CONTENT, "Endometrial cancer"),
+        GroupInput(
+            "mq-00000000000000e2", "Prevention of O?", _CONTENT + " Results are expected soon.", "Ovarian cancer"
+        ),
+    ),
+    "bracket_stripped_topic_cross_split": (
+        GroupInput("mq-00000000000000f1", "What is CFS?", "SYNTHETIC answer five.", "Chronic fatigue syndrome"),
+        GroupInput("mq-00000000000000f2", "Who gets CFS?", "SYNTHETIC answer six.", "Chronic Fatigue Syndrome (CFS)"),
+    ),
+}
+
+
+@pytest.mark.parametrize("check", sorted(F001_CASES))
+def test_f001_classes_linked_and_detected(check: str) -> None:
+    items = list(F001_CASES[check])
+    g = build_groups(items, GroupingConfig())
+    assert len(set(g.split_group_ids)) == 1, "grouping must keep the pair in one split group"
+    assert not any(g.boilerplate)
+    splits = ["train"] + ["test"] * (len(items) - 1)  # force the leak
+    rep = leakage_report(
+        record_ids=[i.record_id for i in items],
+        questions=[i.question for i in items],
+        answers=[i.answer for i in items],
+        topics=[i.topic for i in items],
+        boilerplate=g.boilerplate,
+        split_group_ids=g.split_group_ids,
+        duplicate_group_ids=g.duplicate_group_ids,
+        splits=splits,
+        near_dup_pairs=g.near_dup_pairs,
+        template_pairs=g.template_pairs,
+        residual_pairs=g.residual_pairs,
+    )
+    assert not rep["passed"]
+    assert rep["blocking_checks"][check] >= 1

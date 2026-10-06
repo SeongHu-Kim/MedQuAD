@@ -25,7 +25,7 @@ quality:
 grouping:
   boilerplate_min_topics: 3
   shingle_size: 5
-  rare_shingle_max_df: 10
+  rare_shingle_max_df: 25
   min_shared_rare_shingles: 5
   near_dup_jaccard: 0.8
   residual_jaccard_min: 0.5

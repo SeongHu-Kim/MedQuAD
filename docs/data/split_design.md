@@ -18,7 +18,7 @@ near-identical text, between train and test. All splitting therefore happens at 
 | Same normalized answer (excluding boilerplate) | yes | yes |
 | Same (normalized question, normalized answer) | yes | yes |
 | Plain near-duplicate answer: word 5-shingles, Jaccard ≥ `near_dup_jaccard` | yes | yes |
-| Same folded topic key (case- and whitespace-insensitive, across sources) | – | yes |
+| Same folded topic key (across sources) | – | yes |
 | Same folded question | – | yes |
 | Template near-duplicate: Jaccard ≥ `near_dup_jaccard` after masking each record's own topic name | – | yes |
 
@@ -26,9 +26,16 @@ near-identical text, between train and test. All splitting therefore happens at 
 `rare_shingle_max_df`. Their exact Jaccard is then computed over the full shingle sets. Identical shingle sets
 are collapsed first and linked with J = 1.
 
-**Boilerplate answers** are normalized answers shared by at least `boilerplate_min_topics` distinct topics.
-They create **no** edges, because otherwise one generic sentence would chain unrelated conditions into a
-single group. They carry the `boilerplate_answer` flag and may appear in several splits.
+**Folded keys** (`normalize.match_key`): NFKD with combining marks removed, casefold, and every run of characters
+outside `[0-9a-z]` becomes one space. "Coffin-Lowry syndrome", "Coffin Lowry Syndrome", "Graves' Disease" and
+"Graves disease" therefore each fold to one key. Keys are used only for matching.
+
+**Boilerplate answers** are normalized answers shared by at least `boilerplate_min_topics` distinct topics
+whose folded keys do **not** all start with the same word. They create **no** edges, because otherwise one
+generic sentence (e.g. the autosomal-recessive inheritance paragraph) would chain unrelated conditions into a
+single group. They carry the `boilerplate_answer` flag and may appear in several splits. An answer shared only
+within one topic family ("Noonan syndrome 1…6", "GM1 gangliosidosis type 1…3") is disease-specific content.
+It is not boilerplate, so it links the family into one group.
 
 **Invariant:** every duplicate group lies inside one split group.
 
@@ -62,6 +69,13 @@ The split labels are `train`, `validation` and `test`, the same names used by `A
   listed by record ID and J
 - topics that would merge only after their parenthetical text is removed (e.g. "X" vs "X (abbrev)"),
   with the splits they touch
+
+## Revision history
+
+| split_version | change |
+|---|---|
+| `split-20261006-c759a1668f89` | First candidate. Rejected by evaluator finding F-001 (`docs/security/findings.md`): the folded keys kept hyphens, apostrophes and commas, the boilerplate rule swallowed answers shared across numbered subtypes, and the rare-shingle df ≤ 10 filter missed content near-duplicates |
+| current (see `split_manifest.meta.json`) | Alphanumeric folding, family-aware boilerplate rule, `rare_shingle_max_df` 10 → 25. Regression tests in `tests/data` |
 
 ## Evaluator sign-off
 

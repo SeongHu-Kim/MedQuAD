@@ -23,7 +23,8 @@ cannot drift from them.
    and tabs included), blank-line collapse. Questions also get `" ?" → "?"`.
    - No lowercasing, and no edits to punctuation, numbers, units, negations or spelling.
    - The originals stay in `question_raw` and `answer_raw`.
-   - Case-folded keys are used only for matching and are never stored as text.
+   - Folded keys are used only for matching and are never stored as text. They apply accent
+     stripping, casefolding and non-alphanumeric → space; see `split_design.md`.
 3. **Exclusions** (`quality.py`): the first matching rule wins. Each excluded row is listed in
    `data/manifests/exclusions.jsonl` with its `row_index`.
 
@@ -42,7 +43,7 @@ cannot drift from them.
 
    | flag | meaning |
    |---|---|
-   | `boilerplate_answer` | The normalized answer is shared by at least `boilerplate_min_topics` distinct topics |
+   | `boilerplate_answer` | The normalized answer is shared by at least `boilerplate_min_topics` distinct topics that are not one topic family (they do not all start with the same word) |
    | `malformed_question` | The question has no final `?`, or contains `??` (the export template "Who is at risk for X? ?") |
    | `repeated_bullets` | Heuristic: at least 2 bullet items recur verbatim later in the answer (export artefact) |
    | `answer_starts_with_question` | The answer opens by restating a question ("What causes X? …") |

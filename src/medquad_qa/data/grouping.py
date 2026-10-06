@@ -3,12 +3,15 @@
 duplicate_group: records with the same non-boilerplate normalized answer, the same (question, answer)
   pair, or a near-duplicate answer (plain word-shingle Jaccard >= threshold). Used for retrieval
   collapse, so answers about *different* conditions must not merge here.
-split_group: every duplicate-group edge, plus the same folded topic key across sources, the same
+split_group: every duplicate-group edge, plus the same folded topic key across sources (also after removing
+  parenthetical aliases, so "X" and "X (abbrev)" link), the same
   normalized question key, and template near-duplicates (Jaccard >= threshold after masking each
   record's own topic name, e.g. the same inheritance template written for two conditions). So each
   duplicate group lies inside one split group, and split groups are deliberately conservative.
-Boilerplate answers (shared by >= ``boilerplate_min_topics`` topics) link neither: one generic sentence
-would otherwise chain unrelated topics together. They carry the ``boilerplate_answer`` flag instead.
+Boilerplate answers (shared by >= ``boilerplate_min_topics`` topics that do not all start with the same
+word) link neither: one generic sentence would otherwise chain unrelated topics together. They carry the
+``boilerplate_answer`` flag instead. An answer shared only within one topic family ("X type 1", "X type 2")
+is content and does link.
 """
 
 from __future__ import annotations
@@ -20,7 +23,7 @@ from dataclasses import dataclass
 from medquad_qa.data.config import GroupingConfig
 from medquad_qa.data.ids import group_id
 from medquad_qa.data.neardup import masked_shingles, similar_pairs
-from medquad_qa.data.normalize import match_key, topic_key
+from medquad_qa.data.normalize import bracket_stripped_topic_key, match_key, topic_key
 
 
 class UnionFind:
@@ -86,6 +89,18 @@ def _buckets(keys: Sequence[Hashable | None]) -> list[list[int]]:
     return [v for v in idx.values() if len(v) > 1]
 
 
+def _one_family(topic_keys: set[str | None]) -> bool:
+    """True when all topics start with the same word, e.g. "noonan syndrome 1" / "noonan syndrome 2".
+
+    An answer shared only within such a family is disease-specific content (subtypes copied from one
+    parent page), so it must link groups rather than be treated as boilerplate.
+    """
+    if None in topic_keys:
+        return False
+    first_words = {tk.split(" ", 1)[0] for tk in topic_keys if tk}
+    return len(first_words) == 1
+
+
 def _assign_ids(uf: UnionFind, record_ids: Sequence[str], prefix: str) -> list[str]:
     out = [""] * len(record_ids)
     for members in uf.components().values():
@@ -143,13 +158,23 @@ def build_groups(items: Sequence[GroupInput], cfg: GroupingConfig) -> GroupingRe
     topics_per_answer: dict[str, set[str | None]] = defaultdict(set)
     for it, tk in zip(items, tkeys, strict=True):
         topics_per_answer[it.answer].add(tk)
-    boiler_answers = {a for a, ts in topics_per_answer.items() if len(ts) >= cfg.boilerplate_min_topics}
+    boiler_answers = {
+        a for a, ts in topics_per_answer.items() if len(ts) >= cfg.boilerplate_min_topics and not _one_family(ts)
+    }
     boilerplate = [it.answer in boiler_answers for it in items]
     eligible = [not b for b in boilerplate]
 
     dup = UnionFind(n)
     split = UnionFind(n)
-    edges = {"exact_answer": 0, "exact_qa_pair": 0, "near_dup": 0, "topic": 0, "question": 0, "template_near_dup": 0}
+    edges = {
+        "exact_answer": 0,
+        "exact_qa_pair": 0,
+        "near_dup": 0,
+        "topic": 0,
+        "bracket_topic": 0,
+        "question": 0,
+        "template_near_dup": 0,
+    }
 
     for members in _buckets([it.answer if ok else None for it, ok in zip(items, eligible, strict=True)]):
         dup.union_all(members)
@@ -168,6 +193,10 @@ def build_groups(items: Sequence[GroupInput], cfg: GroupingConfig) -> GroupingRe
     for members in _buckets(tkeys):
         split.union_all(members)
         edges["topic"] += len(members) - 1
+    # "X" and "X (alias)" name the same condition (evaluator CR3): link on the bracket-stripped key too.
+    for members in _buckets([bracket_stripped_topic_key(it.topic) for it in items]):
+        split.union_all(members)
+        edges["bracket_topic"] += len(members) - 1
     for members in _buckets([match_key(it.question) for it in items]):
         split.union_all(members)
         edges["question"] += len(members) - 1

@@ -44,6 +44,21 @@ def test_keys() -> None:
     assert bracket_stripped_topic_key("Paget disease (bone)") == "paget disease"
 
 
+@pytest.mark.parametrize(
+    ("a", "b"),
+    [  # F-001 regression: punctuation/diacritic variants of one topic must fold together
+        ("beta-ketothiolase deficiency", "Beta ketothiolase deficiency"),
+        ("Coffin-Lowry syndrome", "Coffin Lowry Syndrome"),
+        ("Graves' Disease", "Graves disease"),
+        ("MELAS, mitochondrial", "melas mitochondrial"),
+        ("Beh\u00e7et disease", "Behcet disease"),
+    ],
+)
+def test_topic_key_folds_punctuation(a: str, b: str) -> None:
+    assert topic_key(a) == topic_key(b)
+    assert match_key(f"What is {a}?") == match_key(f"what is {b} ?")
+
+
 def test_record_id_rules() -> None:
     rid = record_id("SRC", "Topic", "Q?", "A.")
     assert re.fullmatch(r"mq-[0-9a-f]{16}", rid)
@@ -82,8 +97,10 @@ def test_non_informative(answer: str, kind: str | None) -> None:
 
 
 def test_repeated_bullets() -> None:
-    rep = "They include - adults over age 40 - everyone over age 60 - people with history. adults over age 40 " \
-          "everyone over age 60 people with history."
+    rep = (
+        "They include - adults over age 40 - everyone over age 60 - people with history. adults over age 40 "
+        "everyone over age 60 people with history."
+    )
     assert has_repeated_bullets(rep, 15)
     assert not has_repeated_bullets("They include - adults over age 40 - everyone over age 60.", 15)
 
@@ -94,6 +111,9 @@ def test_flags() -> None:
     assert not is_malformed_question("What causes X?")
     flags = record_flags("What causes X", "What causes X? Short.", None, 2, QualityConfig())
     assert set(flags) == {
-        "malformed_question", "answer_starts_with_question", "short_answer", "missing_topic",
+        "malformed_question",
+        "answer_starts_with_question",
+        "short_answer",
+        "missing_topic",
         "collapsed_exact_duplicates",
     }

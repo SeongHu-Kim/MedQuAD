@@ -1,26 +1,26 @@
 {
   "contracts_version": "1.1.1",
-  "corpus_version": "medquad-1.0.0-34d97c16127f",
+  "corpus_version": "medquad-1.0.0-86e384302357",
   "format": "JSONL, one medquad_qa.contracts.MedicalRecord per line (model_dump mode=json, sorted keys)",
-  "split_version": "split-20261006-c759a1668f89",
+  "split_version": "split-20261006-2f0fb25ee6d8",
   "splits": {
     "test": {
       "path": "data/processed/exports/records_test.jsonl",
-      "records": 1667,
-      "sha256": "730f8a8360122cf2847604252f8d4ae29a02e393ad2de827f00700a572844241",
-      "size_bytes": 5590670
+      "records": 1657,
+      "sha256": "1fa115fe2941f89882389f54cd7c2c4f5aa1cfa193105435340e90b5e1d27688",
+      "size_bytes": 5415324
     },
     "train": {
       "path": "data/processed/exports/records_train.jsonl",
-      "records": 13021,
-      "sha256": "0a2ea7fa05d6efb75efdddddfa482ec99b2238cad4ace5b45611c36223395335",
-      "size_bytes": 43820879
+      "records": 13014,
+      "sha256": "819e783c515aa1e6c1f8eee25b180664c5d6707d81fc23b6a4641d1d440000ec",
+      "size_bytes": 44262698
     },
     "validation": {
       "path": "data/processed/exports/records_validation.jsonl",
-      "records": 1648,
-      "sha256": "b5bfc73532bfe9b1e9d6fab6030cd9c2a3a61890696f740d73cce3795a9e1bd4",
-      "size_bytes": 5742318
+      "records": 1665,
+      "sha256": "9033931b6fe0512a2674e31cdb93a69ee2422dd75e953d8bc17fd0b64fa12436",
+      "size_bytes": 5474795
     }
   }
 }
