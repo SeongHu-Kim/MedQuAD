@@ -158,6 +158,10 @@ Coverage fell, so p1 stays (`rag-v1+df593554`). Logs: `artifacts/logs/pipeline_r
   held-out Track C items, so Track C rates may be optimistic. Residual miss/over-refusal rates come from Track C only.
 - **Link-list gold answers.** Some GHR gold answers are only resource lists ("These resources address the diagnosis or
   management of …"); abstaining on them is defensible. The evaluator reports them as a pre-registered subgroup.
+- **Known safety-rule false positive (accepted, D-041).** First-person idioms such as "I killed myself trying to finish
+  this" get the crisis message. Help-seeking for a specific or third person with suicidal thoughts or self-harm ("what
+  should I do if my friend …", "how do I help my brother who is suicidal") deliberately gets the crisis message;
+  purely informational questions ("warning signs of suicide", "how can friends support someone …") are answered.
 - **Fallback gate is unfitted.** Serving uses model-engineer's lexical LR predictor (validation max-F1 threshold). The
   heuristic gate only runs if that predictor is missing or errors, and is unfitted (`heuristic-unfitted`: rejects zero overlap only).
 
