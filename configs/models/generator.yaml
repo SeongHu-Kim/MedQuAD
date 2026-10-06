@@ -1,0 +1,11 @@
+# Approved generator settings (D-011, D-012). Matched across base / rag / finetuned / finetuned_rag.
+# Keep in sync with medquad_qa.models.settings.GeneratorConfig defaults (tests/models/test_settings.py).
+model_id: Qwen/Qwen3-4B-Instruct-2507
+revision: cdbee75f17c01a7cc42f958dc650907174af0554
+max_input_tokens: 3072      # prompt above this raises GenerationError (never silently truncated)
+timeout_s: 60.0             # generator-internal deadline -> GenerationTimeoutError
+repetition_penalty: 1.05
+attn_implementation: sdpa
+cuda_dtype: bfloat16
+cpu_dtype: float32          # CPU smoke path only
+# Per-request params (GenerationParams defaults): greedy (temperature 0.0), max_new_tokens 256, top_p 1.0.
