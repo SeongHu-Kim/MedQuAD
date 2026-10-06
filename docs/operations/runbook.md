@@ -9,7 +9,7 @@ Owner: service-platform-engineer. Scope: one local machine (GB10, aarch64). Ever
 | `qdrant` | `qdrant/qdrant:v1.19.1-unprivileged` (digest-pinned) | 127.0.0.1:6333 | volume `medquad_qdrant_storage` | always |
 | `mlflow` | `ghcr.io/mlflow/mlflow:v3.16.1` (digest-pinned) | 127.0.0.1:5000 | `mlruns/` (sqlite `mlflow.db` + `artifacts/`) | always |
 | `api-gpu` | `medquad-api:gpu`, built from `deploy/docker/api.Dockerfile` with `VARIANT=gpu` | 127.0.0.1:8000 | stateless | `gpu` |
-| `api-cpu` | `medquad-api:cpu` (`VARIANT=cpu`, `MEDQUAD_RETRIEVER=bm25`) | 127.0.0.1:8000 | stateless | `cpu` |
+| `api-cpu` | `medquad-api:cpu` (`VARIANT=cpu`) | 127.0.0.1:8000 | stateless | `cpu` |
 | `ui` | `medquad-ui:local` (Streamlit, HTTP-only client) | 127.0.0.1:8501 | stateless | always |
 | `prometheus` | `prom/prometheus:v3.5.0` (digest-pinned) | 127.0.0.1:9090 | volume `medquad_prometheus_data` | `monitoring` |
 
@@ -30,13 +30,17 @@ make stack-smoke               # 6-step acceptance sequence; evidence in artifac
 make down                      # stop everything (volumes and mlruns/ are kept)
 ```
 
-- CPU-only smoke: `make up PROFILE=cpu`. It uses BM25 only, and the 4B generator on CPU will usually hit the 60 s generation budget (504). It is meant for wiring checks, not for answers.
+- CPU-only smoke: `make up PROFILE=cpu` (add `MEDQUAD_RETRIEVER=bm25` for a lexical-only, torch-free retriever). The 4B generator on CPU will usually hit the 60 s generation budget (504). It is meant for wiring checks, not for answers.
 - Monitoring: add `--profile monitoring`, then open http://127.0.0.1:9090.
 - **Option B (no GPU container):** `docker compose -f deploy/compose.yaml up -d qdrant mlflow ui`, then `make api-host`. The API runs as a host process on 127.0.0.1:8000, and the UI container reaches it only if you run the UI on the host instead (`scripts/service/run_ui_host.sh`).
 
 One-time index setup for the Qdrant server (retrieval-engineer's CLI): with `qdrant` up, run `MEDQUAD_QDRANT_URL=http://127.0.0.1:6333 python -m medquad_qa.retrieval build --kind dense`. The collection name equals the dense `index_version`. In Compose, the API uses server mode only (`MEDQUAD_QDRANT_URL=http://qdrant:6333`, `MEDQUAD_QDRANT_PATH` unset), because embedded mode needs a writable lock file.
 
 `TORCH_DISABLE_NATIVE_JIT=1` is set in the API images and in Compose (D-030). torch 2.14 otherwise JIT-compiles some CUDA ops, which needs gcc and Python.h; neither exists in the image or on the host. `scripts/ops/image_cuda_smoke.sh` proves the image path.
+
+Retrieval defaults (D-037, frozen on DEV): both API profiles default to `MEDQUAD_RETRIEVER=dense_fallback` and `MEDQUAD_INDEX_TEXT_MODE=question_answer`. That means dense ranking on `dense-qa-*`, with automatic fallback to `bm25-qa-*` and a `lexical_fallback` warning. Override either variable in the environment for experiments; never change them for frozen TEST runs.
+
+TensorFlow is never installed in the API images (D-036: importing it before Triton segfaults). `scripts/ops/image_smoke.sh` fails if `import tensorflow` succeeds.
 
 Readiness:
 - `GET /health/ready` returns 200 once the pipeline is built and every required component (corpus, retriever, base generator) is ok.
@@ -88,9 +92,10 @@ VARIANT=gpu scripts/ops/rollback.sh status       # image IDs and what is running
 
 ## 6. Resources and cleanup
 
-- Approximate image sizes: `medquad-api:cpu` 1.8 GB, `medquad-ui:local` 0.6 GB, `medquad-api:gpu` about 7 GB (estimate until built). Qdrant, MLflow and Prometheus total about 1.5 GB.
+- Image sizes (`docker image ls`, 2026-10-06): `medquad-api:gpu` 6.5 GB, `medquad-api:gpu-prev` 6.5 GB (rollback target), `medquad-api:cpu` 1.8 GB, `medquad-ui:local` 0.6 GB. Qdrant, MLflow, Prometheus and the CUDA check image total about 1.9 GB.
+- Each GPU rebuild needs about 8 minutes, re-downloads about 5 GB of CUDA wheels, and leaves up to about 15 GB of build cache. After a release, prune with `docker builder prune --all -f`; all build cache on this machine belongs to this project, which was verified on 2026-10-06.
+- `medquad_qdrant_storage` holds the server-side dense collections (`dense-answer-*`, `dense-qa-*`), which take about 2 minutes to rebuild. `make down` keeps it.
 - Check usage with `docker system df`.
-- Safe, scoped cleanup of only this project's build cache: `docker builder prune --filter until=24h`.
 - Never run `docker system prune -a` on a shared machine without asking.
 - Volumes: `docker volume ls | grep medquad`. Removing `medquad_qdrant_storage` deletes the server-side vector index; rebuild it with the retrieval CLI.
 

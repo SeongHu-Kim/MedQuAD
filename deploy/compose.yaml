@@ -1,7 +1,7 @@
 # MedQuAD local stack. Owner: service-platform-engineer. Runbook: docs/operations/runbook.md
 #
 #   docker compose -f deploy/compose.yaml --profile gpu up -d --build      # API on GPU (CDI)
-#   docker compose -f deploy/compose.yaml --profile cpu up -d --build      # API on CPU (BM25-only smoke)
+#   docker compose -f deploy/compose.yaml --profile cpu up -d --build      # API on CPU (wiring smoke; MEDQUAD_RETRIEVER=bm25 for lexical-only)
 #   add --profile monitoring for Prometheus
 #
 # Security defaults: every published port binds 127.0.0.1; containers run non-root with a read-only
@@ -28,6 +28,9 @@ x-api: &api
     MEDQUAD_CORPUS_PATH: data/processed/corpus.jsonl
     MEDQUAD_MODEL_DIR: artifacts/models
     MEDQUAD_INDEX_DIR: artifacts/indexes
+    # Frozen RAG retrieval config (D-037): dense ranking with automatic BM25 fallback, Q+A index text.
+    MEDQUAD_RETRIEVER: ${MEDQUAD_RETRIEVER:-dense_fallback}
+    MEDQUAD_INDEX_TEXT_MODE: ${MEDQUAD_INDEX_TEXT_MODE:-question_answer}
     MEDQUAD_OFFLINE_EVAL_PATH: ${MEDQUAD_OFFLINE_EVAL_PATH:-artifacts/evaluation/summary/latest_offline_eval.json}
     MEDQUAD_MLFLOW_TRACKING_URI: http://mlflow:5000
     MEDQUAD_CORPUS_MANIFEST: data/manifests/corpus_manifest.json
@@ -96,7 +99,6 @@ services:
     environment:
       <<: *api-env
       MEDQUAD_DEVICE: cuda
-      MEDQUAD_RETRIEVER: ${MEDQUAD_RETRIEVER:-hybrid}
     networks:
       default:
         aliases: [api]
@@ -112,7 +114,6 @@ services:
     environment:
       <<: *api-env
       MEDQUAD_DEVICE: cpu
-      MEDQUAD_RETRIEVER: bm25
     networks:
       default:
         aliases: [api]
