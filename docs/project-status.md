@@ -167,8 +167,8 @@ Status of every task below: **PENDING** (team not yet spawned).
 | D1 (COMPLETE: plan received) | Discovery: schema, provenance, license/usage restrictions, plan to lead | — | plan message received |
 | D2 (COMPLETE) | Ingestion + schema mapping → MedicalRecord (raw+normalized) | G1 | real CSV → corpus.jsonl, row count reconciles to 16,412 minus documented exclusions |
 | D3 (COMPLETE) | Quality audit: missing, malformed, exact/near dups, lengths | D2 | `docs/data/audit_report.md` with actual counts from saved JSON |
-| D4 (PARTIAL: F-001 fixed, candidate split-20261006-dd1d7f31e9bc; lead pre-check passes; evaluator retest pending) | Grouping (duplicate + split groups) + deterministic splits + leakage checks | D3, E1 review | split manifest + leakage check script passes; evaluator sign-off |
-| D5 | Training/eval exports for model-engineer & evaluator | D4 | export files + checksums in manifest |
+| D4 (COMPLETE: frozen split-20261006-2f0fb25ee6d8, evaluator signed off (D-034)) | Grouping (duplicate + split groups) + deterministic splits + leakage checks | D3, E1 review | split manifest + leakage check script passes; evaluator sign-off |
+| D5 (IN PROGRESS: finalize exports on the frozen split) | Training/eval exports for model-engineer & evaluator | D4 | export files + checksums in manifest |
 | D6 (PARTIAL: data card, split design, reproduction docs written; awaiting D4 sign-off) | Tests, data card, reproduction commands | D2–D5 | pytest tests/data green; data card cites artifacts |
 
 ### retrieval-engineer (owns retrieval/, rag/, configs/retrieval/, scripts/retrieval/, tests/retrieval/, tests/rag/, docs/retrieval/, artifacts/indexes/)
@@ -204,8 +204,8 @@ Status of every task below: **PENDING** (team not yet spawned).
 ### evaluation-safety-engineer (owns evaluation/, configs/evaluation/, scripts/evaluation/, tests/evaluation/, tests/security/, tests/integration/, docs/evaluation/, docs/security/, artifacts/evaluation/)
 | ID | Task | Depends | Acceptance |
 |---|---|---|---|
-| E1 (PARTIAL: F-001 fix candidate 2f0fb25ee6d8 passes the lead pre-check; evaluator retest pending) | Eval tracks, leakage controls, answerability label design; review D4 split design | — | written approval/requests to data-steward & model-engineer |
-| E2 | Frozen eval set (paraphrases, hard negatives, case types) with label provenance | D4 | manifest w/ checksum; no test-set tuning |
+| E1 (COMPLETE: F-001 retest PASS; split sign-off granted) | Eval tracks, leakage controls, answerability label design; review D4 split design | — | written approval/requests to data-steward & model-engineer |
+| E2 (IN PROGRESS: frozen eval set on split 2f0fb25ee6d8) | Frozen eval set (paraphrases, hard negatives, case types) with label provenance | D4 | manifest w/ checksum; no test-set tuning |
 | E3 (COMPLETE: harness + fixtures + threat model, 38 offline tests) | Metric harness: retrieval, citation validity/support, rubric, abstention, classifier, latency | G1 | unit tests on fixtures |
 | E4 | Run 4-way comparison (base / rag / finetuned / finetuned_rag) + retriever comparison | E2, E3, R5, M4 | saved metrics + failure examples |
 | E5 (PARTIAL: first pass done, 72 passed, open findings marked strict-xfail; F-002 high open) | Security/safety tests: injection, citations, personalized advice, malformed input, missing artifacts, secrets, logging | R5, S2 | severity-ranked findings + retests |

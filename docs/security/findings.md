@@ -4,7 +4,7 @@ Owner of this register: **lead** (transferred from evaluation-safety-engineer by
 
 | ID | Severity | Status | Title | Owner |
 |---|---|---|---|---|
-| F-001 | medium | fixed, retest pending | Cross-split leakage missed by data leakage report | data-steward |
+| F-001 | medium | **resolved** (retest PASS) | Cross-split leakage missed by data leakage report | data-steward |
 | F-002 | **high** | open | Personalized-advice rules miss personal/emergency requests and over-refuse general questions | retrieval-engineer |
 | F-003 | medium | open | Unbracketed fabricated record IDs reach the user, uncounted as invalid | retrieval-engineer |
 | F-004 | low | open | Zero-width, fullwidth and RLM look-alikes bypass the sanitiser | retrieval-engineer |
@@ -38,7 +38,15 @@ Owner of this register: **lead** (transferred from evaluation-safety-engineer by
   - The leakage report has 8 blocking checks, with a regression test for each class.
   - Current candidate: corpus `medquad-1.0.0-86e384302357`, split `split-20261006-2f0fb25ee6d8` (an intermediate `fe532d5cd2f6` / `dd1d7f31e9bc` was superseded).
 - **Lead pre-check (not the official retest):** `verify_splits.py` exit 0, passed=true, all cross-split overlap counts 0.
-- **Retest:** pending (evaluation-safety-engineer).
+- **Retest:** **PASS** (evaluation-safety-engineer), on split `split-20261006-2f0fb25ee6d8` and corpus `medquad-1.0.0-86e384302357`.
+  - Command: `verify_splits.py --out artifacts/evaluation/split_verification/report_retest_2f0fb25ee6d8.json` gives passed=true and errors=[].
+  - Cross-split overlap is 0 on all classes. Reconciliation: 16,336 + 76 = 16,412.
+  - An independent rebuild (PYTHONHASHSEED=4242) is byte-identical on all 12 outputs.
+- **Residual disclosures:**
+  - 67 numbered-subtype topic families cross splits; this is a diagnostic only, with no content duplication.
+  - 671 cross-split pairs have J between 0.5 and 0.8.
+  - 7 generic boilerplate answers cross splits.
+  - Grouping is content-based, not document-based.
 
 ## F-002: Personalized-advice rules miss personal/emergency requests and over-refuse general questions
 
