@@ -97,7 +97,8 @@ RULES: tuple[tuple[str, str], ...] = (
     (
         "emergency",
         r"\b(?:what (?:should|can|do|must) (?:i|we) do|how (?:do|can|should) (?:i|we) "
-        r"(?:help|support|talk to|deal with|handle|approach|save)|what (?:should|can) (?:i|we) say)\b[^?]*\b(?:suicid\w*|want(?:s|ing)? to die|"
+        r"(?:help|support|talk to|deal with|handle|approach|save)|what (?:should|can) (?:i|we) say)\b"
+        r"[^?]*\b(?:suicid\w*|want(?:s|ing)? to die|"
         rf"{_THIRD_PARTY_HARM}|kill(?:ing)? (?:themselves|himself|herself)|end(?:ing)? (?:their|his|her) (?:own )?life|"
         r"self-?harm\w*)",
     ),
