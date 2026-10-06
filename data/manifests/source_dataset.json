@@ -1,0 +1,17 @@
+{
+  "columns": [
+    "question",
+    "answer",
+    "source",
+    "focus_area"
+  ],
+  "dataset_name": "MedQuAD (Kaggle CSV export)",
+  "has_document_ids": false,
+  "has_source_urls": false,
+  "kaggle_dataset_ref": null,
+  "licence": "Kaggle owner/slug and licence not verifiable from the CSV export. Local research use only; do not redistribute the dataset or its text.",
+  "rows": 16412,
+  "sha256": "f9fe9e60ea69dbbd5a6987e63d041e54e2048d09e317df830b6ba3387e706d53",
+  "size_bytes": 22835609,
+  "source_file": "medquad.csv"
+}

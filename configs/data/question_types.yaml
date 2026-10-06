@@ -1,0 +1,23 @@
+# Rule-derived question types (NOT the original MedQuAD qtype; the Kaggle CSV export has none).
+# Matched in order against the NORMALIZED question, case-insensitive; first match wins.
+# Bump rule_version whenever a pattern or label changes.
+rule_version: qtype-rules-v1
+default_type: other
+rules:
+  - {type: information, pattern: '^what is \(are\) '}
+  - {type: information, pattern: '^do you have information about '}
+  - {type: symptoms, pattern: '^what are the symptoms (of|for) '}
+  - {type: treatment, pattern: '^what are the treatments for '}
+  - {type: inheritance, pattern: '^is .+ inherited\b'}
+  - {type: frequency, pattern: '^how many people are affected by '}
+  - {type: genetic_changes, pattern: '^what are the genetic changes related to '}
+  - {type: causes, pattern: '^what causes '}
+  - {type: exams_and_tests, pattern: '^how to diagnose '}
+  - {type: research, pattern: '^what research (\(or clinical trials\) )?is being done for '}
+  - {type: outlook, pattern: '^what is the outlook for '}
+  - {type: susceptibility, pattern: '^who is at risk for '}
+  - {type: considerations, pattern: '^what to do for '}
+  - {type: prevention, pattern: '^how to prevent '}
+  - {type: stages, pattern: '^what are the stages of '}
+  - {type: complications, pattern: '^what are the complications of '}
+  - {type: support_groups, pattern: '^where to find support for '}

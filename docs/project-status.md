@@ -115,6 +115,16 @@ Current verified status. The "BLOCKED" Docker entries in the session-1 log above
   - Teammate's host smoke run: live returned 200 and ready returned 503. The 503 is expected, because `rag.factory` is not built yet, and the app reports it as a readiness failure rather than crashing.
   - Known: running `mypy` over the tests directories in a single call reports a duplicate `conftest` module. Running them separately passes.
 
+- **D2 and D3 verified by the lead.**
+  - `python -m medquad_qa.data verify` reports "12 files byte-identical; leakage checks passed".
+  - `pytest tests/data` shows 32 passed. Ruff and mypy are clean.
+  - The corpus has 16,336 unique record_ids, and all of them validate against `MedicalRecord`.
+  - An answer-text probe found 0 of 278 sampled snippets in the tracked `data/manifests`.
+  - Versions: corpus_version `medquad-1.0.0-34d97c16127f`, split_version `split-20261006-c759a1668f89`.
+  - The CSV's 16,412 rows reconcile to 16,336 records plus 76 exclusions (5 empty, 48 duplicate copies, 23 non-informative).
+  - Splits in records: 13,021 train, 1,648 validation, 1,667 test. Split groups: 3,464 / 471 / 390.
+  - The teammate also ran an independent second build, which produced identical sha256 for all files.
+
 ## Resume checklist (session 2)
 
 1. `id | grep docker && docker info && docker compose version` — must succeed; else stop and report.
@@ -141,9 +151,9 @@ Status of every task below: **PENDING** (team not yet spawned).
 | ID | Task | Depends | Acceptance |
 |---|---|---|---|
 | D1 (COMPLETE: plan received) | Discovery: schema, provenance, license/usage restrictions, plan to lead | — | plan message received |
-| D2 (IN PROGRESS) | Ingestion + schema mapping → MedicalRecord (raw+normalized) | G1 | real CSV → corpus.jsonl, row count reconciles to 16,412 minus documented exclusions |
-| D3 | Quality audit: missing, malformed, exact/near dups, lengths | D2 | `docs/data/audit_report.md` with actual counts from saved JSON |
-| D4 | Grouping (duplicate + split groups) + deterministic splits + leakage checks | D3, E1 review | split manifest + leakage check script passes; evaluator sign-off |
+| D2 (COMPLETE) | Ingestion + schema mapping → MedicalRecord (raw+normalized) | G1 | real CSV → corpus.jsonl, row count reconciles to 16,412 minus documented exclusions |
+| D3 (COMPLETE) | Quality audit: missing, malformed, exact/near dups, lengths | D2 | `docs/data/audit_report.md` with actual counts from saved JSON |
+| D4 (PARTIAL: built, all blocking leakage checks are 0; awaiting evaluator sign-off) | Grouping (duplicate + split groups) + deterministic splits + leakage checks | D3, E1 review | split manifest + leakage check script passes; evaluator sign-off |
 | D5 | Training/eval exports for model-engineer & evaluator | D4 | export files + checksums in manifest |
 | D6 | Tests, data card, reproduction commands | D2–D5 | pytest tests/data green; data card cites artifacts |
 

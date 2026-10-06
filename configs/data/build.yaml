@@ -1,0 +1,35 @@
+# Data pipeline configuration (data-steward). Paths are relative to the repo root.
+pipeline_version: medquad-data-1.0.0
+corpus_semver: 1.0.0
+
+source:
+  path: medquad.csv
+  dataset_name: MedQuAD (Kaggle CSV export)
+  expected_columns: [question, answer, source, focus_area]
+  expected_sha256: f9fe9e60ea69dbbd5a6987e63d041e54e2048d09e317df830b6ba3387e706d53
+  # Kaggle owner/slug and licence could not be verified from the file: local use only, do not redistribute.
+  kaggle_dataset_ref: null
+
+outputs:
+  processed_dir: data/processed
+  manifests_dir: data/manifests
+
+exclusion:
+  # Single-line answer with at most this many words and no sentence-final period counts as a heading.
+  heading_max_words: 8
+
+quality:
+  short_answer_max_words: 10
+  repeated_bullet_min_chars: 15
+
+grouping:
+  boilerplate_min_topics: 3
+  shingle_size: 5
+  rare_shingle_max_df: 10
+  min_shared_rare_shingles: 5
+  near_dup_jaccard: 0.8
+  residual_jaccard_min: 0.5
+
+split:
+  seed: 20261006
+  ratios: {train: 0.8, validation: 0.1, test: 0.1}

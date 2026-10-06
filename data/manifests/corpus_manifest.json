@@ -1,0 +1,35 @@
+{
+  "contracts_version": "1.1.1",
+  "corpus_path": "data/processed/corpus.jsonl",
+  "corpus_sha256": "34d97c16127fe59137d244534067a2fbba4c5a5b73f80dcffabb913681b3cb5f",
+  "corpus_version": "medquad-1.0.0-34d97c16127f",
+  "excluded_by_detail": {
+    "non_informative_answer:heading_only": 6,
+    "non_informative_answer:question_only": 17
+  },
+  "excluded_by_reason": {
+    "empty_answer": 5,
+    "exact_duplicate_row": 48,
+    "non_informative_answer": 23
+  },
+  "excluded_rows": 76,
+  "grouping_disclosure": "The export has no source URLs or document IDs, so split groups are derived from content and topic (weaker than document-level grouping). Leakage is reduced, not proven absent.",
+  "normalization": "NFC; newline unification; per-line whitespace collapse; blank-line collapse; questions also ' ?' -> '?'. No lowercasing or punctuation/number/negation edits.",
+  "pipeline_version": "medquad-data-1.0.0",
+  "reconciliation": "16336 + 76 = 16412",
+  "record_id_rule": "mq- + sha256('medquad-rid-v1' US source US focus_area_raw US question_raw US answer_raw)[:16]",
+  "records": 16336,
+  "records_by_source": {
+    "CDC": 264,
+    "CancerGov": 729,
+    "GARD": 5372,
+    "GHR": 5430,
+    "MPlusHealthTopics": 981,
+    "NHLBI": 559,
+    "NIDDK": 1144,
+    "NIHSeniorHealth": 769,
+    "NINDS": 1088
+  },
+  "source_rows": 16412,
+  "source_sha256": "f9fe9e60ea69dbbd5a6987e63d041e54e2048d09e317df830b6ba3387e706d53"
+}

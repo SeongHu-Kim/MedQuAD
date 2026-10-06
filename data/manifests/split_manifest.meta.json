@@ -1,0 +1,246 @@
+{
+  "corpus_version": "medquad-1.0.0-34d97c16127f",
+  "duplicate_groups": 16123,
+  "grouping": {
+    "boilerplate_answers": 20,
+    "boilerplate_min_topics": 3,
+    "boilerplate_records": 530,
+    "edges": {
+      "exact_answer": 37,
+      "exact_qa_pair": 0,
+      "near_dup": 260,
+      "question": 2002,
+      "template_near_dup": 513,
+      "topic": 11581
+    },
+    "min_shared_rare_shingles": 5,
+    "near_dup_jaccard": 0.8,
+    "near_dup_pairs": 260,
+    "rare_shingle_max_df": 10,
+    "residual_jaccard_min": 0.5,
+    "residual_pairs": 1042,
+    "shingle_size": 5,
+    "template_near_dup_pairs": 513
+  },
+  "grouping_disclosure": "The export has no source URLs or document IDs, so split groups are derived from content and topic (weaker than document-level grouping). Leakage is reduced, not proven absent.",
+  "groups_per_split": {
+    "test": 390,
+    "train": 3464,
+    "validation": 471
+  },
+  "groups_per_split_by_dominant_source": {
+    "test": {
+      "CDC": 7,
+      "CancerGov": 10,
+      "GARD": 180,
+      "GHR": 62,
+      "MPlusHealthTopics": 82,
+      "NHLBI": 9,
+      "NIDDK": 15,
+      "NIHSeniorHealth": 5,
+      "NINDS": 20
+    },
+    "train": {
+      "CDC": 44,
+      "CancerGov": 60,
+      "GARD": 1712,
+      "GHR": 656,
+      "MPlusHealthTopics": 648,
+      "NHLBI": 59,
+      "NIDDK": 92,
+      "NIHSeniorHealth": 36,
+      "NINDS": 157
+    },
+    "validation": {
+      "CDC": 7,
+      "CancerGov": 7,
+      "GARD": 240,
+      "GHR": 86,
+      "MPlusHealthTopics": 82,
+      "NHLBI": 9,
+      "NIDDK": 16,
+      "NIHSeniorHealth": 4,
+      "NINDS": 20
+    }
+  },
+  "largest_split_group_records": 481,
+  "question_type_default": "other",
+  "question_type_rule_version": "qtype-rules-v1",
+  "question_type_rules": [
+    {
+      "pattern": "^what is \\(are\\) ",
+      "type": "information"
+    },
+    {
+      "pattern": "^do you have information about ",
+      "type": "information"
+    },
+    {
+      "pattern": "^what are the symptoms (of|for) ",
+      "type": "symptoms"
+    },
+    {
+      "pattern": "^what are the treatments for ",
+      "type": "treatment"
+    },
+    {
+      "pattern": "^is .+ inherited\\b",
+      "type": "inheritance"
+    },
+    {
+      "pattern": "^how many people are affected by ",
+      "type": "frequency"
+    },
+    {
+      "pattern": "^what are the genetic changes related to ",
+      "type": "genetic_changes"
+    },
+    {
+      "pattern": "^what causes ",
+      "type": "causes"
+    },
+    {
+      "pattern": "^how to diagnose ",
+      "type": "exams_and_tests"
+    },
+    {
+      "pattern": "^what research (\\(or clinical trials\\) )?is being done for ",
+      "type": "research"
+    },
+    {
+      "pattern": "^what is the outlook for ",
+      "type": "outlook"
+    },
+    {
+      "pattern": "^who is at risk for ",
+      "type": "susceptibility"
+    },
+    {
+      "pattern": "^what to do for ",
+      "type": "considerations"
+    },
+    {
+      "pattern": "^how to prevent ",
+      "type": "prevention"
+    },
+    {
+      "pattern": "^what are the stages of ",
+      "type": "stages"
+    },
+    {
+      "pattern": "^what are the complications of ",
+      "type": "complications"
+    },
+    {
+      "pattern": "^where to find support for ",
+      "type": "support_groups"
+    }
+  ],
+  "question_types_per_split": {
+    "test": {
+      "causes": 71,
+      "complications": 4,
+      "considerations": 23,
+      "exams_and_tests": 74,
+      "frequency": 116,
+      "genetic_changes": 113,
+      "information": 467,
+      "inheritance": 149,
+      "outlook": 39,
+      "prevention": 25,
+      "research": 44,
+      "stages": 9,
+      "susceptibility": 35,
+      "symptoms": 249,
+      "treatment": 249
+    },
+    "train": {
+      "causes": 569,
+      "complications": 35,
+      "considerations": 177,
+      "exams_and_tests": 503,
+      "frequency": 898,
+      "genetic_changes": 873,
+      "information": 3578,
+      "inheritance": 1164,
+      "other": 37,
+      "outlook": 282,
+      "prevention": 149,
+      "research": 307,
+      "stages": 61,
+      "support_groups": 1,
+      "susceptibility": 251,
+      "symptoms": 2197,
+      "treatment": 1939
+    },
+    "validation": {
+      "causes": 67,
+      "complications": 6,
+      "considerations": 28,
+      "exams_and_tests": 68,
+      "frequency": 103,
+      "genetic_changes": 101,
+      "information": 460,
+      "inheritance": 126,
+      "other": 1,
+      "outlook": 40,
+      "prevention": 23,
+      "research": 44,
+      "stages": 7,
+      "susceptibility": 35,
+      "symptoms": 299,
+      "treatment": 240
+    }
+  },
+  "ratios": {
+    "test": 0.1,
+    "train": 0.8,
+    "validation": 0.1
+  },
+  "records": 16336,
+  "rows_per_split": {
+    "test": 1667,
+    "train": 13021,
+    "validation": 1648
+  },
+  "rows_per_split_by_source": {
+    "test": {
+      "CDC": 30,
+      "CancerGov": 78,
+      "GARD": 521,
+      "GHR": 565,
+      "MPlusHealthTopics": 99,
+      "NHLBI": 63,
+      "NIDDK": 114,
+      "NIHSeniorHealth": 83,
+      "NINDS": 114
+    },
+    "train": {
+      "CDC": 204,
+      "CancerGov": 584,
+      "GARD": 4290,
+      "GHR": 4360,
+      "MPlusHealthTopics": 780,
+      "NHLBI": 433,
+      "NIDDK": 902,
+      "NIHSeniorHealth": 622,
+      "NINDS": 846
+    },
+    "validation": {
+      "CDC": 30,
+      "CancerGov": 67,
+      "GARD": 561,
+      "GHR": 505,
+      "MPlusHealthTopics": 102,
+      "NHLBI": 63,
+      "NIDDK": 128,
+      "NIHSeniorHealth": 64,
+      "NINDS": 128
+    }
+  },
+  "seed": 20261006,
+  "split_groups": 4325,
+  "split_version": "split-20261006-c759a1668f89",
+  "stratified_by": "dominant source of the group (ties -> alphabetical)",
+  "unit": "split_group_id"
+}

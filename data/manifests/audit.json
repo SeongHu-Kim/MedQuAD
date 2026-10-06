@@ -1,0 +1,467 @@
+{
+  "corpus": {
+    "distinct_topics": 5125,
+    "lengths": {
+      "answer_chars": {
+        "count": 16336,
+        "mean": 1263.9,
+        "p0": 34,
+        "p100": 26988,
+        "p25": 480,
+        "p5": 160,
+        "p50": 877,
+        "p75": 1566,
+        "p95": 3243
+      },
+      "answer_words": {
+        "count": 16336,
+        "mean": 200.2,
+        "p0": 6,
+        "p100": 4251,
+        "p25": 69,
+        "p5": 26,
+        "p50": 138,
+        "p75": 251,
+        "p95": 518
+      },
+      "question_words": {
+        "count": 16336,
+        "mean": 7.44,
+        "p0": 3,
+        "p100": 26,
+        "p25": 6,
+        "p5": 4,
+        "p50": 7,
+        "p75": 9,
+        "p95": 12
+      }
+    },
+    "quality_flags": {
+      "answer_starts_with_question": 4040,
+      "boilerplate_answer": 530,
+      "collapsed_exact_duplicates": 32,
+      "malformed_question": 619,
+      "missing_topic": 14,
+      "repeated_bullets": 581,
+      "short_answer": 78
+    },
+    "quality_flags_by_source": {
+      "CDC": {
+        "answer_starts_with_question": 11,
+        "malformed_question": 52,
+        "missing_topic": 14,
+        "repeated_bullets": 1
+      },
+      "CancerGov": {
+        "boilerplate_answer": 25,
+        "malformed_question": 88,
+        "repeated_bullets": 250,
+        "short_answer": 4
+      },
+      "GARD": {
+        "answer_starts_with_question": 3956,
+        "boilerplate_answer": 49,
+        "repeated_bullets": 12,
+        "short_answer": 1
+      },
+      "GHR": {
+        "answer_starts_with_question": 53,
+        "boilerplate_answer": 453,
+        "repeated_bullets": 18,
+        "short_answer": 67
+      },
+      "MPlusHealthTopics": {
+        "answer_starts_with_question": 8,
+        "malformed_question": 295,
+        "repeated_bullets": 2
+      },
+      "NHLBI": {
+        "malformed_question": 80,
+        "repeated_bullets": 2
+      },
+      "NIDDK": {
+        "answer_starts_with_question": 2,
+        "boilerplate_answer": 3,
+        "collapsed_exact_duplicates": 32,
+        "malformed_question": 40,
+        "repeated_bullets": 47,
+        "short_answer": 2
+      },
+      "NIHSeniorHealth": {
+        "answer_starts_with_question": 10,
+        "malformed_question": 64,
+        "repeated_bullets": 249
+      },
+      "NINDS": {
+        "short_answer": 4
+      }
+    },
+    "question_types": {
+      "causes": 707,
+      "complications": 45,
+      "considerations": 228,
+      "exams_and_tests": 645,
+      "frequency": 1117,
+      "genetic_changes": 1087,
+      "information": 4505,
+      "inheritance": 1439,
+      "other": 38,
+      "outlook": 361,
+      "prevention": 197,
+      "research": 395,
+      "stages": 77,
+      "support_groups": 1,
+      "susceptibility": 321,
+      "symptoms": 2745,
+      "treatment": 2428
+    },
+    "question_types_by_source": {
+      "CDC": {
+        "causes": 1,
+        "exams_and_tests": 40,
+        "information": 32,
+        "other": 38,
+        "prevention": 42,
+        "research": 1,
+        "susceptibility": 49,
+        "symptoms": 19,
+        "treatment": 42
+      },
+      "CancerGov": {
+        "causes": 7,
+        "exams_and_tests": 82,
+        "genetic_changes": 1,
+        "information": 112,
+        "inheritance": 5,
+        "outlook": 82,
+        "prevention": 12,
+        "research": 86,
+        "stages": 77,
+        "susceptibility": 88,
+        "symptoms": 82,
+        "treatment": 95
+      },
+      "GARD": {
+        "causes": 438,
+        "exams_and_tests": 282,
+        "information": 1389,
+        "inheritance": 348,
+        "symptoms": 2364,
+        "treatment": 551
+      },
+      "GHR": {
+        "frequency": 1086,
+        "genetic_changes": 1086,
+        "information": 1086,
+        "inheritance": 1086,
+        "treatment": 1086
+      },
+      "MPlusHealthTopics": {
+        "information": 981
+      },
+      "NHLBI": {
+        "causes": 83,
+        "exams_and_tests": 83,
+        "information": 86,
+        "outlook": 5,
+        "prevention": 55,
+        "susceptibility": 80,
+        "symptoms": 84,
+        "treatment": 83
+      },
+      "NIDDK": {
+        "causes": 115,
+        "complications": 38,
+        "considerations": 224,
+        "exams_and_tests": 114,
+        "frequency": 22,
+        "information": 281,
+        "outlook": 2,
+        "prevention": 48,
+        "research": 1,
+        "susceptibility": 40,
+        "symptoms": 116,
+        "treatment": 143
+      },
+      "NIHSeniorHealth": {
+        "causes": 63,
+        "complications": 5,
+        "considerations": 4,
+        "exams_and_tests": 44,
+        "frequency": 9,
+        "information": 267,
+        "outlook": 1,
+        "prevention": 40,
+        "research": 34,
+        "support_groups": 1,
+        "susceptibility": 64,
+        "symptoms": 80,
+        "treatment": 157
+      },
+      "NINDS": {
+        "complications": 2,
+        "information": 271,
+        "outlook": 271,
+        "research": 273,
+        "treatment": 271
+      }
+    },
+    "records": 16336,
+    "records_by_source": {
+      "CDC": 264,
+      "CancerGov": 729,
+      "GARD": 5372,
+      "GHR": 5430,
+      "MPlusHealthTopics": 981,
+      "NHLBI": 559,
+      "NIDDK": 1144,
+      "NIHSeniorHealth": 769,
+      "NINDS": 1088
+    }
+  },
+  "corpus_version": "medquad-1.0.0-34d97c16127f",
+  "exclusions": {
+    "by_detail": {
+      "non_informative_answer:heading_only": 6,
+      "non_informative_answer:question_only": 17
+    },
+    "by_reason": {
+      "empty_answer": 5,
+      "exact_duplicate_row": 48,
+      "non_informative_answer": 23
+    },
+    "by_reason_and_source": {
+      "empty_answer": {
+        "GARD": 5
+      },
+      "exact_duplicate_row": {
+        "NIDDK": 48
+      },
+      "non_informative_answer": {
+        "CDC": 6,
+        "GARD": 17
+      }
+    },
+    "total": 76
+  },
+  "grouping": {
+    "boilerplate_answers": 20,
+    "boilerplate_records": 530,
+    "duplicate_groups": 16123,
+    "duplicate_groups_multi_record": 168,
+    "duplicate_groups_multi_topic": 143,
+    "edges": {
+      "exact_answer": 37,
+      "exact_qa_pair": 0,
+      "near_dup": 260,
+      "question": 2002,
+      "template_near_dup": 513,
+      "topic": 11581
+    },
+    "near_dup_pairs_j_ge_threshold": 260,
+    "records_in_multi_topic_duplicate_groups": 325,
+    "residual_template_pairs_j_0_5_to_threshold": 1042,
+    "split_group_size": {
+      "count": 4325,
+      "mean": 3.78,
+      "p0": 1,
+      "p100": 481,
+      "p25": 1,
+      "p5": 1,
+      "p50": 2,
+      "p75": 5,
+      "p95": 10
+    },
+    "split_groups": 4325,
+    "template_near_dup_pairs_j_ge_threshold": 513
+  },
+  "raw": {
+    "exact_duplicates": {
+      "full_row": {
+        "distinct_values_repeated": 32,
+        "extra_copies": 48,
+        "rows_in_repeated_values": 80
+      },
+      "normalized_answer": {
+        "distinct_values_repeated": 84,
+        "extra_copies": 596,
+        "rows_in_repeated_values": 680
+      },
+      "normalized_question_answer_pair": {
+        "distinct_values_repeated": 32,
+        "extra_copies": 48,
+        "rows_in_repeated_values": 80
+      },
+      "normalized_question_key": {
+        "distinct_values_repeated": 1413,
+        "extra_copies": 2063,
+        "rows_in_repeated_values": 3476
+      }
+    },
+    "lengths_raw_nonempty": {
+      "answer_chars": {
+        "count": 16407,
+        "mean": 1268.55,
+        "p0": 6,
+        "p100": 26988,
+        "p25": 479,
+        "p5": 157,
+        "p50": 878,
+        "p75": 1569,
+        "p95": 3287
+      },
+      "answer_words": {
+        "count": 16407,
+        "mean": 200.92,
+        "p0": 1,
+        "p100": 4251,
+        "p25": 69,
+        "p5": 26,
+        "p50": 139,
+        "p75": 251,
+        "p95": 521
+      },
+      "answer_words_by_source": {
+        "CDC": {
+          "count": 270,
+          "mean": 225.8,
+          "p0": 1,
+          "p100": 2093,
+          "p25": 66,
+          "p5": 33,
+          "p50": 120,
+          "p75": 243,
+          "p95": 694
+        },
+        "CancerGov": {
+          "count": 729,
+          "mean": 583.82,
+          "p0": 8,
+          "p100": 4251,
+          "p25": 121,
+          "p5": 61,
+          "p50": 279,
+          "p75": 710,
+          "p95": 2262
+        },
+        "GARD": {
+          "count": 5389,
+          "mean": 202.98,
+          "p0": 4,
+          "p100": 1356,
+          "p25": 103,
+          "p5": 54,
+          "p50": 173,
+          "p75": 272,
+          "p95": 430
+        },
+        "GHR": {
+          "count": 5430,
+          "mean": 128.4,
+          "p0": 6,
+          "p100": 740,
+          "p25": 50,
+          "p5": 16,
+          "p50": 81,
+          "p75": 193,
+          "p95": 347
+        },
+        "MPlusHealthTopics": {
+          "count": 981,
+          "mean": 145.6,
+          "p0": 32,
+          "p100": 278,
+          "p25": 119,
+          "p5": 86,
+          "p50": 143,
+          "p75": 171,
+          "p95": 212
+        },
+        "NHLBI": {
+          "count": 559,
+          "mean": 462.1,
+          "p0": 25,
+          "p100": 3612,
+          "p25": 191,
+          "p5": 80,
+          "p50": 366,
+          "p75": 596,
+          "p95": 1163
+        },
+        "NIDDK": {
+          "count": 1192,
+          "mean": 263.06,
+          "p0": 6,
+          "p100": 2044,
+          "p25": 95,
+          "p5": 38,
+          "p50": 169,
+          "p75": 304,
+          "p95": 877
+        },
+        "NIHSeniorHealth": {
+          "count": 769,
+          "mean": 253.77,
+          "p0": 12,
+          "p100": 1940,
+          "p25": 67,
+          "p5": 33,
+          "p50": 134,
+          "p75": 324,
+          "p95": 847
+        },
+        "NINDS": {
+          "count": 1088,
+          "mean": 100.13,
+          "p0": 6,
+          "p100": 537,
+          "p25": 42,
+          "p5": 22,
+          "p50": 73,
+          "p75": 139,
+          "p95": 251
+        }
+      },
+      "question_words": {
+        "count": 16412,
+        "mean": 7.44,
+        "p0": 3,
+        "p100": 26,
+        "p25": 6,
+        "p5": 4,
+        "p50": 7,
+        "p75": 9,
+        "p95": 12
+      }
+    },
+    "missing": {
+      "empty_answer": 5,
+      "empty_focus_area": 14,
+      "empty_question": 0,
+      "empty_source": 0
+    },
+    "normalization_changes": {
+      "answer_changed": 7997,
+      "question_changed": 16095
+    },
+    "rows": 16412,
+    "rows_by_source": {
+      "CDC": 270,
+      "CancerGov": 729,
+      "GARD": 5394,
+      "GHR": 5430,
+      "MPlusHealthTopics": 981,
+      "NHLBI": 559,
+      "NIDDK": 1192,
+      "NIHSeniorHealth": 769,
+      "NINDS": 1088
+    }
+  },
+  "reconciliation": {
+    "corpus_records": 16336,
+    "excluded": 76,
+    "source_rows": 16412
+  },
+  "source_sha256": "f9fe9e60ea69dbbd5a6987e63d041e54e2048d09e317df830b6ba3387e706d53",
+  "split_version": "split-20261006-c759a1668f89"
+}
