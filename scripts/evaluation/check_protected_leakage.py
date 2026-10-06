@@ -7,6 +7,7 @@ Usage:
       --pairs-validation artifacts/models/answerability/pairs/pairs_manifest_validation.jsonl \
       [--threshold-ids <jsonl with record_id>]... --out artifacts/evaluation/leakage/protected_check.json
 
+SFT = every record_id AND every evidence_record_ids entry (RAG-formatted rows, adapter v2) in --sft.
 Classifier-train = train pairs (question + evidence record IDs); threshold/validation-fitting = validation pairs
 plus any extra --threshold-ids files (e.g. the RAG gate fit). All manifests must carry the frozen split_version.
 Exit 1 on any error.
@@ -39,8 +40,11 @@ def read_ids(path: str, fields: tuple[str, ...], split_version: str) -> tuple[se
             if sv is not None and sv != split_version:
                 raise ValueError(f"{path}: split_version {sv} != frozen {split_version}")
             for f in fields:
-                if row.get(f):
-                    ids.add(row[f])
+                v = row.get(f)
+                if isinstance(v, list):  # e.g. evidence_record_ids of RAG-formatted SFT rows (adapter v2)
+                    ids.update(v)
+                elif v:
+                    ids.add(v)
     return ids, rows
 
 
@@ -65,11 +69,12 @@ def main() -> int:
             group_split[m["split_group_id"]] = m["split"]
     questions = [json.loads(line)["question"] for line in (ROOT / "data/processed/corpus.jsonl").open(encoding="utf-8")]
 
-    sft, n_sft = read_ids(args.sft, ("record_id",), sv)
+    # Evidence shown in RAG-formatted SFT examples counts as trained-on, exactly like the target record.
+    sft, n_sft = read_ids(args.sft, ("record_id", "evidence_record_ids"), sv)
     clf, n_clf = read_ids(args.pairs_train, ("question_record_id", "evidence_record_id"), sv)
     thr, n_thr = read_ids(args.pairs_validation, ("question_record_id", "evidence_record_id"), sv)
     for p in args.threshold_ids:
-        extra, _ = read_ids(p, ("record_id", "question_record_id", "evidence_record_id"), sv)
+        extra, _ = read_ids(p, ("record_id", "question_record_id", "evidence_record_id", "evidence_record_ids"), sv)
         thr |= extra
 
     # Sanity: protected sets must come from the splits they claim.
