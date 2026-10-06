@@ -196,19 +196,19 @@ Status of every task below: **PENDING** (team not yet spawned).
 |---|---|---|---|
 | S1 (COMPLETE: plan received) | Discovery + service/deploy plan (ARM64 images) | — | plan received |
 | S2 (COMPLETE: offline with FakePipeline) | FastAPI: /v1/qa, /health/live, /health/ready, /metrics; bounds, timeouts, request IDs | G1 | API tests with fake pipeline green |
-| S3 | Streamlit demo (answer, citations, versions, disclaimer) | S2 | manual smoke against running API |
-| S4 (IN PROGRESS: GPU-in-container validated; arm64 digests pinned; GPU image approved) | Dockerfiles + Compose (api, ui, qdrant, mlflow; localhost binds, non-root) | S2, **Docker access** | compose config validates; stack up; health OK |
-| S5 (PARTIAL: metrics/logging/offline-eval gauges implemented; MLflow server, CI, monitoring config pending) | Metrics, structured logs (no raw content by default), MLflow server, CI workflow | S2 | metrics test; CI lint+offline tests locally |
+| S3 (PARTIAL: Streamlit UI and AppTest tests done; manual smoke against a real answer pending GPU) | Streamlit demo (answer, citations, versions, disclaimer) | S2 | manual smoke against running API |
+| S4 (PARTIAL: hardened arm64 compose, CPU stack up and healthy on 127.0.0.1; GPU image approved, build pending) | Dockerfiles + Compose (api, ui, qdrant, mlflow; localhost binds, non-root) | S2, **Docker access** | compose config validates; stack up; health OK |
+| S5 (COMPLETE: metrics, logs, MLflow server smoke, Prometheus scrape up=1, CI workflow (never run on GitHub); local make ci exit 0) | Metrics, structured logs (no raw content by default), MLflow server, CI workflow | S2 | metrics test; CI lint+offline tests locally |
 | S6 | Real-artifact integration in stack + runbook (deploy, rollback, troubleshooting) | S4, R5, M2 | real QA request recorded here |
 
 ### evaluation-safety-engineer (owns evaluation/, configs/evaluation/, scripts/evaluation/, tests/evaluation/, tests/security/, tests/integration/, docs/evaluation/, docs/security/, artifacts/evaluation/)
 | ID | Task | Depends | Acceptance |
 |---|---|---|---|
-| E1 (COMPLETE: plan received) | Eval tracks, leakage controls, answerability label design; review D4 split design | — | written approval/requests to data-steward & model-engineer |
+| E1 (PARTIAL: F-001 fix candidate 2f0fb25ee6d8 passes the lead pre-check; evaluator retest pending) | Eval tracks, leakage controls, answerability label design; review D4 split design | — | written approval/requests to data-steward & model-engineer |
 | E2 | Frozen eval set (paraphrases, hard negatives, case types) with label provenance | D4 | manifest w/ checksum; no test-set tuning |
 | E3 (COMPLETE: harness + fixtures + threat model, 38 offline tests) | Metric harness: retrieval, citation validity/support, rubric, abstention, classifier, latency | G1 | unit tests on fixtures |
 | E4 | Run 4-way comparison (base / rag / finetuned / finetuned_rag) + retriever comparison | E2, E3, R5, M4 | saved metrics + failure examples |
-| E5 | Security/safety tests: injection, citations, personalized advice, malformed input, missing artifacts, secrets, logging | R5, S2 | severity-ranked findings + retests |
+| E5 (PARTIAL: first pass done, 72 passed, open findings marked strict-xfail; F-002 high open) | Security/safety tests: injection, citations, personalized advice, malformed input, missing artifacts, secrets, logging | R5, S2 | severity-ranked findings + retests |
 | E6 | Independent evaluation report | E4, E5 | report citing artifacts |
 
 ### lead
