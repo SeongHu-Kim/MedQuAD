@@ -25,7 +25,8 @@ from dataclasses import dataclass
 _REL_NOUN = (
     r"(?:\d+[- ]?(?:year|yr|month|week|day)s?[- ]?old|child|kid|kids|son|daughter|baby|infant|toddler|newborn|"
     r"wife|husband|partner|spouse|mother|mom|mum|father|dad|parent|grandmother|grandfather|grandma|grandpa|"
-    r"brother|sister|friend|boyfriend|girlfriend|patient|dog|cat)"
+    r"brother|sister|uncle|aunt|cousin|niece|nephew|grandson|granddaughter|grandchild|friend|boyfriend|girlfriend|"
+    r"roommate|patient|dog|cat)"
 )
 _REL = rf"(?:my|our) (?:\w+ )?{_REL_NOUN}"  # "my 3-year-old", "our baby", "my little sister"
 _SELF = r"(?:i|i'm|im|i've|ive|i'd|i'll|me|my|myself)"
@@ -63,6 +64,15 @@ _SUSPICION = (
 
 # (rule_id, pattern) — any match refuses. Applied to a normalised, lowercased question.
 RULES: tuple[tuple[str, str], ...] = (
+    # ---- self-harm ideation: no event needed (F-007); crisis message
+    (
+        "emergency",
+        r"\b(?:end(?:ing)? (?:it all|my (?:own )?life|things)|take my (?:own )?life|"
+        r"(?:i|i'm|im|i am) (?:\w+ ){0,3}want(?:ing)? to die|"
+        r"wish i (?:was|were|could be) dead|no (?:reason|point) (?:to|in) liv(?:e|ing)|better off dead|"
+        r"(?:hurt|hurting|harm|harming|cut|cutting) myself|thinking (?:about|of) (?:suicide|killing myself|dying)|"
+        r"don'?t want to (?:live|be alive|wake up))\b",
+    ),
     # ---- emergencies: events or intent, never bare keywords
     (
         "emergency",
@@ -89,8 +99,8 @@ RULES: tuple[tuple[str, str], ...] = (
     ("emergency", r"\bchest pain (?:right )?now\b"),
     (
         "emergency",
-        r"\b(?:kill|hurt|harm|cut) (?:myself|me)\b|\bsuicidal\b|\bend (?:my|it all|my own) life\b|"
-        r"\bwant to die\b|\b(?:i|i'm|im) (?:going|planning|want) to (?:overdose|end it)\b",
+        r"\b(?:kill|hurt|harm|cut) (?:myself|me)\b|\b(?:i'm|im|i am|i feel|feeling|i've been|been) (?:\w+ )?suicidal\b|"
+        r"\b(?:i|i'm|im) (?:going|planning|want) to (?:overdose|end it)\b",
     ),
     # ---- dosing for a specific person
     ("personal_dosing", rf"^(?=.*\b{_PERSON}\b)(?=.*\b(?:dose|doses|dosage|dosing|mg|milligrams|units of)\b)"),
@@ -135,6 +145,11 @@ RULES: tuple[tuple[str, str], ...] = (
         rf"[^?]*\b(?:while|since|when|because|as|if) (?:i|i'm|im|{_REL})\b",
     ),
     ("personal_safety", rf"{_HEALTH_STATEMENT}[^?]*\b(?:safe|ok|okay|dangerous|harmful)\b"),
+    (
+        "personal_safety",
+        r"\bis (?:it|this|that) (?:\w+ )?(?:safe|ok|okay|fine|alright|all right) to (?:give|take|use|share|mix|"
+        rf"combine|put)\b[^?]*\b(?:my|me|{_REL}|him|her)\b",
+    ),
     ("personal_safety", rf"\b(?:safe|ok|okay|dangerous|harmful)\b[^?]*{_HEALTH_STATEMENT}"),
     # ---- self-diagnosis and judging one's own values
     (
@@ -159,6 +174,27 @@ RULES: tuple[tuple[str, str], ...] = (
         rf"\bmy (?:\w+ ){{0,2}}{_MEASURE} (?:is|are|was|were|came|show|shows|showed|suggest|suggests|suggested|"
         r"indicate|indicates|indicated|say|says|said)\b[^?]*\b"
         r"(?:mean|normal|dangerous|high|low|worry|should|bad|serious)\b",
+    ),
+    # ---- changing a specific person's medication; needing a treatment after a personal value (F-007)
+    (
+        "start_stop_treatment",
+        rf"\b(?:should|can|could|may|must) (?:i|we) (?:\w+ ){{0,2}}(?:cut|halve|split|crush|stop|reduce|lower|"
+        rf"increase|raise|change|switch|skip|double|give|take|share) (?:\w+ ){{0,2}}(?:his|her|their|my|our|"
+        rf"{_REL}'s) (?:\w+ ){{0,3}}(?:pills?|medications?|medicines?|meds|doses?|dosage|tablets?|drugs?|"
+        r"antibiotics?|insulin|inhalers?|patch|patches)\b",
+    ),
+    (
+        "start_stop_treatment",
+        rf"{_CLAUSE}should {_SUBJ} (?:\w+ ){{0,2}}(?:get|have|receive|undergo|be given)\b",
+    ),
+    (
+        "start_stop_treatment",
+        rf"(?:{_HEALTH_STATEMENT}|{_SUSPICION})[^?]*\b(?:do|does|should|would|will) (?:i|we|he|she|they|{_REL}) "
+        r"(?:\w+ )?need\b",
+    ),
+    (
+        "personal_management",
+        rf"\bhow (?:long|soon|often|many days|many weeks) (?:should|do|must|can) (?:i|{_REL})\b",
     ),
     # ---- what to do in a personal situation
     ("personal_management", rf"\bwhat (?:should|do|can|must) (?:i|we|{_REL}) do\b"),

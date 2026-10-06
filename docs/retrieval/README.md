@@ -120,7 +120,19 @@ artifacts/evaluation/evalsets/dev.jsonl --out artifacts/indexes/runs/dev/<r>_<m>
 DEV queries are paraphrases, so `*:qa` is not exact-match lookup here; it still benefits from indexing the original
 question text. Duplicate collapse (by duplicate_group_id+topic) did not change dense results on DEV.
 
-## Limitations
+## Limitations and disclosures
+
+- **Q+A index contains original questions.** The frozen RAG retriever (`dense:qa`, D-037) indexes each record's original
+  MedQuAD question with its answer. Frozen DEV/TEST queries are paraphrases with no normalized copies (checked by the
+  evaluator), but the answer-only index is reported alongside it.
+- **Small DEV set.** All tuning used `dev.jsonl` only: 40 gold-bearing items (one item = 0.025 recall) plus 10 personal
+  and 10 unanswerable items. TEST/Track C files were never opened (D-035).
+- **Safety rules tuned on DEV-style items.** The DEV personal items were written by the evaluator in the same style as the
+  held-out Track C items, so Track C rates may be optimistic. Residual miss/over-refusal rates come from Track C only.
+- **Link-list gold answers.** Some GHR gold answers are only resource lists ("These resources address the diagnosis or
+  management of …"); abstaining on them is defensible. The evaluator reports them as a pre-registered subgroup.
+- **Fallback gate is unfitted.** Serving uses model-engineer's lexical LR predictor (validation max-F1 threshold). The
+  heuristic gate only runs if that predictor is missing or errors, and is unfitted (`heuristic-unfitted`: rejects zero overlap only).
 
 - Record-level citations only; MedQuAD's Kaggle export has no URLs (`source_url` stays null).
 - The safety rules are regular expressions: they will miss some personal-advice phrasings and may refuse some general
