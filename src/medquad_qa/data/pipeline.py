@@ -294,8 +294,12 @@ def run_build(source_path: Path, cfg: BuildConfig, qrules: QuestionTypeRules) ->
         rel = f"{proc}/exports/records_{s}.jsonl"
         data = jsonl_bytes(r.model_dump(mode="json") for r, sp in zip(records, splits, strict=True) if sp == s)
         files[rel] = data
-        export_entries[s] = {"path": rel, "records": rows_per.get(s, 0), "sha256": sha256_bytes(data),
-                             "size_bytes": len(data)}
+        export_entries[s] = {
+            "path": rel,
+            "records": rows_per.get(s, 0),
+            "sha256": sha256_bytes(data),
+            "size_bytes": len(data),
+        }
     files[f"{man}/exports_manifest.json"] = json_bytes(
         {
             "corpus_version": corpus_version,

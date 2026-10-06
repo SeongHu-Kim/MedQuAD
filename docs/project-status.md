@@ -188,7 +188,7 @@ Status of every task below: **PENDING** (team not yet spawned).
 | S1 (COMPLETE: plan received) | Discovery + service/deploy plan (ARM64 images) | — | plan received |
 | S2 (COMPLETE: offline with FakePipeline) | FastAPI: /v1/qa, /health/live, /health/ready, /metrics; bounds, timeouts, request IDs | G1 | API tests with fake pipeline green |
 | S3 | Streamlit demo (answer, citations, versions, disclaimer) | S2 | manual smoke against running API |
-| S4 | Dockerfiles + Compose (api, ui, qdrant, mlflow; localhost binds, non-root) | S2, **Docker access** | compose config validates; stack up; health OK |
+| S4 (IN PROGRESS: GPU-in-container validated; arm64 digests pinned; GPU image approved) | Dockerfiles + Compose (api, ui, qdrant, mlflow; localhost binds, non-root) | S2, **Docker access** | compose config validates; stack up; health OK |
 | S5 (PARTIAL: metrics/logging/offline-eval gauges implemented; MLflow server, CI, monitoring config pending) | Metrics, structured logs (no raw content by default), MLflow server, CI workflow | S2 | metrics test; CI lint+offline tests locally |
 | S6 | Real-artifact integration in stack + runbook (deploy, rollback, troubleshooting) | S4, R5, M2 | real QA request recorded here |
 

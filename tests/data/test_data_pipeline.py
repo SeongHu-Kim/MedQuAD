@@ -121,3 +121,20 @@ def test_real_dataset_acceptance() -> None:
     assert len(res.records) + len(res.exclusions) == 16412
     assert len({r.record_id for r in res.records}) == len(res.records)
     assert res.leakage["passed"], res.leakage["blocking_checks"]
+
+
+def test_loaders_check_sha(synthetic_root: Path) -> None:
+    from medquad_qa.data.corpus import load_corpus, load_split
+
+    args = ["--root", str(synthetic_root), "--config", str(synthetic_root / "build.yaml")]
+    assert main(["build", *args]) == 0
+    corpus = load_corpus(synthetic_root)
+    parts = [load_split(s, synthetic_root) for s in ("train", "validation", "test")]
+    assert sum(len(p.records) for p in parts) == len(corpus.records)
+    assert all(p.corpus_version == corpus.corpus_version and p.split_version for p in parts)
+    with pytest.raises(ValueError):
+        load_split("val", synthetic_root)
+    path = synthetic_root / "data/processed/corpus.jsonl"
+    path.write_bytes(path.read_bytes() + b"\n")
+    with pytest.raises(ContractViolationError):
+        load_corpus(synthetic_root)

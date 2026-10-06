@@ -28,8 +28,11 @@ def distribution(values: Sequence[int]) -> dict[str, float | int]:
 def _extra_copies(keys: Sequence[object]) -> dict[str, int]:
     c = Counter(keys)
     dups = {k: n for k, n in c.items() if n > 1}
-    return {"distinct_values_repeated": len(dups), "rows_in_repeated_values": sum(dups.values()),
-            "extra_copies": sum(n - 1 for n in dups.values())}
+    return {
+        "distinct_values_repeated": len(dups),
+        "rows_in_repeated_values": sum(dups.values()),
+        "extra_copies": sum(n - 1 for n in dups.values()),
+    }
 
 
 def raw_audit(rows: Sequence[RawRow]) -> dict[str, Any]:
@@ -56,9 +59,7 @@ def raw_audit(rows: Sequence[RawRow]) -> dict[str, Any]:
         },
         "exact_duplicates": {
             "full_row": _extra_copies([(r.source, r.focus_area, r.question, r.answer) for r in rows]),
-            "normalized_question_answer_pair": _extra_copies(
-                [(q, a) for q, a in zip(nq, na, strict=True) if a]
-            ),
+            "normalized_question_answer_pair": _extra_copies([(q, a) for q, a in zip(nq, na, strict=True) if a]),
             "normalized_question_key": _extra_copies([match_key(q) for q in nq]),
             "normalized_answer": _extra_copies([na[i] for i in nonempty]),
         },

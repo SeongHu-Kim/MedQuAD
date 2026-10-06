@@ -68,8 +68,16 @@ def render_audit_report(manifests_dir: Path) -> str:
         "",
         "Lengths in words/characters, non-empty rows:",
         "",
-        _table(dist_header, _dist_rows({k: v for k, v in raw["lengths_raw_nonempty"].items() if k.startswith(
-            ("question", "answer_words", "answer_chars")) and "by_source" not in k})),
+        _table(
+            dist_header,
+            _dist_rows(
+                {
+                    k: v
+                    for k, v in raw["lengths_raw_nonempty"].items()
+                    if k.startswith(("question", "answer_words", "answer_chars")) and "by_source" not in k
+                }
+            ),
+        ),
         "",
         "Answer words by source:",
         "",
@@ -93,8 +101,10 @@ def render_audit_report(manifests_dir: Path) -> str:
         "",
         "## 3. Corpus",
         "",
-        _table(["source", "records"], [[k, v] for k, v in cor["records_by_source"].items()]
-               + [["**total**", cor["records"]]]),
+        _table(
+            ["source", "records"],
+            [[k, v] for k, v in cor["records_by_source"].items()] + [["**total**", cor["records"]]],
+        ),
         "",
         f"Distinct topics (focus_area): {cor['distinct_topics']}.",
         "",
@@ -113,17 +123,23 @@ def render_audit_report(manifests_dir: Path) -> str:
         _table(
             ["quantity", "value"],
             [
-                ["boilerplate answers (shared by >= "
-                 f"{meta['grouping']['boilerplate_min_topics']} topics)", grp["boilerplate_answers"]],
+                [
+                    f"boilerplate answers (shared by >= {meta['grouping']['boilerplate_min_topics']} topics)",
+                    grp["boilerplate_answers"],
+                ],
                 ["records with a boilerplate answer", grp["boilerplate_records"]],
                 ["duplicate groups", grp["duplicate_groups"]],
                 ["duplicate groups with > 1 record", grp["duplicate_groups_multi_record"]],
-                ["duplicate groups spanning > 1 topic (near-identical text, different condition)",
-                 grp["duplicate_groups_multi_topic"]],
+                [
+                    "duplicate groups spanning > 1 topic (near-identical text, different condition)",
+                    grp["duplicate_groups_multi_topic"],
+                ],
                 ["records in those groups", grp["records_in_multi_topic_duplicate_groups"]],
                 ["near-duplicate pairs (plain shingles, J >= threshold)", grp["near_dup_pairs_j_ge_threshold"]],
-                ["template near-duplicate pairs (topic-masked, J >= threshold)",
-                 grp["template_near_dup_pairs_j_ge_threshold"]],
+                [
+                    "template near-duplicate pairs (topic-masked, J >= threshold)",
+                    grp["template_near_dup_pairs_j_ge_threshold"],
+                ],
                 ["residual template pairs (0.5 <= J < threshold)", grp["residual_template_pairs_j_0_5_to_threshold"]],
                 ["split groups", grp["split_groups"]],
             ],

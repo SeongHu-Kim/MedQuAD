@@ -42,7 +42,7 @@ def assign_splits(
         target = {s: ratios[s] * total for s in SPLITS}
         filled = dict.fromkeys(SPLITS, 0)
         for g in groups:
-            best = max(SPLITS, key=lambda s: ((target[s] - filled[s]) / target[s] if target[s] else float("-inf")))
+            best = max(SPLITS, key=lambda s: (target[s] - filled[s]) / target[s] if target[s] else float("-inf"))
             assignment[g] = best
             filled[best] += len(members[g])
     return assignment, dom
