@@ -152,7 +152,7 @@ def test_info_endpoint(make_client: ClientFactory) -> None:
 
 
 # ---------------------------------------------------------------- input bounds
-SECRET = "SYNTHETIC-SECRET-QUESTION-TEXT"  # noqa: S105 - marker text, not a credential
+SECRET = "SYNTHETIC-SECRET-QUESTION-TEXT"  # noqa: S105  # pragma: allowlist secret (marker text, not a credential)
 
 
 @pytest.mark.parametrize(
@@ -179,6 +179,16 @@ def test_validation_422_never_echoes_input(make_client: ClientFactory, payload: 
     assert SECRET not in r.text and "12345" not in r.text
     assert all(set(e) == {"loc", "type"} for e in body["errors"])
     assert fake.calls == 0
+
+
+def test_422_masks_client_chosen_keys(make_client: ClientFactory) -> None:
+    client, _ = make_client()
+    r = client.post("/v1/qa", json={"question": "What is X?", "<img src=x onerror=alert(1)>": 1, SECRET: 2})
+    assert r.status_code == 422
+    assert "onerror" not in r.text and SECRET not in r.text
+    assert {tuple(e["loc"]) for e in r.json()["errors"]} == {("body", "<extra>")}
+    r = client.post("/v1/qa", json={"question": "What is X?", "generation": {"max_new_tokens": 0}})
+    assert r.json()["errors"][0]["loc"] == ["body", "generation", "max_new_tokens"]
 
 
 def test_malformed_json_is_422(make_client: ClientFactory) -> None:

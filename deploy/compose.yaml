@@ -1,0 +1,154 @@
+# MedQuAD local stack. Owner: service-platform-engineer. Runbook: docs/operations/runbook.md
+#
+#   docker compose -f deploy/compose.yaml --profile gpu up -d --build      # API on GPU (CDI)
+#   docker compose -f deploy/compose.yaml --profile cpu up -d --build      # API on CPU (BM25-only smoke)
+#   add --profile monitoring for Prometheus
+#
+# Security defaults: every published port binds 127.0.0.1; containers run non-root with a read-only
+# root filesystem, all capabilities dropped and no-new-privileges; data/artifacts/HF cache are
+# mounted read-only; HF_HUB_OFFLINE=1 (no model downloads at run time); no secrets are baked in.
+name: medquad
+
+x-hardening: &hardening
+  read_only: true
+  cap_drop: [ALL]
+  security_opt: ["no-new-privileges:true"]
+  tmpfs: ["/tmp:size=512m,mode=1777"]
+  restart: unless-stopped
+
+x-api: &api
+  <<: *hardening
+  user: "10001:10001"
+  environment: &api-env
+    MEDQUAD_BIND_HOST: 0.0.0.0          # inside the container network; host publish stays 127.0.0.1
+    MEDQUAD_API_PORT: "8000"
+    MEDQUAD_LOG_CONTENT: ${MEDQUAD_LOG_CONTENT:-false}
+    MEDQUAD_LOG_LEVEL: ${MEDQUAD_LOG_LEVEL:-INFO}
+    MEDQUAD_QDRANT_URL: http://qdrant:6333
+    MEDQUAD_CORPUS_PATH: data/processed/corpus.jsonl
+    MEDQUAD_MODEL_DIR: artifacts/models
+    MEDQUAD_INDEX_DIR: artifacts/indexes
+    MEDQUAD_OFFLINE_EVAL_PATH: ${MEDQUAD_OFFLINE_EVAL_PATH:-artifacts/evaluation/summary/latest_offline_eval.json}
+    MEDQUAD_MLFLOW_TRACKING_URI: http://mlflow:5000
+    MEDQUAD_CORPUS_MANIFEST: data/manifests/corpus_manifest.json
+    MEDQUAD_GATE_HEURISTIC_PATH: configs/retrieval/gate_heuristic.json
+    HF_HOME: /hf
+    HF_HUB_OFFLINE: "1"
+    TRANSFORMERS_OFFLINE: "1"
+    TORCH_DISABLE_NATIVE_JIT: "1"       # D-030: no Triton/native JIT (no compiler or Python.h in the image)
+  volumes:
+    - ../data:/app/data:ro
+    - ../artifacts:/app/artifacts:ro
+    - ../configs:/app/configs:ro
+    - ${MEDQUAD_HF_CACHE:-${HOME}/.cache/huggingface}:/hf:ro
+  ports:
+    - "127.0.0.1:${MEDQUAD_API_PORT:-8000}:8000"
+  depends_on:
+    qdrant:
+      condition: service_started
+  stop_grace_period: 30s
+
+services:
+  qdrant:
+    image: qdrant/qdrant:v1.19.1-unprivileged@sha256:801777072776dc81b2a9dd2007b2ed487571f21ecd30efffd15ddb1671f2193d
+    <<: *hardening
+    environment:
+      QDRANT__TELEMETRY_DISABLED: "true"
+      QDRANT__SERVICE__HTTP_PORT: "6333"
+    volumes:
+      - qdrant_storage:/qdrant/storage
+      - qdrant_snapshots:/qdrant/snapshots
+    ports:
+      - "127.0.0.1:${MEDQUAD_QDRANT_PORT:-6333}:6333"
+
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v3.16.1@sha256:06058cc872276873e9759c635e773342aca4731e240f6d20d88ea43774083984
+    <<: *hardening
+    # Writes to the host bind mount ../mlruns, so it runs as the host user (non-root), not uid 10001.
+    user: "${MEDQUAD_UID:-1000}:${MEDQUAD_GID:-1000}"
+    environment:
+      HOME: /tmp
+    command:
+      - mlflow
+      - server
+      - --host=0.0.0.0
+      - --port=5000
+      - --backend-store-uri=sqlite:////mlflow/mlflow.db
+      - --artifacts-destination=/mlflow/artifacts
+      - --serve-artifacts
+      - --workers=2
+      - --allowed-hosts=localhost,localhost:*,127.0.0.1,127.0.0.1:*,mlflow,mlflow:*
+    volumes:
+      - ../mlruns:/mlflow
+    ports:
+      - "127.0.0.1:${MEDQUAD_MLFLOW_PORT:-5000}:5000"
+
+  api-gpu:
+    <<: *api
+    profiles: [gpu]
+    image: medquad-api:${MEDQUAD_API_TAG:-gpu}
+    build:
+      context: ..
+      dockerfile: deploy/docker/api.Dockerfile
+      args: {VARIANT: gpu}
+    devices:
+      - nvidia.com/gpu=all             # CDI (spec /var/run/cdi/nvidia.yaml); no nvidia runtime needed
+    environment:
+      <<: *api-env
+      MEDQUAD_DEVICE: cuda
+      MEDQUAD_RETRIEVER: ${MEDQUAD_RETRIEVER:-hybrid}
+    networks:
+      default:
+        aliases: [api]
+
+  api-cpu:
+    <<: *api
+    profiles: [cpu]
+    image: medquad-api:${MEDQUAD_API_TAG:-cpu}
+    build:
+      context: ..
+      dockerfile: deploy/docker/api.Dockerfile
+      args: {VARIANT: cpu}
+    environment:
+      <<: *api-env
+      MEDQUAD_DEVICE: cpu
+      MEDQUAD_RETRIEVER: bm25
+    networks:
+      default:
+        aliases: [api]
+
+  ui:
+    <<: *hardening
+    image: medquad-ui:${MEDQUAD_UI_TAG:-local}
+    build:
+      context: ..
+      dockerfile: deploy/docker/ui.Dockerfile
+    user: "10001:10001"
+    environment:
+      MEDQUAD_API_URL: http://api:8000
+    ports:
+      - "127.0.0.1:${MEDQUAD_UI_PORT:-8501}:8501"
+    depends_on:
+      api-gpu: {condition: service_started, required: false}
+      api-cpu: {condition: service_started, required: false}
+
+  prometheus:
+    image: prom/prometheus:v3.5.0@sha256:63805ebb8d2b3920190daf1cb14a60871b16fd38bed42b857a3182bc621f4996
+    <<: *hardening
+    profiles: [monitoring]
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=7d
+      - --web.listen-address=0.0.0.0:9090
+    volumes:
+      - ../configs/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ../configs/monitoring/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "127.0.0.1:${MEDQUAD_PROMETHEUS_PORT:-9090}:9090"
+
+volumes:
+  qdrant_storage:
+  qdrant_snapshots:
+  prometheus_data:

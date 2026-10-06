@@ -19,6 +19,7 @@ near-identical text, between train and test. All splitting therefore happens at 
 | Same (normalized question, normalized answer) | yes | yes |
 | Plain near-duplicate answer: word 5-shingles, Jaccard ≥ `near_dup_jaccard` | yes | yes |
 | Same folded topic key (across sources) | – | yes |
+| Same folded topic key after removing parenthetical text ("X" vs "X (abbrev)") | – | yes |
 | Same folded question | – | yes |
 | Template near-duplicate: Jaccard ≥ `near_dup_jaccard` after masking each record's own topic name | – | yes |
 
@@ -58,6 +59,7 @@ The split labels are `train`, `validation` and `test`, the same names used by `A
 - the same split_group in more than one split
 - the same duplicate_group in more than one split
 - the same topic key in more than one split
+- the same bracket-stripped topic key in more than one split
 - the same folded question in more than one split
 - the same non-boilerplate normalized answer in more than one split
 - a plain near-duplicate pair (J ≥ threshold) that crosses splits
@@ -67,15 +69,16 @@ The split labels are `train`, `validation` and `test`, the same names used by `A
 - boilerplate answers that span splits (allowed by design)
 - residual pairs with topic-masked Jaccard in [`residual_jaccard_min`, threshold) that cross splits,
   listed by record ID and J
-- topics that would merge only after their parenthetical text is removed (e.g. "X" vs "X (abbrev)"),
-  with the splits they touch
+- topics that merge only after their parenthetical text is removed, listed with the splits they touch
+  (whether such a merge crosses splits is itself a blocking check)
 
 ## Revision history
 
 | split_version | change |
 |---|---|
 | `split-20261006-c759a1668f89` | First candidate. Rejected by evaluator finding F-001 (`docs/security/findings.md`): the folded keys kept hyphens, apostrophes and commas, the boilerplate rule swallowed answers shared across numbered subtypes, and the rare-shingle df ≤ 10 filter missed content near-duplicates |
-| current (see `split_manifest.meta.json`) | Alphanumeric folding, family-aware boilerplate rule, `rare_shingle_max_df` 10 → 25. Regression tests in `tests/data` |
+| `split-20261006-dd1d7f31e9bc` | Alphanumeric folding, family-aware boilerplate rule, `rare_shingle_max_df` 10 → 25 |
+| `split-20261006-2f0fb25ee6d8` (**FROZEN**, evaluator sign-off 2026-10-06) | Evaluator CR3: topics that match after their parenthetical alias is removed ("X" vs "X (abbrev)") now link split groups, and a cross-split merge is a blocking check. Regression tests cover each F-001 class plus CR3: the pair must be linked, and a leak must be detected if forced |
 
 ## Evaluator sign-off
 
@@ -89,4 +92,5 @@ rebuilt.
 - Paraphrased content with low lexical overlap is not detected.
 - Different conditions that share pathophysiology can still teach transferable facts across splits.
 - Topic names that differ in spelling, beyond case, whitespace and trailing punctuation, are not
-  merged. The bracket diagnostic covers one common pattern.
+  merged. Bracketed aliases are handled; topic families such as "Vitamin A" and "Vitamin C" are
+  deliberately not merged.

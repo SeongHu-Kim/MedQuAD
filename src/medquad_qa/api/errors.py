@@ -16,9 +16,20 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from medquad_qa.contracts import (
     ArtifactUnavailableError,
     GenerationError,
+    GenerationParams,
     GenerationTimeoutError,
     ModeUnavailableError,
+    QARequest,
 )
+
+# loc elements that may be returned verbatim; anything else (e.g. a client-chosen extra key) is masked.
+_KNOWN_LOC = (
+    frozenset({"body", "query", "path", "header"}) | set(QARequest.model_fields) | set(GenerationParams.model_fields)
+)
+
+
+def _safe_loc(loc: tuple[Any, ...] | list[Any]) -> list[str]:
+    return [str(p) if isinstance(p, int) or p in _KNOWN_LOC else "<extra>" for p in loc]
 
 
 class ErrorResponse(BaseModel):
@@ -63,8 +74,7 @@ async def validation_exception_handler(request: Request, exc: Exception) -> JSON
     """422 listing field locations and error types only: never the submitted input."""
     assert isinstance(exc, RequestValidationError)
     details = [
-        {"loc": [str(p) for p in err.get("loc", ())], "type": str(err.get("type", "value_error"))}
-        for err in exc.errors()
+        {"loc": _safe_loc(err.get("loc", ())), "type": str(err.get("type", "value_error"))} for err in exc.errors()
     ]
     return error_response(request, 422, "validation_error", "Request validation failed.", errors=details)
 

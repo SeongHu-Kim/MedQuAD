@@ -8,8 +8,11 @@ from __future__ import annotations
 import json
 from collections.abc import Iterable
 from pathlib import Path
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
+
+RUN_SCHEMA: Literal["medquad-retrieval-run-v1"] = "medquad-retrieval-run-v1"
 
 
 class RunHit(BaseModel):
@@ -22,8 +25,9 @@ class RunHit(BaseModel):
 
 
 class RetrievalRunRecord(BaseModel):
-    model_config = ConfigDict(frozen=True, extra="forbid")
+    model_config = ConfigDict(frozen=True, extra="forbid", populate_by_name=True)
 
+    schema_: Literal["medquad-retrieval-run-v1"] = Field(default=RUN_SCHEMA, alias="schema")
     example_id: str
     retriever: str
     index_version: str | None = None

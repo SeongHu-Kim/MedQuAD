@@ -7,7 +7,7 @@ COMPOSE := docker compose -f deploy/compose.yaml
 export TORCH_DISABLE_NATIVE_JIT ?= 1
 OFFLINE_MARKERS := not gpu and not real_model and not docker and not slow
 
-.PHONY: help venv install lint format typecheck test test-all ci up down gpu-check stack-smoke api-host
+.PHONY: help venv install lint format typecheck test test-all ci up down gpu-check stack-smoke api-host ui-host image-smoke rollback compose-config
 
 help:
 	@grep -E '^[a-z-]+:' Makefile | cut -d: -f1 | sort | tr '\n' ' '; echo
@@ -51,7 +51,20 @@ gpu-check:
 	bash scripts/ops/validate_gpu_container.sh
 
 stack-smoke:
-	bash scripts/ops/stack_up_smoke.sh
+	PROFILE=$(PROFILE) bash scripts/ops/stack_up_smoke.sh
 
 api-host:
 	bash scripts/service/run_api_host.sh
+
+ui-host:
+	bash scripts/service/run_ui_host.sh
+
+image-smoke:
+	$(COMPOSE) --profile cpu build api-cpu
+	bash scripts/ops/image_smoke.sh medquad-api:cpu
+
+rollback:
+	VARIANT=$(PROFILE) bash scripts/ops/rollback.sh rollback
+
+compose-config:
+	for p in cpu gpu monitoring; do $(COMPOSE) --profile $$p config -q; done

@@ -1,0 +1,29 @@
+# Local alert rules (evaluated by Prometheus; no Alertmanager/notifications are configured).
+groups:
+  - name: medquad-api
+    rules:
+      - alert: MedquadApiDown
+        expr: up{job="medquad-api"} == 0
+        for: 2m
+        labels: {severity: page}
+        annotations: {summary: "API scrape failing"}
+      - alert: MedquadPipelineNotReady
+        expr: medquad_pipeline_state{state="ready"} == 0
+        for: 10m
+        labels: {severity: ticket}
+        annotations: {summary: "Pipeline not ready (building or failed); see /health/ready"}
+      - alert: MedquadHighErrorRate
+        expr: sum(rate(medquad_qa_requests_total{outcome="error"}[10m])) / clamp_min(sum(rate(medquad_qa_requests_total[10m])), 1e-9) > 0.2
+        for: 10m
+        labels: {severity: ticket}
+        annotations: {summary: "More than 20% of QA requests failed over 10 minutes"}
+      - alert: MedquadSlowP95
+        expr: histogram_quantile(0.95, sum by (le) (rate(medquad_qa_latency_seconds_bucket[10m]))) > 60
+        for: 10m
+        labels: {severity: ticket}
+        annotations: {summary: "p95 QA latency above 60 s"}
+      - alert: MedquadCitationFailuresRising
+        expr: sum(rate(medquad_qa_citation_failures_total[30m])) / clamp_min(sum(rate(medquad_qa_requests_total{mode=~"rag|finetuned_rag"}[30m])), 1e-9) > 0.1
+        for: 30m
+        labels: {severity: ticket}
+        annotations: {summary: "More than 10% of RAG responses had citation-validation failures"}

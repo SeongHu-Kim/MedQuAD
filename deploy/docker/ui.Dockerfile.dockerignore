@@ -1,0 +1,8 @@
+# Allow-list build context for ui.Dockerfile: code + dependency pins only (no data, models, indexes, .env).
+*
+!pyproject.toml
+!requirements.lock
+!constraints/
+!src/
+src/**/__pycache__
+src/*.egg-info

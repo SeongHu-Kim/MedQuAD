@@ -75,6 +75,12 @@ Versions:
 Outputs contain no timestamps or absolute paths, so a rebuild is byte-identical
 (`python -m medquad_qa.data verify`).
 
+## Status
+
+Split frozen on 2026-10-06 after evaluator sign-off (E1, F-001 retest PASS):
+`split-20261006-2f0fb25ee6d8` on corpus `medquad-1.0.0-86e384302357`. See `split_design.md` for the
+revision history. Any later change to the data rules produces a new split_version and needs a new sign-off.
+
 ## Known limitations
 
 - Grouping is derived from content and topic because document metadata is absent. It is weaker than
@@ -82,6 +88,11 @@ Outputs contain no timestamps or absolute paths, so a rebuild is byte-identical
 - Near-duplicate detection needs shared rare shingles. Very short answers are matched only exactly, and
   some pairs that overlap only on common template text may be missed. Residual similar pairs across
   splits (Jaccard 0.5–0.8) are listed by ID, not hidden.
+- Topic families (numbered subtypes such as "Dystonia 1" / "Dystonia 11" or "Spinocerebellar ataxia N")
+  are **not** grouped, because a suffix-stripping rule would also merge unrelated topics such as
+  "Vitamin A" / "Vitamin C". The evaluator's crude family rule finds cross-split families. Their answers
+  are distinct (no cross-split content near-duplicates), so this is disclosed and not counted as leakage.
+  Answers copied verbatim across a family *are* linked (family-aware boilerplate rule).
 - A duplicate group can contain near-identical templated answers about different conditions. Downstream
   collapse should also key on topic.
 - Boilerplate answers appear in several splits by design.

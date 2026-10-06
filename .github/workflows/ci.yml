@@ -1,0 +1,82 @@
+# CI for MedQuAD QA. Owner: service-platform-engineer.
+# Offline only: no dataset, no model downloads, no GPU, no secrets, nothing pushed or published.
+# This repository has no remote yet; the local equivalent is `make ci` (see docs/operations/ci.md).
+name: ci
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+  OFFLINE_MARKERS: "not gpu and not real_model and not real_data and not docker and not slow"
+
+jobs:
+  test:
+    name: lint / types / offline tests (${{ matrix.runner }})
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-24.04, ubuntu-24.04-arm]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install (CPU torch; lock minus the CUDA stack)
+        run: |
+          python -m venv .venv
+          .venv/bin/pip install --index-url https://download.pytorch.org/whl/cpu "torch==2.14.1+cpu"
+          grep -viE '^(torch|triton|nvidia-)' requirements.lock > /tmp/lock-no-torch.txt
+          .venv/bin/pip install -c /tmp/lock-no-torch.txt -e ".[ml,retrieval,api,ui,tracking,eval,dev]"
+      - name: Ruff
+        run: |
+          .venv/bin/ruff check src tests
+          .venv/bin/ruff format --check src tests
+      - name: Mypy
+        run: .venv/bin/mypy src/medquad_qa
+      - name: Pytest (offline markers only)
+        env:
+          HF_HUB_OFFLINE: "1"
+        run: .venv/bin/pytest -m "$OFFLINE_MARKERS" -q
+
+  compose-and-images:
+    name: compose config + CPU image build (no push)
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compose config (all profiles)
+        run: |
+          for p in cpu gpu monitoring; do docker compose -f deploy/compose.yaml --profile "$p" config -q; done
+      - name: Build CPU API and UI images (local only)
+        run: |
+          docker build -f deploy/docker/api.Dockerfile --build-arg VARIANT=cpu -t medquad-api:ci-cpu .
+          docker build -f deploy/docker/ui.Dockerfile -t medquad-ui:ci .
+      - name: Container smoke (live 200, ready 503 without artifacts)
+        run: bash scripts/ops/image_smoke.sh medquad-api:ci-cpu
+
+  pip-audit:
+    name: dependency audit (non-blocking)
+    runs-on: ubuntu-24.04
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: |
+          pip install pip-audit
+          grep -viE '^(torch|triton|nvidia-)' requirements.lock > /tmp/lock-audit.txt
+          pip-audit -r /tmp/lock-audit.txt --no-deps --progress-spinner off
