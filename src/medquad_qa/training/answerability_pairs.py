@@ -8,6 +8,9 @@ Rules (agreed with evaluation-safety-engineer; label_provenance = synthetic_rule
 - negatives, as many as positives per question, types assigned round-robin from a seeded RNG:
   easy_random (different topic), same_topic_diff_qtype (same topic, different question_type),
   lexical_hard_bm25 (top BM25 answer in the same split with a different topic and duplicate group).
+Evaluator conditions (D-033): C1 easy/BM25 negatives come from a different split_group_id than the question;
+C2 a negative whose whitespace-normalised text equals one of the question's positive texts is dropped (counted);
+C3 boilerplate records are excluded from positives AND negatives; C4 own-answer positives are flagged.
 "Same topic + same question type" is a proxy for "the evidence suffices"; it is not a clinical judgement.
 """
 
@@ -35,8 +38,21 @@ def first_chunk(text: str, max_words: int = EVIDENCE_MAX_WORDS) -> str:
     return " ".join(words[:max_words])
 
 
-def _key(r: MedicalRecord) -> str:
-    return (r.topic or "").casefold()
+def _key(r: MedicalRecord) -> str | None:
+    return r.topic.casefold() if r.topic else None
+
+
+def _norm(text: str) -> str:
+    return " ".join(text.split())
+
+
+def _distinct(q: MedicalRecord, cand: MedicalRecord) -> bool:
+    """Different topic, duplicate group AND split group (C1)."""
+    return (
+        _key(cand) != _key(q)
+        and cand.duplicate_group_id != q.duplicate_group_id
+        and cand.split_group_id != q.split_group_id
+    )
 
 
 class _LexicalIndex:
@@ -57,18 +73,30 @@ class _LexicalIndex:
         docs, _ = self.model.retrieve(tokens, k=min(k, len(self.pool)), show_progress=False)
         for idx in docs[0]:
             cand = self.pool[int(idx)]
-            if _key(cand) != _key(q) and cand.duplicate_group_id != q.duplicate_group_id:
+            if _distinct(q, cand):
                 return cand
         return None
 
 
-def build_pairs(records: Sequence[MedicalRecord], split: SplitName, seed: int = 20261006) -> list[AnswerabilityPair]:
+def is_own_answer(pair: AnswerabilityPair) -> bool:
+    return ":pos-self:" in pair.pair_id
+
+
+def build_pairs(
+    records: Sequence[MedicalRecord], split: SplitName, seed: int = 20261006, stats: dict[str, int] | None = None
+) -> list[AnswerabilityPair]:
+    """Build pairs for one split. ``stats`` (optional) receives drop counters, e.g. ``c2_dropped_negatives``."""
+    stats = stats if stats is not None else {}
+    stats.setdefault("c2_dropped_negatives", 0)
+    stats.setdefault("questions_without_negative", 0)
     rng = random.Random(f"{seed}:{split}")  # noqa: S311 - reproducible sampling, not security
     recs = sorted(records, key=lambda r: r.record_id)
     pool = [r for r in recs if not EXCLUDED_FLAGS.intersection(r.quality_flags) and r.answer.strip()]
     by_topic: dict[str, list[MedicalRecord]] = defaultdict(list)
     for r in pool:
-        by_topic[_key(r)].append(r)
+        key = _key(r)
+        if key is not None:
+            by_topic[key].append(r)
     index = _LexicalIndex(pool)
     pairs: list[AnswerabilityPair] = []
 
@@ -89,22 +117,33 @@ def build_pairs(records: Sequence[MedicalRecord], split: SplitName, seed: int = 
         )
 
     for q in pool:
-        n_pos = 1
+        positives = [q]
         add(q, q, True, "pos-self", None)
+        key = _key(q)
         sibs = [
             r
-            for r in by_topic[_key(q)]
+            for r in (by_topic[key] if key is not None else [])
             if r.record_id != q.record_id and q.question_type is not None and r.question_type == q.question_type
         ]
         if sibs:
-            add(q, rng.choice(sibs), True, "pos-sib", None)
-            n_pos += 1
-        for _ in range(n_pos):
+            sib = rng.choice(sibs)
+            positives.append(sib)
+            add(q, sib, True, "pos-sib", None)
+        positive_texts = {_norm(first_chunk(r.answer)) for r in positives}
+        used: set[str] = set()
+        for _ in positives:
             for neg_type in rng.sample(NEGATIVE_TYPES, k=len(NEGATIVE_TYPES)):  # first type that yields a candidate
                 e = _negative(q, neg_type, pool, by_topic, index, rng)
-                if e is not None:
-                    add(q, e, False, f"neg-{neg_type}", neg_type)
-                    break
+                if e is None or e.record_id in used:
+                    continue
+                if _norm(first_chunk(e.answer)) in positive_texts:  # C2
+                    stats["c2_dropped_negatives"] += 1
+                    continue
+                used.add(e.record_id)
+                add(q, e, False, f"neg-{neg_type}", neg_type)
+                break
+        if not used:
+            stats["questions_without_negative"] += 1
     return pairs
 
 
@@ -119,16 +158,21 @@ def _negative(
     if neg_type == "easy_random":
         for _ in range(20):
             cand = rng.choice(pool)
-            if _key(cand) != _key(q):
+            if _distinct(q, cand):
                 return cand
         return None
-    if neg_type == "same_topic_diff_qtype":
-        cands = [r for r in by_topic[_key(q)] if r.question_type != q.question_type and r.record_id != q.record_id]
-        return rng.choice(cands) if cands and q.question_type is not None else None
+    if neg_type == "same_topic_diff_qtype":  # same group by construction (C1 exception)
+        key = _key(q)
+        if key is None or q.question_type is None:
+            return None
+        cands = [r for r in by_topic[key] if r.question_type != q.question_type and r.record_id != q.record_id]
+        return rng.choice(cands) if cands else None
     return index.hard_negative(q)
 
 
-def write_pairs(pairs: list[AnswerabilityPair], text_path: Path, manifest_path: Path) -> None:
+def write_pairs(
+    pairs: list[AnswerabilityPair], text_path: Path, manifest_path: Path, split_version: str | None = None
+) -> None:
     """Full pairs (with dataset text; gitignored) + an IDs-only manifest for leakage checks (tracked)."""
     text_path.parent.mkdir(parents=True, exist_ok=True)
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
@@ -138,7 +182,9 @@ def write_pairs(pairs: list[AnswerabilityPair], text_path: Path, manifest_path: 
     keep = ("pair_id", "question_record_id", "evidence_record_id", "split", "split_group_id", "label", "negative_type")
     with manifest_path.open("w", encoding="utf-8") as f:
         for p in pairs:
-            f.write(json.dumps({k: getattr(p, k) for k in keep}) + "\n")
+            row = {k: getattr(p, k) for k in keep}
+            row.update(own_answer=is_own_answer(p), pair_rule_version=p.pair_rule_version, split_version=split_version)
+            f.write(json.dumps(row) + "\n")
 
 
 def read_pairs(path: Path) -> list[AnswerabilityPair]:

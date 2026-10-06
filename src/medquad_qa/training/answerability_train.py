@@ -12,6 +12,7 @@ import numpy as np
 from medquad_qa.contracts.answerability import AnswerabilityPair
 from medquad_qa.models.answerability import FEATURE_NAMES, LexicalFeaturizer, LexicalLRModel, lexlr_version
 from medquad_qa.training import classifier_metrics as cm
+from medquad_qa.training.answerability_pairs import is_own_answer
 
 
 def labels(pairs: list[AnswerabilityPair]) -> np.ndarray:
@@ -26,11 +27,21 @@ def pair_stats(pairs: list[AnswerabilityPair]) -> dict[str, Any]:
     return {
         "n": len(pairs),
         "n_pos": int(sum(p.label for p in pairs)),
-        "n_pos_self": sum(":pos-self:" in p.pair_id for p in pairs),
+        "n_pos_self": sum(is_own_answer(p) for p in pairs),
         "n_pos_sib": sum(":pos-sib:" in p.pair_id for p in pairs),
         "negatives_by_type": neg,
         "n_questions": len({p.question_record_id for p in pairs}),
         "n_split_groups": len({p.split_group_id for p in pairs}),
+    }
+
+
+def eval_blocks(prefix: str, pairs: list[AnswerabilityPair], p: np.ndarray, threshold: float) -> dict[str, Any]:
+    """Metrics on all pairs and, as the headline (evaluator C4), on pairs without own-answer positives."""
+    keep = np.asarray([not is_own_answer(x) for x in pairs])
+    sub = [x for x, k in zip(pairs, keep, strict=True) if k]
+    return {
+        prefix: cm.evaluate(labels(pairs), p, threshold, [x.negative_type for x in pairs]),
+        f"{prefix}_excl_own_answer": cm.evaluate(labels(sub), p[keep], threshold, [x.negative_type for x in sub]),
     }
 
 
@@ -76,12 +87,12 @@ def train_lexical_baseline(
         "coefficients": dict(zip(FEATURE_NAMES, map(float, clf.coef_[0]), strict=True)),
         "hyperparameters": {"C": c, "solver": clf.solver, "max_iter": 2000, "seed": seed, "standardised": True},
         "threshold": thr,
-        "val": cm.evaluate(labels(val), p_val, thr["threshold"], [p.negative_type for p in val]),
+        **eval_blocks("val", val, p_val, thr["threshold"]),
         "created_at_utc": datetime.now(UTC).isoformat(timespec="seconds"),
     }
     if test:
         p_test = model.score([p.question for p in test], [p.evidence_text for p in test])
-        result["test"] = cm.evaluate(labels(test), p_test, thr["threshold"], [p.negative_type for p in test])
+        result.update(eval_blocks("test", test, p_test, thr["threshold"]))
         np.save(out_dir / "test_scores.npy", p_test)
     np.save(out_dir / "val_scores.npy", p_val)
     return result

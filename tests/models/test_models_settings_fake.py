@@ -64,3 +64,12 @@ def test_fake_failures_and_bounds() -> None:
         FakeGenerator(max_input_tokens=2).generate(_msgs("one two three"), GenerationParams())
     out = FakeGenerator(lambda m: "w " * 10).generate(_msgs("q"), GenerationParams(max_new_tokens=3))
     assert out.finish_reason == "length" and out.completion_tokens == 3
+
+
+def test_load_answerability_predictor_missing(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    from medquad_qa.contracts.interfaces import ArtifactUnavailableError
+    from medquad_qa.models import load_answerability_predictor
+
+    monkeypatch.delenv("MEDQUAD_ANSWERABILITY_DIR", raising=False)
+    with pytest.raises(ArtifactUnavailableError):
+        load_answerability_predictor(ModelSettings(model_dir=tmp_path))

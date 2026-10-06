@@ -51,6 +51,7 @@ def read_records(path: Path) -> Iterator[MedicalRecord]:
 @dataclass
 class SFTExample:
     record_id: str
+    split_group_id: str
     source_name: str | None
     input_ids: list[int]
     labels: list[int]
@@ -140,6 +141,7 @@ class SFTBuilder:
         kept_answer = len(target) - (0 if truncated else len(self.eot_ids))
         return SFTExample(
             record_id=record.record_id,
+            split_group_id=record.split_group_id,
             source_name=record.source_name,
             input_ids=prompt + target,
             labels=[IGNORE_INDEX] * len(prompt) + target,

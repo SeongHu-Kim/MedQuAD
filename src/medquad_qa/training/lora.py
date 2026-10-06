@@ -276,6 +276,19 @@ def load_base_for_training(base: GeneratorConfig, device: torch.device, bf16: bo
     return model.to(device), tokenizer  # type: ignore[arg-type]
 
 
+def _write_sft_ids(examples: list[SFTExample], path: Path, split_version: str | None) -> None:
+    """IDs-only list of the records actually trained on (for the evaluator's leakage gate; no text)."""
+    with path.open("w", encoding="utf-8") as f:
+        for ex in examples:
+            row = {
+                "record_id": ex.record_id,
+                "split_group_id": ex.split_group_id,
+                "truncated": ex.truncated,
+                "split_version": split_version,
+            }
+            f.write(json.dumps(row) + "\n")
+
+
 # --------------------------------------------------------------------------- main entry
 def run_sft(
     config: SFTTrainConfig,
@@ -321,7 +334,8 @@ def run_sft(
     val_ex, val_report = build_from_file(builder, val_path)
     write_report(train_report, run_dir / "sft_build_train.json")
     write_report(val_report, run_dir / "sft_build_val.json")
-    val_ex = val_ex[: config.eval_max_examples]  # file order is deterministic (sorted export)
+    val_ex = val_ex[: config.eval_max_examples]  # file order is deterministic (export order)
+    _write_sft_ids(train_ex, run_dir / "sft_record_ids.jsonl", (data_versions or {}).get("split_version"))
 
     model.config.use_cache = False
     if config.gradient_checkpointing:
@@ -436,6 +450,7 @@ def run_sft(
         "base_model_id": base.model_id,
         "base_revision": base.revision,
         "format_version": config.format_version,
+        "message_builder": (data_versions or {}).get("message_builder"),
         "tokenizer": _tokenizer_meta(tokenizer, builder),
         "created_at_utc": created.isoformat(timespec="seconds"),
     }
@@ -499,7 +514,7 @@ def run_sft(
     }
     (run_dir / "run_manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     _plot_loss(run_dir / "metrics.jsonl", run_dir / "loss_curve.png")
-    for p in ("run_manifest.json", "loss_curve.png", "sft_build_train.json", "metrics.jsonl"):
+    for p in ("run_manifest.json", "loss_curve.png", "sft_build_train.json", "metrics.jsonl", "sft_record_ids.jsonl"):
         tracker.artifact(run_dir / p)
     tracker.end(status)
     return manifest

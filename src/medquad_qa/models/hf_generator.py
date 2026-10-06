@@ -98,6 +98,10 @@ class HFGenerator:
         self.model_version = model_version
         self.adapter_name = adapter_name
 
+    @property
+    def max_input_tokens(self) -> int:
+        return self.config.max_input_tokens
+
     # ------------------------------------------------------------------ tokens
     def encode(self, messages: list[ChatMessage]) -> list[int]:
         """Prompt token ids after the chat template (with the assistant generation prompt)."""

@@ -29,19 +29,22 @@ def _message_builder(name: str) -> tuple[MessageBuilder, str]:
     if name == "pipeline":  # the RAG pipeline's frozen closed-book builder (retrieval-engineer)
         from medquad_qa.rag import prompts
 
-        return prompts.build_closed_book_messages, f"rag.prompts.build_closed_book_messages@{prompts.PROMPT_VERSION}"
+        return prompts.build_closed_book_messages, prompts.CLOSED_BOOK_PROMPT_VERSION
     raise SystemExit(f"unknown --prompt-builder {name}")
 
 
-def _data_versions(exports_dir: Path) -> dict[str, Any]:
-    manifest = exports_dir.parent.parent / "manifests" / "exports_manifest.json"
-    if not manifest.is_file():
-        manifest = Path("data/manifests/exports_manifest.json")
-    if not manifest.is_file():
-        return {"exports_manifest": None}
-    data = json.loads(manifest.read_text(encoding="utf-8"))
-    keep = ("corpus_version", "split_version", "files")
-    return {"exports_manifest": str(manifest), **{k: data[k] for k in keep if k in data}}
+def _data_versions() -> dict[str, Any]:
+    """Verify every export's sha256 against data/manifests/exports_manifest.json (data-steward's loader)."""
+    from medquad_qa.data.corpus import load_split
+
+    loaded = {s: load_split(s) for s in ("train", "validation", "test")}  # raises ContractViolationError on drift
+    train = loaded["train"]
+    return {
+        "exports_manifest": "data/manifests/exports_manifest.json",
+        "corpus_version": train.corpus_version,
+        "split_version": train.split_version,
+        "export_sha256_verified": {s: v.sha256 for s, v in loaded.items()},
+    }
 
 
 def main() -> int:
@@ -56,7 +59,7 @@ def main() -> int:
     args = ap.parse_args()
 
     exports = Path(args.exports_dir)
-    paths = {s: exports / f"records_{s}.jsonl" for s in ("train", "val", "test")}
+    paths = {s: exports / f"records_{s}.jsonl" for s in ("train", "validation", "test")}
     missing = [str(p) for p in paths.values() if not p.is_file()]
     if missing:
         print(f"missing exports (data-steward D5): {missing}", file=sys.stderr)
@@ -64,14 +67,14 @@ def main() -> int:
     settings = ModelSettings.from_env()
     builder, builder_name = _message_builder(args.prompt_builder)
     config = SFTTrainConfig.from_yaml(args.config)
-    versions = {**_data_versions(exports), "message_builder": builder_name}
+    versions = {**_data_versions(), "message_builder": builder_name}
 
     manifest = run_sft(
         config,
         base=settings.generator,
         train_path=paths["train"],
-        val_path=paths["val"],
-        heldout_paths=[paths["val"], paths["test"]],
+        val_path=paths["validation"],
+        heldout_paths=[paths["validation"], paths["test"]],
         out_root=Path(args.out_root) if args.out_root else settings.model_dir,
         run_kind=args.run_kind,
         max_steps=args.max_steps,

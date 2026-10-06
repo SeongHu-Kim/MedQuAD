@@ -29,8 +29,9 @@ def precision_target_threshold(y: np.ndarray, p: np.ndarray, target: float = 0.9
 
 def reliability(y: np.ndarray, p: np.ndarray, n_bins: int = N_BINS) -> tuple[float, list[dict[str, Any]]]:
     """ECE over equal-width bins, plus per-bin (count, mean predicted, observed positive rate)."""
+    # same binning as medquad_qa.evaluation.classifier_metrics: [lo, hi), last bin closed
     edges = np.linspace(0.0, 1.0, n_bins + 1)
-    idx = np.clip(np.digitize(p, edges[1:-1], right=True), 0, n_bins - 1)
+    idx = np.minimum((p * n_bins).astype(int), n_bins - 1)
     ece = 0.0
     bins: list[dict[str, Any]] = []
     for b in range(n_bins):
@@ -73,7 +74,10 @@ def evaluate(
 
     ``groups`` (e.g. negative_type, None for positives) adds per-negative-type rejection rates.
     """
-    ece, bins = reliability(y, p)
+    from medquad_qa.evaluation.classifier_metrics import expected_calibration_error
+
+    _, bins = reliability(y, p)
+    ece = expected_calibration_error(y.tolist(), p.tolist(), N_BINS)  # evaluator's implementation (shared numbers)
     out: dict[str, Any] = {
         "n": int(len(y)),
         "n_pos": int(y.sum()),

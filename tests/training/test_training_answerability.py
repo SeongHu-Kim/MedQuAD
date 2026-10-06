@@ -49,7 +49,7 @@ def test_pairs_follow_rules(tmp_path: Path) -> None:
         elif p.negative_type == "same_topic_diff_qtype":
             assert q.topic == e.topic and q.question_type != e.question_type
         else:
-            assert q.topic != e.topic
+            assert q.topic != e.topic and q.split_group_id != e.split_group_id  # C1
     n_pos = sum(p.label for p in pairs)
     assert n_pos == len(pairs) - n_pos  # 1:1
     assert {p.negative_type for p in pairs if not p.label} <= {
@@ -58,10 +58,39 @@ def test_pairs_follow_rules(tmp_path: Path) -> None:
         "lexical_hard_bm25",
     }
 
-    write_pairs(pairs, tmp_path / "pairs.jsonl", tmp_path / "manifest.jsonl")
+    write_pairs(pairs, tmp_path / "pairs.jsonl", tmp_path / "manifest.jsonl", split_version="split-x")
     assert read_pairs(tmp_path / "pairs.jsonl") == pairs
-    first = json.loads((tmp_path / "manifest.jsonl").read_text().splitlines()[0])
-    assert "question" not in first and "evidence_text" not in first
+    rows = [json.loads(line) for line in (tmp_path / "manifest.jsonl").read_text().splitlines()]
+    assert "question" not in rows[0] and "evidence_text" not in rows[0]
+    assert {r["split_version"] for r in rows} == {"split-x"}
+    assert sum(r["own_answer"] for r in rows) == len({p.question_record_id for p in pairs})  # C4
+
+
+def test_c2_drops_negative_identical_to_positive() -> None:
+    recs = _records("tr", 6, 0)
+    # different topic and groups, but the same answer text as record 0 (up to whitespace)
+    clone = recs[0].model_copy(
+        update={
+            "record_id": "mq-" + "f" * 16,
+            "topic": "zzz",
+            "split_group_id": "g-other",
+            "duplicate_group_id": "d-x",
+            "answer": "  " + recs[0].answer.replace(" ", "  "),
+        }
+    )
+    stats: dict[str, int] = {}
+    pairs = build_pairs([*recs, clone], "train", stats=stats)
+    assert not [
+        p
+        for p in pairs
+        if p.question_record_id == recs[0].record_id and not p.label and p.evidence_record_id == clone.record_id
+    ]
+    assert not [
+        p
+        for p in pairs
+        if p.question_record_id == clone.record_id and not p.label and p.evidence_record_id == recs[0].record_id
+    ]
+    assert "c2_dropped_negatives" in stats
 
 
 def test_metrics_and_threshold() -> None:
@@ -83,7 +112,7 @@ def test_lexical_baseline_trains_and_serves(tmp_path: Path) -> None:
     }
     out = tmp_path / "lexlr"
     result = train_lexical_baseline(pairs, out)
-    assert result["val"]["roc_auc"] > 0.5 and "test" in result
+    assert result["val"]["roc_auc"] > 0.5 and "test" in result and "test_excl_own_answer" in result
     assert result["threshold"]["threshold_rule"] == "max_f1_on_validation"
 
     pred = LexicalAnswerabilityPredictor.load(out)
