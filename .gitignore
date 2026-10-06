@@ -1,0 +1,45 @@
+# environments / caches
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.env
+
+# raw + generated data (manifests, data card and small fixtures are tracked)
+/medquad.csv
+data/raw/*
+data/interim/*
+data/processed/*
+!data/**/.gitkeep
+!data/manifests/
+
+# artifacts: weights, indexes, runs, logs (manifests/metrics json/md are tracked)
+artifacts/models/**/*.safetensors
+artifacts/models/**/*.bin
+artifacts/models/**/*.keras
+artifacts/models/**/*.h5
+artifacts/models/**/*.onnx
+artifacts/models/**/*.joblib
+artifacts/models/**/*.skops
+artifacts/models/mlruns-local/
+artifacts/models/**/checkpoint-*/
+artifacts/indexes/*
+!artifacts/indexes/manifests/
+artifacts/logs/
+artifacts/evaluation/**/raw_generations*.jsonl
+artifacts/evaluation/**/per_item/
+mlruns/
+mlartifacts/
+qdrant_storage/
+*.log
+
+# private query logs
+logs/
+
+# service evidence logs (small .md summaries may be tracked explicitly)
+artifacts/service/*
+!artifacts/service/*.md
