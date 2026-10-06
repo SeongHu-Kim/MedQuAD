@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import shutil
+import subprocess
 import sys
 import time
 from pathlib import Path
@@ -12,6 +13,7 @@ from typing import Any
 
 from medquad_qa.contracts import MedQuADError
 from medquad_qa.retrieval.bm25 import build_bm25
+from medquad_qa.retrieval.corpus import sha256_file
 from medquad_qa.retrieval.dense import build_dense, open_qdrant, verify_dense
 from medquad_qa.retrieval.factory import build_retriever, load_store, make_embedder, require_retriever
 from medquad_qa.retrieval.manifest import (
@@ -19,6 +21,7 @@ from medquad_qa.retrieval.manifest import (
     list_manifests,
     load_manifest,
     manifest_path,
+    now_iso,
     read_active,
     set_active,
     verify_files,
@@ -244,43 +247,108 @@ def cmd_query(args: argparse.Namespace) -> int:
     return 0
 
 
+def _git_sha() -> str | None:
+    try:
+        out = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True, timeout=5, check=False)  # noqa: S603, S607
+    except (OSError, subprocess.SubprocessError):
+        return None
+    return out.stdout.strip() or None
+
+
+def _run_meta(args: argparse.Namespace, retriever: Any, queries: Path, n: int, errors: int) -> dict[str, Any]:
+    s = _settings(args, retriever=args.retriever, index_text_mode=args.mode)
+    active = read_active(s.index_dir)
+    indexes = {}
+    for kind in ("bm25", "dense"):
+        version = active.get(f"{kind}:{s.mode_suffix}")
+        if version and (args.retriever in (kind, "hybrid")):
+            m = load_manifest(s.index_dir, version)
+            indexes[m.name] = {"index_version": version, "definition": m.definition}
+    reranker = getattr(retriever, "reranker", None)
+    return {
+        "schema": RUN_SCHEMA,
+        "queries_path": str(queries),
+        "queries_sha256": sha256_file(queries),
+        "n_queries": n,
+        "n_errors": errors,
+        "retriever": retriever.name,
+        "index_version": retriever.index_version,
+        "corpus_version": retriever.corpus_version,
+        "top_k": args.top_k,
+        "collapse_duplicate_groups": bool(args.collapse_duplicates),
+        "collapse_key": "duplicate_group_id+topic" if args.collapse_duplicates else None,
+        "config": {
+            "index_text_mode": s.index_text_mode,
+            "bm25_k1": s.bm25_k1,
+            "bm25_b": s.bm25_b,
+            "embedding_model": s.embedding_model,
+            "embedding_revision": s.embedding_revision,
+            "rrf_k": s.rrf_k,
+            "candidate_k": s.candidate_k,
+            "reranker_model": getattr(reranker, "model_id", None),
+            "reranker_revision": getattr(reranker, "revision", None),
+            "indexes": indexes,
+        },
+        "git_sha": _git_sha(),
+        "created_at": now_iso(),
+        "command": " ".join(["python", "-m", "medquad_qa.retrieval", *sys.argv[1:]]),
+    }
+
+
 def cmd_run(args: argparse.Namespace) -> int:
-    """Per-query ranked hits for frozen evaluation queries (IDs and scores only; no evidence text)."""
+    """Per-query ranked hits for frozen evaluation queries (IDs and scores only; no question/evidence text).
+
+    Row format agreed with evaluation-safety-engineer (D-024); a ``<out>.meta.json`` sidecar holds the config.
+    """
     retriever = _retriever_for(args)
+    queries = Path(args.queries)
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
-    n = 0
+    lexical_version = getattr(getattr(retriever, "lexical", None), "index_version", None)
+    n = errors = 0
     total_ms = 0.0
-    with Path(args.queries).open(encoding="utf-8") as fin, out.open("w", encoding="utf-8") as fout:
+    with queries.open(encoding="utf-8") as fin, out.open("w", encoding="utf-8") as fout:
         for line in fin:
             if not line.strip():
                 continue
             item = json.loads(line)
+            error: str | None = None
             t0 = time.perf_counter()
-            hits, name, warnings = _retrieve(retriever, item["question"], args.top_k)
+            try:
+                hits, name, warnings = _retrieve(retriever, item["question"], args.top_k)
+            except Exception as exc:  # recorded per query; the run continues
+                hits, name, warnings, error = [], retriever.name, [], type(exc).__name__
+                errors += 1
             ms = (time.perf_counter() - t0) * 1000
             total_ms += ms
+            fallback = name != retriever.name
             row = {
-                "schema": RUN_SCHEMA,
                 "example_id": item["example_id"],
                 "retriever": name,
-                "index_version": retriever.index_version,
+                "index_version": lexical_version if fallback else retriever.index_version,
                 "corpus_version": retriever.corpus_version,
                 "top_k": args.top_k,
                 "latency_ms": round(ms, 3),
                 "warnings": warnings,
+                "error": error,
                 "hits": [
                     {"record_id": h.record_id, "chunk_id": h.chunk_id, "rank": h.rank, "score": h.score} for h in hits
                 ],
             }
-            fout.write(json.dumps(row, sort_keys=True) + "\n")
+            fout.write(json.dumps(row, ensure_ascii=False) + "\n")
             n += 1
+    meta_path = out.with_name(out.name + ".meta.json")
+    meta = _run_meta(args, retriever, queries, n, errors)
+    meta["mean_latency_ms"] = round(total_ms / n, 3) if n else None
+    meta_path.write_text(json.dumps(meta, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     _print(
         {
             "out": str(out),
+            "meta": str(meta_path),
             "queries": n,
+            "errors": errors,
             "retriever": retriever.name,
-            "mean_latency_ms": round(total_ms / n, 3) if n else None,
+            "mean_latency_ms": meta["mean_latency_ms"],
         }
     )
     return 0

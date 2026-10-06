@@ -110,7 +110,8 @@ class SentenceTransformerEmbedder:
         self.device = device
         self.query_prefix = query_prefix
         self.batch_size = batch_size
-        dim = self._model.get_sentence_embedding_dimension()
+        getter = getattr(self._model, "get_embedding_dimension", None) or self._model.get_sentence_embedding_dimension
+        dim = getter()
         if dim is None:
             raise ArtifactUnavailableError(f"cannot determine embedding size for {model_id}")
         self.dim = int(dim)

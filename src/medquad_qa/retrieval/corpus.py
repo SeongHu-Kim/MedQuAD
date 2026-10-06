@@ -66,6 +66,14 @@ def read_corpus_version(manifest_path: Path, corpus_path: Path | None = None) ->
     raise ArtifactUnavailableError(f"corpus manifest not found: {manifest_path}")
 
 
+def read_corpus_sha256(manifest_path: Path) -> str | None:
+    """``corpus_sha256`` recorded by the data-steward manifest, if any."""
+    if not manifest_path.is_file():
+        return None
+    value = json.loads(manifest_path.read_text(encoding="utf-8")).get("corpus_sha256")
+    return value if isinstance(value, str) and value else None
+
+
 def chunk_text(text: str, max_words: int = 200, overlap: int = 40) -> list[tuple[int, int]]:
     """Return (char_start, char_end) windows of <= ``max_words`` words with ``overlap`` words shared.
 

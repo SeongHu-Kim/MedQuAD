@@ -6,12 +6,13 @@ from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from medquad_qa.contracts import MedicalRecord, RetrievalHit
+from medquad_qa.contracts import ContractViolationError, MedicalRecord, RetrievalHit
 from medquad_qa.retrieval.corpus import (
     Chunk,
     chunk_corpus,
     index_text,
     load_corpus,
+    read_corpus_sha256,
     read_corpus_version,
     sha256_file,
 )
@@ -54,10 +55,14 @@ class CorpusStore:
         cls, corpus_path: Path, manifest_path: Path, *, max_words: int = 200, overlap: int = 40
     ) -> CorpusStore:
         records = load_corpus(corpus_path)
+        digest = sha256_file(corpus_path)
+        expected = read_corpus_sha256(manifest_path)
+        if expected is not None and expected != digest:
+            raise ContractViolationError(f"{corpus_path} sha256 does not match {manifest_path} (rebuild the corpus)")
         return cls(
             records=records,
             corpus_version=read_corpus_version(manifest_path, corpus_path),
-            corpus_sha256=sha256_file(corpus_path),
+            corpus_sha256=digest,
             max_words=max_words,
             overlap=overlap,
         )
@@ -96,19 +101,21 @@ def max_p(
     store: CorpusStore, scored: Iterable[ScoredChunk], limit: int, *, collapse_duplicates: bool = False
 ) -> list[RecordCandidate]:
     """Aggregate chunk scores to records by maximum (MaxP). ``scored`` must be sorted best-first
-    with deterministic tie-breaking. Optionally keep only the best record per duplicate group."""
+    with deterministic tie-breaking. Optionally keep only the best record per (duplicate_group_id, topic):
+    duplicate groups can join templated answers about different conditions, so topic is part of the key."""
     out: list[RecordCandidate] = []
     seen_records: set[str] = set()
-    seen_groups: set[str] = set()
+    seen_groups: set[tuple[str, str | None]] = set()
     for sc in scored:
         chunk = store.chunks[sc.chunk_idx]
         if chunk.record_id in seen_records:
             continue
         rec = store.by_id[chunk.record_id]
-        if collapse_duplicates and rec.duplicate_group_id in seen_groups:
+        group = (rec.duplicate_group_id, rec.topic)
+        if collapse_duplicates and group in seen_groups:
             continue
         seen_records.add(chunk.record_id)
-        seen_groups.add(rec.duplicate_group_id)
+        seen_groups.add(group)
         out.append(RecordCandidate(chunk.record_id, sc.chunk_idx, sc.score))
         if len(out) >= limit:
             break

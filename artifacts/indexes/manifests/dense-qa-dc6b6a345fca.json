@@ -1,0 +1,40 @@
+{
+  "schema_version": "medquad-index-manifest-v1",
+  "index_version": "dense-qa-dc6b6a345fca",
+  "kind": "dense",
+  "index_text_mode": "question_answer",
+  "corpus_version": "medquad-1.0.0-86e384302357",
+  "corpus_sha256": "86e384302357346db556387b687369bb407bb5870e70c08c7b0b6facc695ab4b",
+  "n_records": 16336,
+  "n_chunks": 26596,
+  "texts_sha256": "263e8869726a9365bcb9d8e7f46c0618a5994834c01f52b82df5811be3ec6e1a",
+  "definition": {
+    "chunker": "chunk-v1",
+    "chunk_max_words": 200,
+    "chunk_overlap_words": 40,
+    "embedding_model": "BAAI/bge-small-en-v1.5",
+    "embedding_revision": "5c38ec7c405ec4b44b94cc5a9bb96e735b38267a",
+    "dim": 384,
+    "normalize": true,
+    "distance": "cosine",
+    "query_prefix": "Represent this sentence for searching relevant passages: "
+  },
+  "files": {},
+  "qdrant": {
+    "collection": "dense-qa-dc6b6a345fca",
+    "points": 26596,
+    "location_kind": "path"
+  },
+  "build_seconds": 104.007,
+  "created_at": "2026-10-06T07:27:22+00:00",
+  "environment": {
+    "python": "3.12.3",
+    "machine": "aarch64",
+    "bm25s": "0.2.14",
+    "qdrant_client": "unknown",
+    "sentence_transformers": "6.1.0",
+    "transformers": "5.18.0",
+    "torch": "2.14.1+cu130",
+    "Stemmer": "unknown"
+  }
+}

@@ -175,8 +175,8 @@ Status of every task below: **PENDING** (team not yet spawned).
 | ID | Task | Depends | Acceptance |
 |---|---|---|---|
 | R1 (COMPLETE: plan received) | Discovery + retriever/RAG design plan | — | plan received |
-| R2 (COMPLETE on synthetic fixtures; real-corpus build next) | BM25 retriever (common interface), lexical fallback | G1, fixtures | unit tests on fixtures; runs on real corpus after D2 |
-| R3 (PARTIAL: dense + Qdrant lifecycle implemented; real BGE test passed on the synthetic corpus; real-corpus index pending) | Dense retriever + Qdrant index lifecycle + index manifest | R2, D2 | build/rebuild/verify commands; manifest w/ model rev + corpus_version |
+| R2 (COMPLETE: real BM25 indexes bm25-answer-3c6bf6f998cf, bm25-qa-d5f777b26f79) | BM25 retriever (common interface), lexical fallback | G1, fixtures | unit tests on fixtures; runs on real corpus after D2 |
+| R3 (COMPLETE on local mode: 4 real indexes on corpus 86e384302357, 16,336 records / 26,596 chunks, verify ok; server-mode Qdrant build pending S4) | Dense retriever + Qdrant index lifecycle + index manifest | R2, D2 | build/rebuild/verify commands; manifest w/ model rev + corpus_version |
 | R4 | Hybrid (RRF) + optional reranker; answer-only vs Q+A indexing variants | R3 | all variants run on frozen eval queries |
 | R5 (PARTIAL: LCEL pipeline, safety, sanitiser, citations, gate, budget implemented offline; real generator pending M2) | LangChain RAG pipeline, prompt templates, citation validation, abstention | R2, M1 | invalid IDs stripped+flagged; injection-in-evidence tests |
 | R6 | Tests, failure cases, docs; respond to E5 review | R2–R5 | tests green; findings resolved/documented |

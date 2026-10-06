@@ -36,6 +36,14 @@ def _default_generator_provider() -> GeneratorProvider:
     return provider
 
 
+def _default_generator_status() -> Any:
+    try:
+        from medquad_qa.models import generator_status
+    except ImportError:
+        return None
+    return lambda variant: generator_status(variant)
+
+
 def _load_predictor() -> tuple[AnswerabilityPredictor | None, str | None]:
     try:
         from medquad_qa.models import load_answerability_predictor  # type: ignore[attr-defined]
@@ -95,6 +103,7 @@ def build_pipeline(
         observer=observer,
         max_input_tokens=s.max_input_tokens,
         component_statuses=statuses,
+        generator_status=_default_generator_status() if generator_provider is None else None,
     )
     if s.preload_generators:
         pipeline.preload(s.preload_generators)

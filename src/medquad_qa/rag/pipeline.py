@@ -115,6 +115,7 @@ class RagPipeline:
         observer: PipelineObserver | None = None,
         max_input_tokens: int = 3072,
         component_statuses: list[ComponentStatus] | None = None,
+        generator_status: Callable[[str], ComponentStatus] | None = None,
     ) -> None:
         self.retriever = retriever
         self._provider = generator_provider
@@ -125,6 +126,7 @@ class RagPipeline:
         self.observer = observer
         self.max_input_tokens = max_input_tokens
         self._statuses = list(component_statuses or [])
+        self._generator_status = generator_status
         self.prompt_version = PROMPT_VERSION
         self._rag_chain = self._build_rag_chain()
         self._closed_chain = self._build_closed_chain()
@@ -340,14 +342,14 @@ class RagPipeline:
                         ComponentStatus(name=name, ok=True, required=variant == "base", version=gen.model_version)
                     )
                 else:
-                    out.append(
-                        ComponentStatus(
-                            name=name,
-                            ok=False,
-                            required=variant == "base",
-                            detail=self._generator_errors.get(variant, "not loaded"),
-                        )
-                    )
+                    detail = self._generator_errors.get(variant, "not loaded")
+                    if self._generator_status is not None and variant not in self._generator_errors:
+                        try:  # file-level check only; never loads weights
+                            st = self._generator_status(variant)
+                            detail = f"not loaded; {st.detail or ('files ok' if st.ok else 'files missing')}"
+                        except Exception:
+                            log.debug("generator_status failed", exc_info=True)
+                    out.append(ComponentStatus(name=name, ok=False, required=variant == "base", detail=detail))
             if "answerability" not in names:
                 out.append(
                     ComponentStatus(
@@ -362,6 +364,19 @@ class RagPipeline:
             return out
         except Exception as exc:  # contract: never raises
             return [ComponentStatus(name="pipeline", ok=False, required=True, detail=type(exc).__name__)]
+
+    def close(self) -> None:
+        """Release generator references and close the retriever's Qdrant client if any. Idempotent."""
+        with self._lock:
+            self._generators.clear()
+        client = getattr(getattr(self.retriever, "dense", None), "client", None) or getattr(
+            self.retriever, "client", None
+        )
+        if client is not None:
+            try:
+                client.close()
+            except Exception:
+                log.debug("qdrant client close failed", exc_info=True)
 
     def available_modes(self) -> frozenset[ExperimentMode]:
         modes: set[ExperimentMode] = set()

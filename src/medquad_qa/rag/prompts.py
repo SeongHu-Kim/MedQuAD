@@ -38,6 +38,10 @@ CLOSED_BOOK_SYSTEM_PROMPT = (
 )
 
 _TEMPLATES = (RAG_SYSTEM_PROMPT, RAG_USER_TEMPLATE, EVIDENCE_TEMPLATE, CLOSED_BOOK_SYSTEM_PROMPT, SANITIZER_VERSION)
+#: Version of the closed-book template alone (base/finetuned modes; also used by the closed-book SFT builder).
+CLOSED_BOOK_PROMPT_VERSION = (
+    "cb-v1+" + hashlib.sha256("\x1e".join((CLOSED_BOOK_SYSTEM_PROMPT, SANITIZER_VERSION)).encode()).hexdigest()[:8]
+)
 PROMPT_VERSION = "rag-v1+" + hashlib.sha256("\x1e".join(_TEMPLATES).encode()).hexdigest()[:8]
 
 

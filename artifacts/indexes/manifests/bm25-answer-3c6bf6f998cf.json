@@ -1,0 +1,41 @@
+{
+  "schema_version": "medquad-index-manifest-v1",
+  "index_version": "bm25-answer-3c6bf6f998cf",
+  "kind": "bm25",
+  "index_text_mode": "answer",
+  "corpus_version": "medquad-1.0.0-86e384302357",
+  "corpus_sha256": "86e384302357346db556387b687369bb407bb5870e70c08c7b0b6facc695ab4b",
+  "n_records": 16336,
+  "n_chunks": 26596,
+  "texts_sha256": "721b983326ddd8e229bf73ce3aca82b33655eb41fe3f83b5f73c4d8614b377b2",
+  "definition": {
+    "chunker": "chunk-v1",
+    "chunk_max_words": 200,
+    "chunk_overlap_words": 40,
+    "tokenizer": "tok-v1+snowball-en",
+    "k1": 1.5,
+    "b": 0.75,
+    "method": "lucene"
+  },
+  "files": {
+    "bm25/bm25-answer-3c6bf6f998cf/chunk_ids.json": "7de8b5e5eaea7f52b8c394659138bc2b0bdb5edfc0268ced9b4c9d313a013280",
+    "bm25/bm25-answer-3c6bf6f998cf/data.csc.index.npy": "fa9c7dd8468769fd4669ac97f699ed8c01b22e0042aff308f72bf8c4e359331c",
+    "bm25/bm25-answer-3c6bf6f998cf/indices.csc.index.npy": "2507da406b4e1c3fc5787d61d14a1745e83448bbbb114b8e065c795dbdb4b786",
+    "bm25/bm25-answer-3c6bf6f998cf/indptr.csc.index.npy": "0fb2c8df67e4bcfbdb5162026512d8b8bc64a1af9c63a23a90a352c806f1f221",
+    "bm25/bm25-answer-3c6bf6f998cf/params.index.json": "22c6d77fdfb7cb6131c26cbddcda24afac294cb25ddd4d57a84667b8c0acdb2e",
+    "bm25/bm25-answer-3c6bf6f998cf/vocab.index.json": "d837ccabebcdbb51a6d210180ebda0f131002dbc92aa3cc2fcfae8ed60218c53"
+  },
+  "qdrant": null,
+  "build_seconds": 1.697,
+  "created_at": "2026-10-06T07:23:48+00:00",
+  "environment": {
+    "python": "3.12.3",
+    "machine": "aarch64",
+    "bm25s": "0.2.14",
+    "qdrant_client": "unknown",
+    "sentence_transformers": "6.1.0",
+    "transformers": "5.18.0",
+    "torch": "2.14.1+cu130",
+    "Stemmer": "unknown"
+  }
+}

@@ -52,7 +52,21 @@ def test_cli_lifecycle_bm25(settings: RetrievalSettings, tmp_path: Path, capsys:
     capsys.readouterr()
     rows = [json.loads(line) for line in out.read_text().splitlines()]
     assert [r["example_id"] for r in rows] == ["q0", "q1"]
-    assert rows[0]["schema"] == RUN_SCHEMA and rows[0]["retriever"] == "bm25:answer"
+    assert rows[0]["retriever"] == "bm25:answer" and rows[0]["error"] is None
+    assert set(rows[0]) == {
+        "example_id",
+        "retriever",
+        "index_version",
+        "corpus_version",
+        "top_k",
+        "latency_ms",
+        "warnings",
+        "error",
+        "hits",
+    }
+    meta = json.loads((tmp_path / "run.jsonl.meta.json").read_text())
+    assert meta["schema"] == RUN_SCHEMA and meta["n_queries"] == 2 and meta["collapse_duplicate_groups"] is False
+    assert len(meta["queries_sha256"]) == 64 and "bm25:answer" in meta["config"]["indexes"]
     assert [h["rank"] for h in rows[0]["hits"]] == [1, 2, 3]
     assert set(rows[0]["hits"][0]) == {"record_id", "chunk_id", "rank", "score"}  # IDs only, no text
     assert rows[1]["hits"] == []

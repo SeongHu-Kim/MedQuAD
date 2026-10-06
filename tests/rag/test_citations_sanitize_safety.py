@@ -111,3 +111,12 @@ def test_general_questions_not_refused(q: str) -> None:
 def test_emergency_message() -> None:
     d = check_question("I think I overdosed on zorbatine")
     assert d.refuse and d.rule_id == "emergency" and "emergency" in d.message.lower()
+
+
+def test_prompts_module_is_pure() -> None:
+    import subprocess
+    import sys
+
+    code = "import sys, medquad_qa.rag.prompts; print('langchain_core' in sys.modules, 'torch' in sys.modules)"
+    out = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, check=True)  # noqa: S603
+    assert out.stdout.strip() == "False False"
