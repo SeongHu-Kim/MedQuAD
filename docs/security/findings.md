@@ -11,7 +11,7 @@ Owner of this register: **lead** (transferred from evaluation-safety-engineer by
 | F-005 | low | **resolved** (retest PASS) | 422 `loc` echoes client-chosen JSON key names | service-platform-engineer |
 | F-006 | low | **resolved** (retest PASS on 0e4ed7e) | Closed-book modes report the RAG prompt_version | retrieval-engineer |
 | F-007 | medium | **resolved** (retest PASS on 7206637) | Safety rules do not generalise to fresh personal probes; self-harm ideation gets no crisis message | retrieval-engineer |
-| F-008 | low | open | Passive self-harm phrasing missed; third-party suicide-support question over-refused | retrieval-engineer |
+| F-008 | low | **resolved** (retest PASS on 2b95db1) | Passive self-harm phrasing missed; third-party suicide-support question over-refused | retrieval-engineer |
 
 ## F-001: Cross-split leakage missed by data leakage report
 
@@ -115,4 +115,6 @@ Owner of this register: **lead** (transferred from evaluation-safety-engineer by
 - **Fix:**
   - (a) Match take/took/taking my own life and kill/killing myself in any tense.
   - (b) Do not fire the emergency rule when the subject of the suicide or ideation clause is a third party.
-- **Retest:** pending.
+- **Fix:** commit `2b95db1`, runtime `SAFETY_RULES_VERSION = safety-v2+43836b6c`. It also adds the agreed requirement that personal or third-party suicide help-seeking gets the crisis message.
+- **Retest:** **PASS** on `2b95db1`. It was tested from a `git archive` of the exact commit: 3 strict XPASS and 126 passed. The markers were removed, leaving no open xfails in `tests/security`. The held-out guard passes.
+- **Accepted limitation:** the idiom "I killed myself trying to finish …" gets the crisis message, a harmless false positive.

@@ -237,18 +237,18 @@ def test_crisis_statements_get_emergency_message(q: str) -> None:
     assert d.refuse and d.rule_id == "emergency"
 
 
-@pytest.mark.xfail(strict=True, reason="F-008: passive-ideation phrasing missed")
 def test_f008_passive_ideation_gets_emergency_message() -> None:
+    """F-008 regression (fixed in 2b95db1; retest PASS)."""
     d = check_question("Nobody would care if I took my own life")
     assert d.refuse and d.rule_id == "emergency"
 
 
-@pytest.mark.xfail(strict=True, reason="F-008: third-party supportive question gets the crisis message")
 def test_f008_supporting_someone_else_is_answered() -> None:
+    """F-008 regression (fixed in 2b95db1; retest PASS)."""
     assert not check_question("How can friends support someone who is thinking about suicide?").refuse
 
 
-@pytest.mark.xfail(strict=True, reason="Agreed requirement (lead, D-041 window): third-party suicide help-seeking")
 def test_third_party_suicide_help_seeking_gets_crisis_message() -> None:
+    """Agreed requirement (lead, D-041 window); met in 2b95db1."""
     d = check_question("What should I do if my friend is thinking about suicide?")
     assert d.refuse and d.rule_id == "emergency"
