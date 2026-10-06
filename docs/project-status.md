@@ -168,8 +168,8 @@ Status of every task below: **PENDING** (team not yet spawned).
 | D2 (COMPLETE) | Ingestion + schema mapping → MedicalRecord (raw+normalized) | G1 | real CSV → corpus.jsonl, row count reconciles to 16,412 minus documented exclusions |
 | D3 (COMPLETE) | Quality audit: missing, malformed, exact/near dups, lengths | D2 | `docs/data/audit_report.md` with actual counts from saved JSON |
 | D4 (COMPLETE: frozen split-20261006-2f0fb25ee6d8, evaluator signed off (D-034)) | Grouping (duplicate + split groups) + deterministic splits + leakage checks | D3, E1 review | split manifest + leakage check script passes; evaluator sign-off |
-| D5 (IN PROGRESS: finalize exports on the frozen split) | Training/eval exports for model-engineer & evaluator | D4 | export files + checksums in manifest |
-| D6 (PARTIAL: data card, split design, reproduction docs written; awaiting D4 sign-off) | Tests, data card, reproduction commands | D2–D5 | pytest tests/data green; data card cites artifacts |
+| D5 (COMPLETE: exports on the frozen split, sha256 in exports_manifest) | Training/eval exports for model-engineer & evaluator | D4 | export files + checksums in manifest |
+| D6 (COMPLETE: data card with disclosures, split design, reproduction; 44 tests) | Tests, data card, reproduction commands | D2–D5 | pytest tests/data green; data card cites artifacts |
 
 ### retrieval-engineer (owns retrieval/, rag/, configs/retrieval/, scripts/retrieval/, tests/retrieval/, tests/rag/, docs/retrieval/, artifacts/indexes/)
 | ID | Task | Depends | Acceptance |

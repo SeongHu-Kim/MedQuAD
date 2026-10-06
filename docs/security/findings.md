@@ -8,7 +8,7 @@ Owner of this register: **lead** (transferred from evaluation-safety-engineer by
 | F-002 | **high** | open | Personalized-advice rules miss personal/emergency requests and over-refuse general questions | retrieval-engineer |
 | F-003 | medium | open | Unbracketed fabricated record IDs reach the user, uncounted as invalid | retrieval-engineer |
 | F-004 | low | open | Zero-width, fullwidth and RLM look-alikes bypass the sanitiser | retrieval-engineer |
-| F-005 | low | fixed, retest pending | 422 `loc` echoes client-chosen JSON key names | service-platform-engineer |
+| F-005 | low | **resolved** (retest PASS) | 422 `loc` echoes client-chosen JSON key names | service-platform-engineer |
 | F-006 | low | open | Closed-book modes report the RAG prompt_version | retrieval-engineer |
 
 ## F-001: Cross-split leakage missed by data leakage report
@@ -74,7 +74,8 @@ Owner of this register: **lead** (transferred from evaluation-safety-engineer by
 ## F-005: 422 `loc` echoes client-chosen JSON key names
 
 - **Severity:** low. **Files:** `src/medquad_qa/api/errors.py`.
-- **Status:** the strict-xfail test now XPASSes in the lead's run, so the fix appears to have landed. The evaluator should retest and remove the marker.
+- **Fix:** service-platform-engineer, `api/errors.py`. An unknown key now reports `loc: ["body","<extra>"]`.
+- **Retest:** **PASS**. Posting the key `<img src=x onerror=alert(1)>` no longer echoes the key name, and the xfail marker was removed, so the check is now a regular regression test.
 
 ## F-006: Closed-book modes report the RAG prompt_version
 

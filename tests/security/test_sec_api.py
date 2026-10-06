@@ -109,8 +109,8 @@ def test_validation_errors_never_echo_input(client: TestClient, body: dict[str, 
     assert no_canary(r.text), r.text
 
 
-@pytest.mark.xfail(strict=True, reason="F-005: 422 'loc' echoes client-supplied JSON key names")
 def test_validation_error_does_not_echo_unknown_key(client: TestClient) -> None:
+    """F-005 regression (fixed by service-platform-engineer; retest PASS)."""
     r = client.post("/v1/qa", json={"question": Q, CANARY: 1})
     assert no_canary(r.text)
 

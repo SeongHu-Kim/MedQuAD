@@ -1,8 +1,8 @@
 # Data card: MedQuAD corpus (`medquad_qa.data`)
 
 Owner: data-steward. All counts are in [`audit_report.md`](audit_report.md), which is rendered from
-`data/manifests/*.json` by `python -m medquad_qa.data report`. This card does not repeat numbers, so it
-cannot drift from them.
+`data/manifests/*.json` by `python -m medquad_qa.data report`. The only numbers in this card are the
+freeze disclosures, each quoted together with its source artifact.
 
 ## Source
 
@@ -80,6 +80,18 @@ Outputs contain no timestamps or absolute paths, so a rebuild is byte-identical
 Split frozen on 2026-10-06 after evaluator sign-off (E1, F-001 retest PASS):
 `split-20261006-2f0fb25ee6d8` on corpus `medquad-1.0.0-86e384302357`. See `split_design.md` for the
 revision history. Any later change to the data rules produces a new split_version and needs a new sign-off.
+
+## Disclosures at freeze (evaluator sign-off)
+
+Each figure below is quoted from the named artifact for `split-20261006-2f0fb25ee6d8`. None of them is a
+blocking check.
+
+| disclosure | value | source |
+|---|---|---|
+| Cross-split topic families, from the evaluator's crude suffix rule. Diagnostic only: the rule over-merges (e.g. Vitamin A/C/D/E), and the families' answers are distinct | 67 | `artifacts/evaluation/split_verification/report_retest_2f0fb25ee6d8.json` → `diagnostic_counts.topic_family` |
+| Residual cross-split pairs with topic-masked Jaccard 0.5–0.8. Listed by record ID; diagnostic only | 671 of 2215 | `data/manifests/leakage_report.json` → `diagnostics.residual_pairs_cross_split` / `residual_pairs_total` |
+| Generic boilerplate answers present in more than one split (clinical-trials and inheritance-pattern text; reviewed by the evaluator) | 7 | `data/manifests/leakage_report.json` → `diagnostics.boilerplate_answers_cross_split` |
+| Grouping basis | content and topic, not documents (the export has no URLs or document IDs) | `data/manifests/corpus_manifest.json` → `grouping_disclosure` |
 
 ## Known limitations
 
