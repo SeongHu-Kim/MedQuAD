@@ -97,6 +97,24 @@ Current verified status. The "BLOCKED" Docker entries in the session-1 log above
   - the build asserts that duplicate collapse keeps IDs unique and reports the actual count;
   - PyYAML is used for the config files.
 
+### Session 3 (cont.) — Gate G1 released
+
+- All five genuine teammates acknowledged the handoff.
+  - data-steward, model-engineer, service-platform-engineer: no material discrepancies.
+  - evaluation-safety-engineer: 1 material gap, fixed by contracts v1.1.1 (D-021).
+  - retrieval-engineer: 2 material points, ruled on as D-022 (evidence budget) and D-023 (safety rules in all modes).
+- Contracts v1.1.1: `ruff`, `mypy` and `pytest tests/contracts` all pass (14 passed).
+- Baseline commit `b24cf70` (local only; no dataset, venv, or .env).
+- **START IMPLEMENTATION sent to all five at 2026-10-06 ~16:00.**
+- Teammates are not committing. The lead commits after reviewing evidence.
+
+- **S2 verified by the lead:**
+  - `pytest tests/api tests/observability`: 62 passed.
+  - `ruff check` and `ruff format --check` on S2 paths: clean.
+  - `mypy src/medquad_qa/api src/medquad_qa/observability`: clean (12 files).
+  - Teammate's host smoke run: live returned 200 and ready returned 503. The 503 is expected, because `rag.factory` is not built yet, and the app reports it as a readiness failure rather than crashing.
+  - Known: running `mypy` over the tests directories in a single call reports a duplicate `conftest` module. Running them separately passes.
+
 ## Resume checklist (session 2)
 
 1. `id | grep docker && docker info && docker compose version` — must succeed; else stop and report.
@@ -123,7 +141,7 @@ Status of every task below: **PENDING** (team not yet spawned).
 | ID | Task | Depends | Acceptance |
 |---|---|---|---|
 | D1 (COMPLETE: plan received) | Discovery: schema, provenance, license/usage restrictions, plan to lead | — | plan message received |
-| D2 | Ingestion + schema mapping → MedicalRecord (raw+normalized) | G1 | real CSV → corpus.jsonl, row count reconciles to 16,412 minus documented exclusions |
+| D2 (IN PROGRESS) | Ingestion + schema mapping → MedicalRecord (raw+normalized) | G1 | real CSV → corpus.jsonl, row count reconciles to 16,412 minus documented exclusions |
 | D3 | Quality audit: missing, malformed, exact/near dups, lengths | D2 | `docs/data/audit_report.md` with actual counts from saved JSON |
 | D4 | Grouping (duplicate + split groups) + deterministic splits + leakage checks | D3, E1 review | split manifest + leakage check script passes; evaluator sign-off |
 | D5 | Training/eval exports for model-engineer & evaluator | D4 | export files + checksums in manifest |
@@ -133,7 +151,7 @@ Status of every task below: **PENDING** (team not yet spawned).
 | ID | Task | Depends | Acceptance |
 |---|---|---|---|
 | R1 (COMPLETE: plan received) | Discovery + retriever/RAG design plan | — | plan received |
-| R2 | BM25 retriever (common interface), lexical fallback | G1, fixtures | unit tests on fixtures; runs on real corpus after D2 |
+| R2 (IN PROGRESS) | BM25 retriever (common interface), lexical fallback | G1, fixtures | unit tests on fixtures; runs on real corpus after D2 |
 | R3 | Dense retriever + Qdrant index lifecycle + index manifest | R2, D2 | build/rebuild/verify commands; manifest w/ model rev + corpus_version |
 | R4 | Hybrid (RRF) + optional reranker; answer-only vs Q+A indexing variants | R3 | all variants run on frozen eval queries |
 | R5 | LangChain RAG pipeline, prompt templates, citation validation, abstention | R2, M1 | invalid IDs stripped+flagged; injection-in-evidence tests |
@@ -143,7 +161,7 @@ Status of every task below: **PENDING** (team not yet spawned).
 | ID | Task | Depends | Acceptance |
 |---|---|---|---|
 | M1 (COMPLETE: plan received) | Discovery: model selection within Moderate budget (ARM64/CUDA13 compat), plan | — | plan w/ model id+revision+license, disk/runtime estimate |
-| M2 | Base inference adapter (Generator) | G1 | real generation on GPU + CPU-path smoke |
+| M2 (IN PROGRESS) | Base inference adapter (Generator) | G1 | real generation on GPU + CPU-path smoke |
 | M3 | SFT export from approved train split; prompt-masked LoRA pipeline | D5 | smoke run (few steps) executes |
 | M4 | Full LoRA run + reload + generation test; MLflow logging | M3 | run manifest, loss curves, adapter reload test |
 | M5 | Answerability: statistical baseline + TF/Keras classifier, hard negatives, val-chosen threshold, calibration | D5, E1 label design | metrics JSON on val/test; calibration plot |
@@ -153,10 +171,10 @@ Status of every task below: **PENDING** (team not yet spawned).
 | ID | Task | Depends | Acceptance |
 |---|---|---|---|
 | S1 (COMPLETE: plan received) | Discovery + service/deploy plan (ARM64 images) | — | plan received |
-| S2 | FastAPI: /v1/qa, /health/live, /health/ready, /metrics; bounds, timeouts, request IDs | G1 | API tests with fake pipeline green |
+| S2 (COMPLETE: offline with FakePipeline) | FastAPI: /v1/qa, /health/live, /health/ready, /metrics; bounds, timeouts, request IDs | G1 | API tests with fake pipeline green |
 | S3 | Streamlit demo (answer, citations, versions, disclaimer) | S2 | manual smoke against running API |
 | S4 | Dockerfiles + Compose (api, ui, qdrant, mlflow; localhost binds, non-root) | S2, **Docker access** | compose config validates; stack up; health OK |
-| S5 | Metrics, structured logs (no raw content by default), MLflow server, CI workflow | S2 | metrics test; CI lint+offline tests locally |
+| S5 (PARTIAL: metrics/logging/offline-eval gauges implemented; MLflow server, CI, monitoring config pending) | Metrics, structured logs (no raw content by default), MLflow server, CI workflow | S2 | metrics test; CI lint+offline tests locally |
 | S6 | Real-artifact integration in stack + runbook (deploy, rollback, troubleshooting) | S4, R5, M2 | real QA request recorded here |
 
 ### evaluation-safety-engineer (owns evaluation/, configs/evaluation/, scripts/evaluation/, tests/evaluation/, tests/security/, tests/integration/, docs/evaluation/, docs/security/, artifacts/evaluation/)
@@ -164,7 +182,7 @@ Status of every task below: **PENDING** (team not yet spawned).
 |---|---|---|---|
 | E1 (COMPLETE: plan received) | Eval tracks, leakage controls, answerability label design; review D4 split design | — | written approval/requests to data-steward & model-engineer |
 | E2 | Frozen eval set (paraphrases, hard negatives, case types) with label provenance | D4 | manifest w/ checksum; no test-set tuning |
-| E3 | Metric harness: retrieval, citation validity/support, rubric, abstention, classifier, latency | G1 | unit tests on fixtures |
+| E3 (IN PROGRESS) | Metric harness: retrieval, citation validity/support, rubric, abstention, classifier, latency | G1 | unit tests on fixtures |
 | E4 | Run 4-way comparison (base / rag / finetuned / finetuned_rag) + retriever comparison | E2, E3, R5, M4 | saved metrics + failure examples |
 | E5 | Security/safety tests: injection, citations, personalized advice, malformed input, missing artifacts, secrets, logging | R5, S2 | severity-ranked findings + retests |
 | E6 | Independent evaluation report | E4, E5 | report citing artifacts |
@@ -173,7 +191,7 @@ Status of every task below: **PENDING** (team not yet spawned).
 | ID | Task | Depends | Acceptance |
 |---|---|---|---|
 | L1 | Phase 0 discovery | — | **COMPLETE** (this file) |
-| L2 | Contracts, pyproject/lock, Makefile, CLAUDE.md, architecture docs | L1 | **PARTIAL**: contracts v1.1 tested; all extras except tf installed; requirements.lock written. Still to do: Makefile, CLAUDE.md, architecture docs |
-| L3 | Spawn team, review plans, START IMPLEMENTATION | L2 | **BLOCKED**: plans reviewed (G1 rulings D-009 to D-018), but the agents were ordinary subagents. Needs a CLI lead session with a real team; see team-migration-handoff.md |
+| L2 | Contracts, pyproject/lock, Makefile, CLAUDE.md, architecture docs | L1 | **COMPLETE**: contracts v1.1.1 (14 tests pass), requirements.lock, Makefile (`make test` runs), CLAUDE.md, docs/architecture/{overview,contracts}.md. Stack targets wait on service-platform-engineer scripts |
+| L3 | Spawn team, review plans, START IMPLEMENTATION | L2 | **COMPLETE**: genuine team `session-412b5373` with 5 in-process members; acknowledgments received; G1 released (D-020 to D-024) |
 | L4 | Integration arbitration, commits, decision log | L3 | — |
 | L5 | Portfolio: README, diagram, skill matrix, tech report, demo script, talking points | E6 | — |
