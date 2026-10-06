@@ -167,7 +167,7 @@ Status of every task below: **PENDING** (team not yet spawned).
 | D1 (COMPLETE: plan received) | Discovery: schema, provenance, license/usage restrictions, plan to lead | — | plan message received |
 | D2 (COMPLETE) | Ingestion + schema mapping → MedicalRecord (raw+normalized) | G1 | real CSV → corpus.jsonl, row count reconciles to 16,412 minus documented exclusions |
 | D3 (COMPLETE) | Quality audit: missing, malformed, exact/near dups, lengths | D2 | `docs/data/audit_report.md` with actual counts from saved JSON |
-| D4 (PARTIAL: built, all blocking leakage checks are 0; awaiting evaluator sign-off) | Grouping (duplicate + split groups) + deterministic splits + leakage checks | D3, E1 review | split manifest + leakage check script passes; evaluator sign-off |
+| D4 (PARTIAL: evaluator check FAILED with F-001; data-steward fixing, then refreeze and retest) | Grouping (duplicate + split groups) + deterministic splits + leakage checks | D3, E1 review | split manifest + leakage check script passes; evaluator sign-off |
 | D5 | Training/eval exports for model-engineer & evaluator | D4 | export files + checksums in manifest |
 | D6 (PARTIAL: data card, split design, reproduction docs written; awaiting D4 sign-off) | Tests, data card, reproduction commands | D2–D5 | pytest tests/data green; data card cites artifacts |
 
