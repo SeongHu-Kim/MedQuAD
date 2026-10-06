@@ -27,6 +27,8 @@ def main() -> int:
     ap.add_argument("--evalset", required=True)
     ap.add_argument("--run", action="append", required=True)
     ap.add_argument("--out", required=True)
+    ap.add_argument("--device", default="unrecorded", help="device the runs used (the run meta does not record it)")
+    ap.add_argument("--latency-valid", action="store_true", help="runs did not overlap other GPU/CPU-heavy jobs")
     args = ap.parse_args()
     examples = load_eval_set(args.evalset)
     scorable = [e for e in examples if e.gold_record_ids]
@@ -36,6 +38,8 @@ def main() -> int:
         "evalset_sha256": sha256_file(args.evalset),
         "n_examples": len(examples),
         "n_scorable": len(scorable),
+        "device": args.device,
+        "latency_valid": args.latency_valid,
         "runs": {},
     }
     per_query: dict[str, dict[str, float]] = {}
