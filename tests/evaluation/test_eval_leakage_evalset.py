@@ -211,3 +211,25 @@ def test_fixture_retriever_protocol() -> None:
     assert fr.retrieve("unknown", 5) == [] and len(fr.retrieve("Is X contagious?", 1)) == 1
     with pytest.raises(ValueError):
         fr.retrieve("Is X contagious?", 0)
+
+
+def test_closed_book_expectations_follow_d023() -> None:
+    from medquad_qa.evaluation.qa_report import expected_for_mode
+
+    unans = ex(
+        "u",
+        answerable=False,
+        expected_behavior="abstain",
+        expected_abstention_reason="no_relevant_evidence",
+        case_type="unanswerable",
+    )
+    personal = ex(
+        "p",
+        answerable=False,
+        expected_behavior="abstain",
+        expected_abstention_reason="personalized_medical_advice",
+        case_type="personalized_advice",
+    )
+    assert expected_for_mode(unans, "rag") == "abstain" and expected_for_mode(unans, "base") == "either"
+    assert expected_for_mode(personal, "base") == "abstain" and expected_for_mode(personal, "finetuned") == "abstain"
+    assert expected_for_mode(ex(), "finetuned") == "answer"

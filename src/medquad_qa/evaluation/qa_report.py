@@ -18,6 +18,17 @@ from medquad_qa.evaluation.retrieval_metrics import aggregate as aggregate_retri
 from medquad_qa.evaluation.retrieval_metrics import score_query
 
 
+def expected_for_mode(example: EvaluationExample, mode: str) -> str:
+    """D-023: personalized-advice refusals apply in all modes; evidence-based abstentions only in RAG modes.
+
+    Labels in the frozen set describe RAG behaviour. In closed-book modes an evidence-based ``abstain``
+    expectation becomes ``either`` (no retrieval, so no evidence check exists to trigger it).
+    """
+    if mode not in RAG_MODES and example.expected_behavior == "abstain" and example.case_type != "personalized_advice":
+        return "either"
+    return example.expected_behavior
+
+
 def abstention_group(example: EvaluationExample) -> str:
     tag = (example.notes or "").split(":", 1)[0] if example.notes else ""
     return f"{example.case_type}:{tag}" if tag else example.case_type
@@ -46,7 +57,7 @@ def summarize_mode(
     outcomes = [
         abstention.AbstentionOutcome(
             example_id=e.example_id,
-            expected_behavior=e.expected_behavior,
+            expected_behavior=expected_for_mode(e, mode),  # type: ignore[arg-type]
             abstained=r.abstained,
             expected_reason=e.expected_abstention_reason,
             actual_reason=r.abstention_reason,

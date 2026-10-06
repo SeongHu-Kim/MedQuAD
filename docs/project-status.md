@@ -205,7 +205,7 @@ Status of every task below: **PENDING** (team not yet spawned).
 | ID | Task | Depends | Acceptance |
 |---|---|---|---|
 | E1 (COMPLETE: F-001 retest PASS; split sign-off granted) | Eval tracks, leakage controls, answerability label design; review D4 split design | — | written approval/requests to data-steward & model-engineer |
-| E2 (IN PROGRESS: frozen eval set on split 2f0fb25ee6d8) | Frozen eval set (paraphrases, hard negatives, case types) with label provenance | D4 | manifest w/ checksum; no test-set tuning |
+| E2 (COMPLETE: 700 frozen items, A 300 / C 240 / probe 100 / dev 60, sha256-pinned, leakage 0 errors; spot-check sheet exported, non-blocking) | Frozen eval set (paraphrases, hard negatives, case types) with label provenance | D4 | manifest w/ checksum; no test-set tuning |
 | E3 (COMPLETE: harness + fixtures + threat model, 38 offline tests) | Metric harness: retrieval, citation validity/support, rubric, abstention, classifier, latency | G1 | unit tests on fixtures |
 | E4 | Run 4-way comparison (base / rag / finetuned / finetuned_rag) + retriever comparison | E2, E3, R5, M4 | saved metrics + failure examples |
 | E5 (PARTIAL: first pass done, 72 passed, open findings marked strict-xfail; F-002 high open) | Security/safety tests: injection, citations, personalized advice, malformed input, missing artifacts, secrets, logging | R5, S2 | severity-ranked findings + retests |

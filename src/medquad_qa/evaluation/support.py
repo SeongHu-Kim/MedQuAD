@@ -86,7 +86,7 @@ class NLISupportScorer:
             from medquad_qa.models.torch_runtime import apply_native_jit_guard
 
             apply_native_jit_guard()  # torch 2.14 Triton paths need Python.h, absent on this host (model-engineer)
-            kw ={"revision": self.revision, "local_files_only": self.local_files_only}
+            kw = {"revision": self.revision, "local_files_only": self.local_files_only}
             tok = AutoTokenizer.from_pretrained(self.model_id, **kw)
             model = AutoModelForSequenceClassification.from_pretrained(self.model_id, **kw)
             labels = {str(v).lower(): int(k) for k, v in model.config.id2label.items()}

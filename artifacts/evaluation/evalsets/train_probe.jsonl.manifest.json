@@ -1,0 +1,32 @@
+{
+  "agent_items_sha256": "1ca9d528faafb15d60eb48e5e75102ad7916eea87545a5370aad92b3d2ccddbb",
+  "builder_version": "evalset-builder-v1",
+  "by_case_type": {
+    "answerable": 100
+  },
+  "by_eval_split": {
+    "train_probe": 100
+  },
+  "by_label_provenance": {
+    "synthetic_rule": 100
+  },
+  "by_question_provenance": {
+    "synthetic_rule": 100
+  },
+  "by_reviewer": {
+    "none": 100
+  },
+  "by_track": {
+    "finetune_generalization": 100
+  },
+  "corpus_version": "medquad-1.0.0-86e384302357",
+  "created_at": "2026-10-06T07:33:20+00:00",
+  "file": "train_probe.jsonl",
+  "format_version": "evalset-v1",
+  "n_examples": 100,
+  "seed": 20261006,
+  "set": "train_probe",
+  "sha256": "f62383283a028312514e0ef8d582fe67053ca327e2b5b6414e769ec62a3c61a8",
+  "split_version": "split-20261006-2f0fb25ee6d8",
+  "template_rule_version": "paraphrase-templates-v1"
+}

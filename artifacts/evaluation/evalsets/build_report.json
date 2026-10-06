@@ -1,0 +1,89 @@
+{
+ "agent_items_sha256": "1ca9d528faafb15d60eb48e5e75102ad7916eea87545a5370aad92b3d2ccddbb",
+ "builder_version": "evalset-builder-v1",
+ "case_types": {
+  "dev": {
+   "answerable": 40,
+   "personalized_advice": 10,
+   "unanswerable": 10
+  },
+  "test_track_a": {
+   "answerable": 300
+  },
+  "test_track_c": {
+   "adversarial": 20,
+   "ambiguous": 20,
+   "answerable": 40,
+   "conflicting_evidence": 20,
+   "personalized_advice": 40,
+   "unanswerable": 100
+  },
+  "train_probe": {
+   "answerable": 100
+  }
+ },
+ "corpus_version": "medquad-1.0.0-86e384302357",
+ "counts": {
+  "dev": 60,
+  "test_track_a": 300,
+  "test_track_c": 240,
+  "train_probe": 100
+ },
+ "leakage": {
+  "counts_by_eval_split": {
+   "dev": 60,
+   "test": 540,
+   "train_probe": 100
+  },
+  "errors": [],
+  "n_examples": 700,
+  "near_copy_jaccard": 0.9,
+  "train_probe_sft_overlap": 0,
+  "warnings": []
+ },
+ "notes_tags": {
+  "dev": {
+   "": 30,
+   "general_control": 10,
+   "hard_negative": 5,
+   "personalized_advice": 10,
+   "unanswerable": 5
+  },
+  "test_track_a": {
+   "": 300
+  },
+  "test_track_c": {
+   "adversarial": 20,
+   "ambiguous": 20,
+   "conflicting": 20,
+   "general_control": 40,
+   "hard_negative": 50,
+   "personalized_advice": 40,
+   "unanswerable": 50
+  },
+  "train_probe": {
+   "": 100
+  }
+ },
+ "protected_sets_checked": "none yet (SFT/classifier manifests not built); re-run check_leakage at E4 gate",
+ "question_provenance": {
+  "dev": {
+   "llm_generated_unreviewed": 25,
+   "synthetic_rule": 35
+  },
+  "test_track_a": {
+   "llm_generated_unreviewed": 100,
+   "synthetic_rule": 200
+  },
+  "test_track_c": {
+   "llm_generated_unreviewed": 150,
+   "synthetic_rule": 90
+  },
+  "train_probe": {
+   "synthetic_rule": 100
+  }
+ },
+ "seed": 20261006,
+ "split_version": "split-20261006-2f0fb25ee6d8",
+ "template_rule_version": "paraphrase-templates-v1"
+}

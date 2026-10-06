@@ -63,7 +63,14 @@ def test_aggregate_macro() -> None:
 
 # ------------------------------------------------------------------ run format
 def _run_line(eid: str, hits: list[dict[str, object]], **kw: object) -> str:
-    row = {"example_id": eid, "retriever": "bm25:answer", "corpus_version": "c", "top_k": 3, "latency_ms": 1.0}
+    row = {
+        "schema": "medquad-retrieval-run-v1",
+        "example_id": eid,
+        "retriever": "bm25:answer",
+        "corpus_version": "c",
+        "top_k": 3,
+        "latency_ms": 1.0,
+    }
     row.update(kw)
     row["hits"] = hits
     return json.dumps(row)
@@ -89,6 +96,10 @@ def test_run_file_valid_and_invalid(tmp_path: Path) -> None:
         bad.write_text(_run_line("e1", bad_hits) + "\n")
         with pytest.raises(ValueError):
             load_run(bad)
+    wrong_schema = tmp_path / "schema.jsonl"
+    wrong_schema.write_text(_run_line("e1", [], schema="other-v9") + "\n")
+    with pytest.raises(ValueError):
+        load_run(wrong_schema)
     leak = tmp_path / "leak.jsonl"
     leak.write_text(_run_line("e1", [], question="text must not appear") + "\n")
     with pytest.raises(ValueError):
