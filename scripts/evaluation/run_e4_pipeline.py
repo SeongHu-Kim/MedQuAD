@@ -50,6 +50,12 @@ def main() -> int:
     ap.add_argument("--out-dir", default=str(ROOT / "artifacts/evaluation/e4/runs"))
     ap.add_argument("--expect", action="append", default=[], help="key=value that pipeline.versions() must match")
     ap.add_argument("--limit", type=int, default=None, help="smoke runs only")
+    ap.add_argument(
+        "--notes-prefix",
+        nargs="*",
+        default=None,
+        help="pre-declared subset: keep only items whose notes start with one of these tags",
+    )
     ap.add_argument("--allow-fallback", action="store_true", help="permit a degraded dense retriever (not for E4)")
     ap.add_argument("--smoke-fake-generator", action="store_true", help="plumbing check without model weights")
     args = ap.parse_args()
@@ -58,6 +64,8 @@ def main() -> int:
     from medquad_qa.rag.pipeline import RagPipeline
 
     examples = load_eval_set(args.evalset)
+    if args.notes_prefix:
+        examples = [e for e in examples if (e.notes or "").startswith(tuple(args.notes_prefix))]
     if args.limit:
         examples = examples[: args.limit]
     set_name = Path(args.evalset).stem
@@ -137,6 +145,7 @@ def main() -> int:
             "started_at": started,
             "wall_s": round(time.perf_counter() - tm, 1),
             "limit": args.limit,
+            "notes_prefix": args.notes_prefix,
             "smoke_fake_generator": args.smoke_fake_generator,
             "per_item_file": str(path.relative_to(ROOT)) if path.is_relative_to(ROOT) else str(path),
         }

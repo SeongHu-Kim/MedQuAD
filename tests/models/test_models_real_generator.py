@@ -47,3 +47,18 @@ def test_real_generation_cpu_smoke(settings: ModelSettings) -> None:
     assert next(gen.backend.model.parameters()).dtype == torch.float32
     out = gen.generate(MSGS, GenerationParams(max_new_tokens=12))
     assert out.text and 0 < out.completion_tokens <= 12
+
+
+@pytest.mark.gpu
+@pytest.mark.skipif(not torch.cuda.is_available(), reason="CUDA not available")
+def test_real_finetuned_adapter_cuda(settings: ModelSettings) -> None:
+    status = generator_status("finetuned", settings)
+    if not status.ok:
+        pytest.skip(f"no promoted adapter: {status.detail}")
+    cuda = settings.model_copy(update={"device": "cuda"})
+    base, tuned = load_generator("base", cuda), load_generator("finetuned", cuda)
+    assert tuned.backend is base.backend and tuned.model_version == status.version
+    b = base.generate(MSGS, GenerationParams(max_new_tokens=48))
+    t = tuned.generate(MSGS, GenerationParams(max_new_tokens=48))
+    assert t.text and t.text != b.text
+    assert base.generate(MSGS, GenerationParams(max_new_tokens=48)).text == b.text  # base unaffected by the adapter

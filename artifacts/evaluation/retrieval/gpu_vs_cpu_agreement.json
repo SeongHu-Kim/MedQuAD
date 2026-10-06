@@ -1,0 +1,58 @@
+[
+ {
+  "run": "test_bm25_answer.jsonl",
+  "identical_top20": 300,
+  "identical_top5": 300,
+  "identical_top1": 300,
+  "n": 300
+ },
+ {
+  "run": "test_bm25_question_answer.jsonl",
+  "identical_top20": 300,
+  "identical_top5": 300,
+  "identical_top1": 300,
+  "n": 300
+ },
+ {
+  "run": "test_dense_answer.jsonl",
+  "identical_top20": 300,
+  "identical_top5": 300,
+  "identical_top1": 300,
+  "n": 300
+ },
+ {
+  "run": "test_dense_question_answer.jsonl",
+  "identical_top20": 300,
+  "identical_top5": 300,
+  "identical_top1": 300,
+  "n": 300
+ },
+ {
+  "run": "test_hybrid_answer.jsonl",
+  "identical_top20": 300,
+  "identical_top5": 300,
+  "identical_top1": 300,
+  "n": 300
+ },
+ {
+  "run": "test_hybrid_question_answer.jsonl",
+  "identical_top20": 300,
+  "identical_top5": 300,
+  "identical_top1": 300,
+  "n": 300
+ },
+ {
+  "run": "test_hybridce_answer.jsonl",
+  "identical_top20": 300,
+  "identical_top5": 300,
+  "identical_top1": 300,
+  "n": 300
+ },
+ {
+  "run": "test_hybridce_question_answer.jsonl",
+  "identical_top20": 300,
+  "identical_top5": 300,
+  "identical_top1": 300,
+  "n": 300
+ }
+]

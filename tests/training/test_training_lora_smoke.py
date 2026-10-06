@@ -69,6 +69,8 @@ def test_lora_smoke_train_and_reload(exports: dict[str, Path], tiny_model_dir: P
     settings = ModelSettings(
         generator=base, device="cpu", model_dir=out_root, adapter_dir=Path(manifest["adapter"]["dir"])
     )
+    adapter_files = [f for f in Path(manifest["adapter"]["dir"]).iterdir() if f.is_file()]
+    assert adapter_files and all(f.stat().st_mode & 0o004 for f in adapter_files)  # readable by the API container uid
     gen = load_generator("finetuned", settings)
     assert gen.model_version.endswith(f"+lora:{manifest['run_id']}")
     out = gen.generate([ChatMessage(role="user", content="How is Gout treated?")], GenerationParams(max_new_tokens=4))

@@ -1,0 +1,908 @@
+{
+ "device": "cpu",
+ "evalset": "artifacts/evaluation/evalsets/test_track_a.jsonl",
+ "evalset_sha256": "db3d51bda0f324805f352328822c024748b6b575a2a4ee67b392e7b83eae6068",
+ "latency_valid": false,
+ "n_examples": 300,
+ "n_scorable": 300,
+ "paired_comparisons": {
+  "bm25:qa - bm25:answer (recall@5)": {
+   "ci": 0.95,
+   "ci_high": 0.13666666666666666,
+   "ci_low": 0.06666666666666667,
+   "diff_b_minus_a": 0.1,
+   "mean_a": 0.7433333333333333,
+   "mean_b": 0.8433333333333334,
+   "n_clusters": 300,
+   "n_items": 300,
+   "n_resamples": 10000,
+   "p_value": 9.999000099990002e-05,
+   "seed": 20261006
+  },
+  "dense:answer - bm25:answer (recall@5)": {
+   "ci": 0.95,
+   "ci_high": 0.19,
+   "ci_low": 0.10666666666666667,
+   "diff_b_minus_a": 0.14666666666666667,
+   "mean_a": 0.7433333333333333,
+   "mean_b": 0.89,
+   "n_clusters": 300,
+   "n_items": 300,
+   "n_resamples": 10000,
+   "p_value": 9.999000099990002e-05,
+   "seed": 20261006
+  },
+  "dense:answer - bm25:qa (recall@5)": {
+   "ci": 0.95,
+   "ci_high": 0.09,
+   "ci_low": 0.0033333333333333335,
+   "diff_b_minus_a": 0.04666666666666667,
+   "mean_a": 0.8433333333333334,
+   "mean_b": 0.89,
+   "n_clusters": 300,
+   "n_items": 300,
+   "n_resamples": 10000,
+   "p_value": 0.038,
+   "seed": 20261006
+  },
+  "dense:qa - bm25:answer (recall@5)": {
+   "ci": 0.95,
+   "ci_high": 0.25333333333333335,
+   "ci_low": 0.16333333333333333,
+   "diff_b_minus_a": 0.20666666666666667,
+   "mean_a": 0.7433333333333333,
+   "mean_b": 0.95,
+   "n_clusters": 300,
+   "n_items": 300,
+   "n_resamples": 10000,
+   "p_value": 9.999000099990002e-05,
+   "seed": 20261006
+  },
+  "dense:qa - bm25:qa (recall@5)": {
+   "ci": 0.95,
+   "ci_high": 0.14333333333333334,
+   "ci_low": 0.07333333333333333,
+   "diff_b_minus_a": 0.10666666666666667,
+   "mean_a": 0.8433333333333334,
+   "mean_b": 0.95,
+   "n_clusters": 300,
+   "n_items": 300,
+   "n_resamples": 10000,
+   "p_value": 9.999000099990002e-05,
+   "seed": 20261006
+  },
+  "dense:qa - dense:answer (recall@5)": {
+   "ci": 0.95,
+   "ci_high": 0.08666666666666667,
+   "ci_low": 0.03333333333333333,
+   "diff_b_minus_a": 0.06,
+   "mean_a": 0.89,
+   "mean_b": 0.95,
+   "n_clusters": 300,
+   "n_items": 300,
+   "n_resamples": 10000,
+   "p_value": 9.999000099990002e-05,
+   "seed": 20261006
+  },
+  "hybrid_rrf+ce:answer - bm25:answer (recall@5)": {
+   "ci": 0.95,
+   "ci_high": 0.15,
+   "ci_low": 0.06333333333333334,
+   "diff_b_minus_a": 0.10666666666666667,
+   "mean_a": 0.7433333333333333,
+   "mean_b": 0.85,
+   "n_clusters": 300,
+   "n_items": 300,
+   "n_resamples": 10000,
+   "p_value": 9.999000099990002e-05,
+   "seed": 20261006
+  },
+  "hybrid_rrf+ce:answer - bm25:qa (recall@5)": {
+   "ci": 0.95,
+   "ci_high": 0.05,
+   "ci_low": -0.03333333333333333,
+   "diff_b_minus_a": 0.006666666666666667,
+   "mean_a": 0.8433333333333334,
+   "mean_b": 0.85,
+   "n_clusters": 300,
+   "n_items": 300,
+   "n_resamples": 10000,
+   "p_value": 0.8104,
+   "seed": 20261006
+  },
+  "hybrid_rrf+ce:answer - dense:answer (recall@5)": {
+   "ci": 0.95,
+   "ci_high": -0.01,
+   "ci_low": -0.07,
+   "diff_b_minus_a": -0.04,
+   "mean_a": 0.89,
+   "mean_b": 0.85,
+   "n_clusters": 300,
+   "n_items": 300,
+   "n_resamples": 10000,
+   "p_value": 0.009,
+   "seed": 20261006
+  },
+  "hybrid_rrf+ce:answer - dense:qa (recall@5)": {
+   "ci": 0.95,
+   "ci_high": -0.06666666666666667,
+   "ci_low": -0.13666666666666666,
+   "diff_b_minus_a": -0.1,
+   "mean_a": 0.95,
+   "mean_b": 0.85,
+   "n_clusters": 300,
+   "n_items": 300,
+   "n_resamples": 10000,
+   "p_value": 9.999000099990002e-05,
+   "seed": 20261006
+  },
+  "hybrid_rrf+ce:qa - bm25:answer (recall@5)": {
+   "ci": 0.95,
+   "ci_high": 0.17,
+   "ci_low": 0.08666666666666667,
+   "diff_b_minus_a": 0.12666666666666668,
+   "mean_a": 0.7433333333333333,
+   "mean_b": 0.87,
+   "n_clusters": 300,
+   "n_items": 300,
+   "n_resamples": 10000,
+   "p_value": 9.999000099990002e-05,
+   "seed": 20261006
+  },
+  "hybrid_rrf+ce:qa - bm25:qa (recall@5)": {
+   "ci": 0.95,
+   "ci_high": 0.06666666666666667,
+   "ci_low": -0.013333333333333334,
+   "diff_b_minus_a": 0.02666666666666667,
+   "mean_a": 0.8433333333333334,
+   "mean_b": 0.87,
+   "n_clusters": 300,
+   "n_items": 300,
+   "n_resamples": 10000,
+   "p_value": 0.216,
+   "seed": 20261006
+  },
+  "hybrid_rrf+ce:qa - dense:answer (recall@5)": {
+   "ci": 0.95,
+   "ci_high": 0.006666666666666667,
+   "ci_low": -0.04666666666666667,
+   "diff_b_minus_a": -0.02,
+   "mean_a": 0.89,
+   "mean_b": 0.87,
+   "n_clusters": 300,
+   "n_items": 300,
+   "n_resamples": 10000,
+   "p_value": 0.1854,
+   "seed": 20261006
+  },
+  "hybrid_rrf+ce:qa - dense:qa (recall@5)": {
+   "ci": 0.95,
+   "ci_high": -0.05,
+   "ci_low": -0.11333333333333333,
+   "diff_b_minus_a": -0.08,
+   "mean_a": 0.95,
+   "mean_b": 0.87,
+   "n_clusters": 300,
+   "n_items": 300,
+   "n_resamples": 10000,
+   "p_value": 9.999000099990002e-05,
+   "seed": 20261006
+  },
+  "hybrid_rrf+ce:qa - hybrid_rrf+ce:answer (recall@5)": {
+   "ci": 0.95,
+   "ci_high": 0.03666666666666667,
+   "ci_low": 0.006666666666666667,
+   "diff_b_minus_a": 0.02,
+   "mean_a": 0.85,
+   "mean_b": 0.87,
+   "n_clusters": 300,
+   "n_items": 300,
+   "n_resamples": 10000,
+   "p_value": 0.0044,
+   "seed": 20261006
+  },
+  "hybrid_rrf:answer - bm25:answer (recall@5)": {
+   "ci": 0.95,
+   "ci_high": 0.14666666666666667,
+   "ci_low": 0.07666666666666666,
+   "diff_b_minus_a": 0.11,
+   "mean_a": 0.7433333333333333,
+   "mean_b": 0.8533333333333334,
+   "n_clusters": 300,
+   "n_items": 300,
+   "n_resamples": 10000,
+   "p_value": 9.999000099990002e-05,
+   "seed": 20261006
+  },
+  "hybrid_rrf:answer - bm25:qa (recall@5)": {
+   "ci": 0.95,
+   "ci_high": 0.04666666666666667,
+   "ci_low": -0.02666666666666667,
+   "diff_b_minus_a": 0.01,
+   "mean_a": 0.8433333333333334,
+   "mean_b": 0.8533333333333334,
+   "n_clusters": 300,
+   "n_items": 300,
+   "n_resamples": 10000,
+   "p_value": 0.6304,
+   "seed": 20261006
+  },
+  "hybrid_rrf:answer - dense:answer (recall@5)": {
+   "ci": 0.95,
+   "ci_high": -0.013333333333333334,
+   "ci_low": -0.06333333333333334,
+   "diff_b_minus_a": -0.03666666666666667,
+   "mean_a": 0.89,
+   "mean_b": 0.8533333333333334,
+   "n_clusters": 300,
+   "n_items": 300,
+   "n_resamples": 10000,
+   "p_value": 0.0026,
+   "seed": 20261006
+  },
+  "hybrid_rrf:answer - dense:qa (recall@5)": {
+   "ci": 0.95,
+   "ci_high": -0.06333333333333334,
+   "ci_low": -0.13,
+   "diff_b_minus_a": -0.09666666666666666,
+   "mean_a": 0.95,
+   "mean_b": 0.8533333333333334,
+   "n_clusters": 300,
+   "n_items": 300,
+   "n_resamples": 10000,
+   "p_value": 9.999000099990002e-05,
+   "seed": 20261006
+  },
+  "hybrid_rrf:answer - hybrid_rrf+ce:answer (recall@5)": {
+   "ci": 0.95,
+   "ci_high": 0.03666666666666667,
+   "ci_low": -0.02666666666666667,
+   "diff_b_minus_a": 0.0033333333333333335,
+   "mean_a": 0.85,
+   "mean_b": 0.8533333333333334,
+   "n_clusters": 300,
+   "n_items": 300,
+   "n_resamples": 10000,
+   "p_value": 0.9088,
+   "seed": 20261006
+  },
+  "hybrid_rrf:answer - hybrid_rrf+ce:qa (recall@5)": {
+   "ci": 0.95,
+   "ci_high": 0.013333333333333334,
+   "ci_low": -0.04666666666666667,
+   "diff_b_minus_a": -0.016666666666666666,
+   "mean_a": 0.87,
+   "mean_b": 0.8533333333333334,
+   "n_clusters": 300,
+   "n_items": 300,
+   "n_resamples": 10000,
+   "p_value": 0.3386,
+   "seed": 20261006
+  },
+  "hybrid_rrf:qa - bm25:answer (recall@5)": {
+   "ci": 0.95,
+   "ci_high": 0.22,
+   "ci_low": 0.13666666666666666,
+   "diff_b_minus_a": 0.17666666666666667,
+   "mean_a": 0.7433333333333333,
+   "mean_b": 0.92,
+   "n_clusters": 300,
+   "n_items": 300,
+   "n_resamples": 10000,
+   "p_value": 9.999000099990002e-05,
+   "seed": 20261006
+  },
+  "hybrid_rrf:qa - bm25:qa (recall@5)": {
+   "ci": 0.95,
+   "ci_high": 0.11,
+   "ci_low": 0.04666666666666667,
+   "diff_b_minus_a": 0.07666666666666666,
+   "mean_a": 0.8433333333333334,
+   "mean_b": 0.92,
+   "n_clusters": 300,
+   "n_items": 300,
+   "n_resamples": 10000,
+   "p_value": 9.999000099990002e-05,
+   "seed": 20261006
+  },
+  "hybrid_rrf:qa - dense:answer (recall@5)": {
+   "ci": 0.95,
+   "ci_high": 0.06,
+   "ci_low": 0.0,
+   "diff_b_minus_a": 0.03,
+   "mean_a": 0.89,
+   "mean_b": 0.92,
+   "n_clusters": 300,
+   "n_items": 300,
+   "n_resamples": 10000,
+   "p_value": 0.067,
+   "seed": 20261006
+  },
+  "hybrid_rrf:qa - dense:qa (recall@5)": {
+   "ci": 0.95,
+   "ci_high": -0.013333333333333334,
+   "ci_low": -0.05,
+   "diff_b_minus_a": -0.03,
+   "mean_a": 0.95,
+   "mean_b": 0.92,
+   "n_clusters": 300,
+   "n_items": 300,
+   "n_resamples": 10000,
+   "p_value": 0.0004,
+   "seed": 20261006
+  },
+  "hybrid_rrf:qa - hybrid_rrf+ce:answer (recall@5)": {
+   "ci": 0.95,
+   "ci_high": 0.10666666666666667,
+   "ci_low": 0.03666666666666667,
+   "diff_b_minus_a": 0.07,
+   "mean_a": 0.85,
+   "mean_b": 0.92,
+   "n_clusters": 300,
+   "n_items": 300,
+   "n_resamples": 10000,
+   "p_value": 9.999000099990002e-05,
+   "seed": 20261006
+  },
+  "hybrid_rrf:qa - hybrid_rrf+ce:qa (recall@5)": {
+   "ci": 0.95,
+   "ci_high": 0.08333333333333333,
+   "ci_low": 0.02,
+   "diff_b_minus_a": 0.05,
+   "mean_a": 0.87,
+   "mean_b": 0.92,
+   "n_clusters": 300,
+   "n_items": 300,
+   "n_resamples": 10000,
+   "p_value": 0.0024,
+   "seed": 20261006
+  },
+  "hybrid_rrf:qa - hybrid_rrf:answer (recall@5)": {
+   "ci": 0.95,
+   "ci_high": 0.09666666666666666,
+   "ci_low": 0.04,
+   "diff_b_minus_a": 0.06666666666666667,
+   "mean_a": 0.8533333333333334,
+   "mean_b": 0.92,
+   "n_clusters": 300,
+   "n_items": 300,
+   "n_resamples": 10000,
+   "p_value": 9.999000099990002e-05,
+   "seed": 20261006
+  }
+ },
+ "runs": {
+  "bm25:answer": {
+   "latency": {
+    "max_ms": 4.34,
+    "mean_ms": 0.9107500000000001,
+    "median_ms": 0.899,
+    "n": 300,
+    "p95_ms": 1.3422500000000002
+   },
+   "meta": {
+    "command": "python -m medquad_qa.retrieval run --retriever bm25 --mode answer --top-k 20 --queries artifacts/evaluation/evalsets/test_track_a.jsonl --out artifacts/evaluation/retrieval/test_bm25_answer.jsonl",
+    "config": {
+     "bm25_b": 0.75,
+     "bm25_k1": 1.5,
+     "candidate_k": 50,
+     "embedding_model": "BAAI/bge-small-en-v1.5",
+     "embedding_revision": "5c38ec7c405ec4b44b94cc5a9bb96e735b38267a",
+     "index_text_mode": "answer",
+     "indexes": {
+      "bm25:answer": {
+       "definition": {
+        "b": 0.75,
+        "chunk_max_words": 200,
+        "chunk_overlap_words": 40,
+        "chunker": "chunk-v1",
+        "k1": 1.5,
+        "method": "lucene",
+        "tokenizer": "tok-v1+snowball-en"
+       },
+       "index_version": "bm25-answer-3c6bf6f998cf"
+      }
+     },
+     "reranker_model": null,
+     "reranker_revision": null,
+     "rrf_k": 60
+    },
+    "corpus_version": "medquad-1.0.0-86e384302357",
+    "git_sha": "90ad257693c4b7c86b22c46da5a3fe76cc4abaf6",
+    "index_version": "bm25-answer-3c6bf6f998cf"
+   },
+   "metrics": {
+    "gold_recall@1": 0.5016666666666667,
+    "gold_recall@10": 0.815,
+    "gold_recall@20": 0.855,
+    "gold_recall@5": 0.7383333333333333,
+    "mrr@20": 0.6035023292983819,
+    "n": 300,
+    "recall@1": 0.5033333333333333,
+    "recall@10": 0.8233333333333334,
+    "recall@20": 0.8633333333333333,
+    "recall@5": 0.7433333333333333
+   },
+   "n_error_rows": 0,
+   "n_lexical_fallback": 0,
+   "retrievers_seen": {
+    "bm25:answer": 300
+   },
+   "run_file": "artifacts/evaluation/retrieval/test_bm25_answer.jsonl",
+   "run_sha256": "0a4608528f2c4297c4bc0966298250fd6deeddf682670fdb4b74a5773f144d7c"
+  },
+  "bm25:qa": {
+   "latency": {
+    "max_ms": 6.235,
+    "mean_ms": 1.1936766666666667,
+    "median_ms": 1.1949999999999998,
+    "n": 300,
+    "p95_ms": 1.7416000000000003
+   },
+   "meta": {
+    "command": "python -m medquad_qa.retrieval run --retriever bm25 --mode question_answer --top-k 20 --queries artifacts/evaluation/evalsets/test_track_a.jsonl --out artifacts/evaluation/retrieval/test_bm25_question_answer.jsonl",
+    "config": {
+     "bm25_b": 0.75,
+     "bm25_k1": 1.5,
+     "candidate_k": 50,
+     "embedding_model": "BAAI/bge-small-en-v1.5",
+     "embedding_revision": "5c38ec7c405ec4b44b94cc5a9bb96e735b38267a",
+     "index_text_mode": "question_answer",
+     "indexes": {
+      "bm25:qa": {
+       "definition": {
+        "b": 0.75,
+        "chunk_max_words": 200,
+        "chunk_overlap_words": 40,
+        "chunker": "chunk-v1",
+        "k1": 1.5,
+        "method": "lucene",
+        "tokenizer": "tok-v1+snowball-en"
+       },
+       "index_version": "bm25-qa-d5f777b26f79"
+      }
+     },
+     "reranker_model": null,
+     "reranker_revision": null,
+     "rrf_k": 60
+    },
+    "corpus_version": "medquad-1.0.0-86e384302357",
+    "git_sha": "90ad257693c4b7c86b22c46da5a3fe76cc4abaf6",
+    "index_version": "bm25-qa-d5f777b26f79"
+   },
+   "metrics": {
+    "gold_recall@1": 0.6016666666666667,
+    "gold_recall@10": 0.8966666666666666,
+    "gold_recall@20": 0.9333333333333333,
+    "gold_recall@5": 0.8316666666666667,
+    "mrr@20": 0.7068802891008773,
+    "n": 300,
+    "recall@1": 0.6066666666666667,
+    "recall@10": 0.9033333333333333,
+    "recall@20": 0.9366666666666666,
+    "recall@5": 0.8433333333333334
+   },
+   "n_error_rows": 0,
+   "n_lexical_fallback": 0,
+   "retrievers_seen": {
+    "bm25:qa": 300
+   },
+   "run_file": "artifacts/evaluation/retrieval/test_bm25_question_answer.jsonl",
+   "run_sha256": "713c31e28190d9bb3172a056c0a825ba097f6f45f8dd9b983146dee0b0e286d0"
+  },
+  "dense:answer": {
+   "latency": {
+    "max_ms": 300.456,
+    "mean_ms": 249.41395999999997,
+    "median_ms": 249.433,
+    "n": 300,
+    "p95_ms": 271.73330000000004
+   },
+   "meta": {
+    "command": "python -m medquad_qa.retrieval run --retriever dense --mode answer --top-k 20 --queries artifacts/evaluation/evalsets/test_track_a.jsonl --out artifacts/evaluation/retrieval/test_dense_answer.jsonl",
+    "config": {
+     "bm25_b": 0.75,
+     "bm25_k1": 1.5,
+     "candidate_k": 50,
+     "embedding_model": "BAAI/bge-small-en-v1.5",
+     "embedding_revision": "5c38ec7c405ec4b44b94cc5a9bb96e735b38267a",
+     "index_text_mode": "answer",
+     "indexes": {
+      "dense:answer": {
+       "definition": {
+        "chunk_max_words": 200,
+        "chunk_overlap_words": 40,
+        "chunker": "chunk-v1",
+        "dim": 384,
+        "distance": "cosine",
+        "embedding_model": "BAAI/bge-small-en-v1.5",
+        "embedding_revision": "5c38ec7c405ec4b44b94cc5a9bb96e735b38267a",
+        "normalize": true,
+        "query_prefix": "Represent this sentence for searching relevant passages: "
+       },
+       "index_version": "dense-answer-4729100e34a8"
+      }
+     },
+     "reranker_model": null,
+     "reranker_revision": null,
+     "rrf_k": 60
+    },
+    "corpus_version": "medquad-1.0.0-86e384302357",
+    "git_sha": "b6106d5f0b3b3bcdea55a16559b8508ad6f5da54",
+    "index_version": "dense-answer-4729100e34a8"
+   },
+   "metrics": {
+    "gold_recall@1": 0.6683333333333333,
+    "gold_recall@10": 0.9133333333333333,
+    "gold_recall@20": 0.9183333333333333,
+    "gold_recall@5": 0.8833333333333333,
+    "mrr@20": 0.7653718133718134,
+    "n": 300,
+    "recall@1": 0.6733333333333333,
+    "recall@10": 0.92,
+    "recall@20": 0.9266666666666666,
+    "recall@5": 0.89
+   },
+   "n_error_rows": 0,
+   "n_lexical_fallback": 0,
+   "retrievers_seen": {
+    "dense:answer": 300
+   },
+   "run_file": "artifacts/evaluation/retrieval/test_dense_answer.jsonl",
+   "run_sha256": "fb702ddff3d967edea166ec9c9f44527f1ffbec4ac39644f3fb6a5b6b33aad7f"
+  },
+  "dense:qa": {
+   "latency": {
+    "max_ms": 291.843,
+    "mean_ms": 244.55319000000003,
+    "median_ms": 245.38400000000001,
+    "n": 300,
+    "p95_ms": 268.58615
+   },
+   "meta": {
+    "command": "python -m medquad_qa.retrieval run --retriever dense --mode question_answer --top-k 20 --queries artifacts/evaluation/evalsets/test_track_a.jsonl --out artifacts/evaluation/retrieval/test_dense_question_answer.jsonl",
+    "config": {
+     "bm25_b": 0.75,
+     "bm25_k1": 1.5,
+     "candidate_k": 50,
+     "embedding_model": "BAAI/bge-small-en-v1.5",
+     "embedding_revision": "5c38ec7c405ec4b44b94cc5a9bb96e735b38267a",
+     "index_text_mode": "question_answer",
+     "indexes": {
+      "dense:qa": {
+       "definition": {
+        "chunk_max_words": 200,
+        "chunk_overlap_words": 40,
+        "chunker": "chunk-v1",
+        "dim": 384,
+        "distance": "cosine",
+        "embedding_model": "BAAI/bge-small-en-v1.5",
+        "embedding_revision": "5c38ec7c405ec4b44b94cc5a9bb96e735b38267a",
+        "normalize": true,
+        "query_prefix": "Represent this sentence for searching relevant passages: "
+       },
+       "index_version": "dense-qa-dc6b6a345fca"
+      }
+     },
+     "reranker_model": null,
+     "reranker_revision": null,
+     "rrf_k": 60
+    },
+    "corpus_version": "medquad-1.0.0-86e384302357",
+    "git_sha": "b6106d5f0b3b3bcdea55a16559b8508ad6f5da54",
+    "index_version": "dense-qa-dc6b6a345fca"
+   },
+   "metrics": {
+    "gold_recall@1": 0.8216666666666667,
+    "gold_recall@10": 0.97,
+    "gold_recall@20": 0.9816666666666667,
+    "gold_recall@5": 0.945,
+    "mrr@20": 0.8838928571428571,
+    "n": 300,
+    "recall@1": 0.83,
+    "recall@10": 0.9766666666666667,
+    "recall@20": 0.9833333333333333,
+    "recall@5": 0.95
+   },
+   "n_error_rows": 0,
+   "n_lexical_fallback": 0,
+   "retrievers_seen": {
+    "dense:qa": 300
+   },
+   "run_file": "artifacts/evaluation/retrieval/test_dense_question_answer.jsonl",
+   "run_sha256": "8793fb10297394ea243f4a96fc1e8568dcb984fb1cad7b1f30bcd5d05e448628"
+  },
+  "hybrid_rrf+ce:answer": {
+   "latency": {
+    "max_ms": 1157.102,
+    "mean_ms": 803.8526933333334,
+    "median_ms": 792.1005,
+    "n": 300,
+    "p95_ms": 940.7454
+   },
+   "meta": {
+    "command": "python -m medquad_qa.retrieval run --retriever hybrid --mode answer --top-k 20 --reranker cross-encoder/ms-marco-MiniLM-L-6-v2 --queries artifacts/evaluation/evalsets/test_track_a.jsonl --out artifacts/evaluation/retrieval/test_hybridce_answer.jsonl",
+    "config": {
+     "bm25_b": 0.75,
+     "bm25_k1": 1.5,
+     "candidate_k": 50,
+     "embedding_model": "BAAI/bge-small-en-v1.5",
+     "embedding_revision": "5c38ec7c405ec4b44b94cc5a9bb96e735b38267a",
+     "index_text_mode": "answer",
+     "indexes": {
+      "bm25:answer": {
+       "definition": {
+        "b": 0.75,
+        "chunk_max_words": 200,
+        "chunk_overlap_words": 40,
+        "chunker": "chunk-v1",
+        "k1": 1.5,
+        "method": "lucene",
+        "tokenizer": "tok-v1+snowball-en"
+       },
+       "index_version": "bm25-answer-3c6bf6f998cf"
+      },
+      "dense:answer": {
+       "definition": {
+        "chunk_max_words": 200,
+        "chunk_overlap_words": 40,
+        "chunker": "chunk-v1",
+        "dim": 384,
+        "distance": "cosine",
+        "embedding_model": "BAAI/bge-small-en-v1.5",
+        "embedding_revision": "5c38ec7c405ec4b44b94cc5a9bb96e735b38267a",
+        "normalize": true,
+        "query_prefix": "Represent this sentence for searching relevant passages: "
+       },
+       "index_version": "dense-answer-4729100e34a8"
+      }
+     },
+     "reranker_model": "cross-encoder/ms-marco-MiniLM-L-6-v2",
+     "reranker_revision": "233902d25c440f23af6f7d6e94d2946bac0bee0a",
+     "rrf_k": 60
+    },
+    "corpus_version": "medquad-1.0.0-86e384302357",
+    "git_sha": "40bd8a9dfc8d57f53ca446e90932698bd6397bf3",
+    "index_version": "bm25-answer-3c6bf6f998cf+dense-answer-4729100e34a8"
+   },
+   "metrics": {
+    "gold_recall@1": 0.69,
+    "gold_recall@10": 0.8766666666666667,
+    "gold_recall@20": 0.9066666666666666,
+    "gold_recall@5": 0.8416666666666667,
+    "mrr@20": 0.7656049658402599,
+    "n": 300,
+    "recall@1": 0.6933333333333334,
+    "recall@10": 0.8833333333333333,
+    "recall@20": 0.9133333333333333,
+    "recall@5": 0.85
+   },
+   "n_error_rows": 0,
+   "n_lexical_fallback": 0,
+   "retrievers_seen": {
+    "hybrid_rrf+ce:answer": 300
+   },
+   "run_file": "artifacts/evaluation/retrieval/test_hybridce_answer.jsonl",
+   "run_sha256": "e39e1cc4a2099a57a54b02e65c3a3b7571a0e8d3dcdab59d4209f23fef6ee562"
+  },
+  "hybrid_rrf+ce:qa": {
+   "latency": {
+    "max_ms": 1132.882,
+    "mean_ms": 802.2269733333334,
+    "median_ms": 790.1825,
+    "n": 300,
+    "p95_ms": 971.4271500000001
+   },
+   "meta": {
+    "command": "python -m medquad_qa.retrieval run --retriever hybrid --mode question_answer --top-k 20 --reranker cross-encoder/ms-marco-MiniLM-L-6-v2 --queries artifacts/evaluation/evalsets/test_track_a.jsonl --out artifacts/evaluation/retrieval/test_hybridce_question_answer.jsonl",
+    "config": {
+     "bm25_b": 0.75,
+     "bm25_k1": 1.5,
+     "candidate_k": 50,
+     "embedding_model": "BAAI/bge-small-en-v1.5",
+     "embedding_revision": "5c38ec7c405ec4b44b94cc5a9bb96e735b38267a",
+     "index_text_mode": "question_answer",
+     "indexes": {
+      "bm25:qa": {
+       "definition": {
+        "b": 0.75,
+        "chunk_max_words": 200,
+        "chunk_overlap_words": 40,
+        "chunker": "chunk-v1",
+        "k1": 1.5,
+        "method": "lucene",
+        "tokenizer": "tok-v1+snowball-en"
+       },
+       "index_version": "bm25-qa-d5f777b26f79"
+      },
+      "dense:qa": {
+       "definition": {
+        "chunk_max_words": 200,
+        "chunk_overlap_words": 40,
+        "chunker": "chunk-v1",
+        "dim": 384,
+        "distance": "cosine",
+        "embedding_model": "BAAI/bge-small-en-v1.5",
+        "embedding_revision": "5c38ec7c405ec4b44b94cc5a9bb96e735b38267a",
+        "normalize": true,
+        "query_prefix": "Represent this sentence for searching relevant passages: "
+       },
+       "index_version": "dense-qa-dc6b6a345fca"
+      }
+     },
+     "reranker_model": "cross-encoder/ms-marco-MiniLM-L-6-v2",
+     "reranker_revision": "233902d25c440f23af6f7d6e94d2946bac0bee0a",
+     "rrf_k": 60
+    },
+    "corpus_version": "medquad-1.0.0-86e384302357",
+    "git_sha": "40bd8a9dfc8d57f53ca446e90932698bd6397bf3",
+    "index_version": "bm25-qa-d5f777b26f79+dense-qa-dc6b6a345fca"
+   },
+   "metrics": {
+    "gold_recall@1": 0.69,
+    "gold_recall@10": 0.8966666666666666,
+    "gold_recall@20": 0.9733333333333334,
+    "gold_recall@5": 0.8616666666666667,
+    "mrr@20": 0.7708510009798709,
+    "n": 300,
+    "recall@1": 0.6933333333333334,
+    "recall@10": 0.9066666666666666,
+    "recall@20": 0.9766666666666667,
+    "recall@5": 0.87
+   },
+   "n_error_rows": 0,
+   "n_lexical_fallback": 0,
+   "retrievers_seen": {
+    "hybrid_rrf+ce:qa": 300
+   },
+   "run_file": "artifacts/evaluation/retrieval/test_hybridce_question_answer.jsonl",
+   "run_sha256": "99d6de5f09b2bdc332f8c8b133ef76d86ee04336cd9127c355b9de905f6be0eb"
+  },
+  "hybrid_rrf:answer": {
+   "latency": {
+    "max_ms": 307.409,
+    "mean_ms": 228.46069999999997,
+    "median_ms": 226.15449999999998,
+    "n": 300,
+    "p95_ms": 263.388
+   },
+   "meta": {
+    "command": "python -m medquad_qa.retrieval run --retriever hybrid --mode answer --top-k 20 --queries artifacts/evaluation/evalsets/test_track_a.jsonl --out artifacts/evaluation/retrieval/test_hybrid_answer.jsonl",
+    "config": {
+     "bm25_b": 0.75,
+     "bm25_k1": 1.5,
+     "candidate_k": 50,
+     "embedding_model": "BAAI/bge-small-en-v1.5",
+     "embedding_revision": "5c38ec7c405ec4b44b94cc5a9bb96e735b38267a",
+     "index_text_mode": "answer",
+     "indexes": {
+      "bm25:answer": {
+       "definition": {
+        "b": 0.75,
+        "chunk_max_words": 200,
+        "chunk_overlap_words": 40,
+        "chunker": "chunk-v1",
+        "k1": 1.5,
+        "method": "lucene",
+        "tokenizer": "tok-v1+snowball-en"
+       },
+       "index_version": "bm25-answer-3c6bf6f998cf"
+      },
+      "dense:answer": {
+       "definition": {
+        "chunk_max_words": 200,
+        "chunk_overlap_words": 40,
+        "chunker": "chunk-v1",
+        "dim": 384,
+        "distance": "cosine",
+        "embedding_model": "BAAI/bge-small-en-v1.5",
+        "embedding_revision": "5c38ec7c405ec4b44b94cc5a9bb96e735b38267a",
+        "normalize": true,
+        "query_prefix": "Represent this sentence for searching relevant passages: "
+       },
+       "index_version": "dense-answer-4729100e34a8"
+      }
+     },
+     "reranker_model": null,
+     "reranker_revision": null,
+     "rrf_k": 60
+    },
+    "corpus_version": "medquad-1.0.0-86e384302357",
+    "git_sha": "b6106d5f0b3b3bcdea55a16559b8508ad6f5da54",
+    "index_version": "bm25-answer-3c6bf6f998cf+dense-answer-4729100e34a8"
+   },
+   "metrics": {
+    "gold_recall@1": 0.64,
+    "gold_recall@10": 0.8766666666666667,
+    "gold_recall@20": 0.9066666666666666,
+    "gold_recall@5": 0.8433333333333334,
+    "mrr@20": 0.7341200402910929,
+    "n": 300,
+    "recall@1": 0.6433333333333333,
+    "recall@10": 0.8866666666666667,
+    "recall@20": 0.9133333333333333,
+    "recall@5": 0.8533333333333334
+   },
+   "n_error_rows": 0,
+   "n_lexical_fallback": 0,
+   "retrievers_seen": {
+    "hybrid_rrf:answer": 300
+   },
+   "run_file": "artifacts/evaluation/retrieval/test_hybrid_answer.jsonl",
+   "run_sha256": "dc50ced693577bc5c3adc13c22c1d8f6e79bef4ea0491de34c664ead178aad49"
+  },
+  "hybrid_rrf:qa": {
+   "latency": {
+    "max_ms": 332.62,
+    "mean_ms": 251.41751,
+    "median_ms": 251.935,
+    "n": 300,
+    "p95_ms": 285.58195
+   },
+   "meta": {
+    "command": "python -m medquad_qa.retrieval run --retriever hybrid --mode question_answer --top-k 20 --queries artifacts/evaluation/evalsets/test_track_a.jsonl --out artifacts/evaluation/retrieval/test_hybrid_question_answer.jsonl",
+    "config": {
+     "bm25_b": 0.75,
+     "bm25_k1": 1.5,
+     "candidate_k": 50,
+     "embedding_model": "BAAI/bge-small-en-v1.5",
+     "embedding_revision": "5c38ec7c405ec4b44b94cc5a9bb96e735b38267a",
+     "index_text_mode": "question_answer",
+     "indexes": {
+      "bm25:qa": {
+       "definition": {
+        "b": 0.75,
+        "chunk_max_words": 200,
+        "chunk_overlap_words": 40,
+        "chunker": "chunk-v1",
+        "k1": 1.5,
+        "method": "lucene",
+        "tokenizer": "tok-v1+snowball-en"
+       },
+       "index_version": "bm25-qa-d5f777b26f79"
+      },
+      "dense:qa": {
+       "definition": {
+        "chunk_max_words": 200,
+        "chunk_overlap_words": 40,
+        "chunker": "chunk-v1",
+        "dim": 384,
+        "distance": "cosine",
+        "embedding_model": "BAAI/bge-small-en-v1.5",
+        "embedding_revision": "5c38ec7c405ec4b44b94cc5a9bb96e735b38267a",
+        "normalize": true,
+        "query_prefix": "Represent this sentence for searching relevant passages: "
+       },
+       "index_version": "dense-qa-dc6b6a345fca"
+      }
+     },
+     "reranker_model": null,
+     "reranker_revision": null,
+     "rrf_k": 60
+    },
+    "corpus_version": "medquad-1.0.0-86e384302357",
+    "git_sha": "b6106d5f0b3b3bcdea55a16559b8508ad6f5da54",
+    "index_version": "bm25-qa-d5f777b26f79+dense-qa-dc6b6a345fca"
+   },
+   "metrics": {
+    "gold_recall@1": 0.7366666666666667,
+    "gold_recall@10": 0.9466666666666667,
+    "gold_recall@20": 0.9733333333333334,
+    "gold_recall@5": 0.9133333333333333,
+    "mrr@20": 0.8233120860620861,
+    "n": 300,
+    "recall@1": 0.7466666666666667,
+    "recall@10": 0.9533333333333334,
+    "recall@20": 0.9766666666666667,
+    "recall@5": 0.92
+   },
+   "n_error_rows": 0,
+   "n_lexical_fallback": 0,
+   "retrievers_seen": {
+    "hybrid_rrf:qa": 300
+   },
+   "run_file": "artifacts/evaluation/retrieval/test_hybrid_question_answer.jsonl",
+   "run_sha256": "04caae9879ffb9a34a60710c2c401a4dc96a5204753325307cbe6dc77392b5ee"
+  }
+ }
+}

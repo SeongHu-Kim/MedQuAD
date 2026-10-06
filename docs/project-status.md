@@ -180,7 +180,7 @@ Status of every task below: **PENDING** (team not yet spawned).
 | R1 (COMPLETE: plan received) | Discovery + retriever/RAG design plan | — | plan received |
 | R2 (COMPLETE: real BM25 indexes bm25-answer-3c6bf6f998cf, bm25-qa-d5f777b26f79) | BM25 retriever (common interface), lexical fallback | G1, fixtures | unit tests on fixtures; runs on real corpus after D2 |
 | R3 (COMPLETE on local mode: 4 real indexes on corpus 86e384302357, 16,336 records / 26,596 chunks, verify ok; server-mode Qdrant build pending S4) | Dense retriever + Qdrant index lifecycle + index manifest | R2, D2 | build/rebuild/verify commands; manifest w/ model rev + corpus_version |
-| R4 (PARTIAL: DEV runs for all 8 variants done; TEST runs by the evaluator after freeze) | Hybrid (RRF) + optional reranker; answer-only vs Q+A indexing variants | R3 | all variants run on frozen eval queries |
+| R4 (COMPLETE: 8 TEST runs on CPU; frozen dense:qa R@1 0.830 / R@5 0.950 / MRR 0.884; GPU and CPU rankings identical) | Hybrid (RRF) + optional reranker; answer-only vs Q+A indexing variants | R3 | all variants run on frozen eval queries |
 | R5 (PARTIAL: real end-to-end on DEV 60 done; config frozen (D-037); prompt A/B pending; F-002..F-006 committed, retest pending) | LangChain RAG pipeline, prompt templates, citation validation, abstention | R2, M1 | invalid IDs stripped+flagged; injection-in-evidence tests |
 | R6 | Tests, failure cases, docs; respond to E5 review | R2–R5 | tests green; findings resolved/documented |
 
@@ -190,9 +190,9 @@ Status of every task below: **PENDING** (team not yet spawned).
 | M1 (COMPLETE: plan received) | Discovery: model selection within Moderate budget (ARM64/CUDA13 compat), plan | — | plan w/ model id+revision+license, disk/runtime estimate |
 | M2 (COMPLETE: real CUDA bf16 and CPU generation tests pass; bench: load 5.9 s, ~19.9 tok/s single, ~150 tok/s at batch 8, peak 8.2 GiB CUDA) | Base inference adapter (Generator) | G1 | real generation on GPU + CPU-path smoke |
 | M3 (COMPLETE: SFT export + token report + 3 smoke runs; 8.85 s/step uncontended) | SFT export from approved train split; prompt-masked LoRA pipeline | D5 | smoke run (few steps) executes |
-| M4 (PARTIAL: training COMPLETED: 790/790 steps in 4,399 s, val loss 2.157 → 1.119, peak 15.8 GiB, prompt cb-v1+a1f08aaf; adapter reload check and promotion pending) | Full LoRA run + reload + generation test; MLflow logging | M3 | run manifest, loss curves, adapter reload test |
+| M4 (COMPLETE: 790/790 steps, val loss 2.157 → 1.119; adapter verified in a fresh process and promoted (CURRENT); MLflow run ac6321e7…; real-model tests 3 passed) | Full LoRA run + reload + generation test; MLflow logging | M3 | run manifest, loss curves, adapter reload test |
 | M5 (COMPLETE: LR baseline + Keras BiGRU trained; test excl. own-answer ROC-AUC 0.784 vs 0.934; score files sent to the evaluator for an independent recompute) | Answerability: statistical baseline + TF/Keras classifier, hard negatives, val-chosen threshold, calibration | D5, E1 label design | metrics JSON on val/test; calibration plot |
-| M6 | Model cards, run manifests, tests | M2–M5 | pytest green; cards cite artifacts |
+| M6 (COMPLETE: generator card, answerability card, training/inference docs, docs/models index; 34 offline + 3 real-model tests) | Model cards, run manifests, tests | M2–M5 | pytest green; cards cite artifacts |
 
 ### service-platform-engineer (owns api/, ui/, observability/, configs/service/, configs/monitoring/, scripts/service/, scripts/ops/, tests/api/, tests/observability/, deploy/, .github/workflows/, docs/service/, docs/operations/)
 | ID | Task | Depends | Acceptance |

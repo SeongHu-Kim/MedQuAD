@@ -1,0 +1,102 @@
+{
+ "bm25_answer|synthetic_rule": {
+  "n": 200,
+  "recall@1": 0.525,
+  "gold_recall@1": 0.5225,
+  "recall@5": 0.785,
+  "gold_recall@5": 0.7825,
+  "recall@20": 0.87,
+  "gold_recall@20": 0.8625,
+  "mrr@20": 0.62697584104492
+ },
+ "bm25_answer|llm_generated_unreviewed": {
+  "n": 100,
+  "recall@1": 0.46,
+  "gold_recall@1": 0.46,
+  "recall@5": 0.66,
+  "gold_recall@5": 0.65,
+  "recall@20": 0.85,
+  "gold_recall@20": 0.84,
+  "mrr@20": 0.5565553058053058
+ },
+ "bm25_question_answer|synthetic_rule": {
+  "n": 200,
+  "recall@1": 0.635,
+  "gold_recall@1": 0.6325,
+  "recall@5": 0.89,
+  "gold_recall@5": 0.88,
+  "recall@20": 0.965,
+  "gold_recall@20": 0.96,
+  "mrr@20": 0.7408959553518377
+ },
+ "bm25_question_answer|llm_generated_unreviewed": {
+  "n": 100,
+  "recall@1": 0.55,
+  "gold_recall@1": 0.54,
+  "recall@5": 0.75,
+  "gold_recall@5": 0.735,
+  "recall@20": 0.88,
+  "gold_recall@20": 0.88,
+  "mrr@20": 0.6388489565989566
+ },
+ "dense_answer|synthetic_rule": {
+  "n": 200,
+  "recall@1": 0.715,
+  "gold_recall@1": 0.71,
+  "recall@5": 0.89,
+  "gold_recall@5": 0.8875,
+  "recall@20": 0.925,
+  "gold_recall@20": 0.9225,
+  "mrr@20": 0.7883948412698413
+ },
+ "dense_answer|llm_generated_unreviewed": {
+  "n": 100,
+  "recall@1": 0.59,
+  "gold_recall@1": 0.585,
+  "recall@5": 0.89,
+  "gold_recall@5": 0.875,
+  "recall@20": 0.93,
+  "gold_recall@20": 0.91,
+  "mrr@20": 0.7193257575757577
+ },
+ "dense_question_answer|synthetic_rule": {
+  "n": 200,
+  "recall@1": 0.87,
+  "gold_recall@1": 0.865,
+  "recall@5": 0.965,
+  "gold_recall@5": 0.9625,
+  "recall@20": 0.99,
+  "gold_recall@20": 0.99,
+  "mrr@20": 0.9115138888888888
+ },
+ "dense_question_answer|llm_generated_unreviewed": {
+  "n": 100,
+  "recall@1": 0.75,
+  "gold_recall@1": 0.735,
+  "recall@5": 0.92,
+  "gold_recall@5": 0.91,
+  "recall@20": 0.97,
+  "gold_recall@20": 0.965,
+  "mrr@20": 0.8286507936507936
+ },
+ "hybrid_question_answer|synthetic_rule": {
+  "n": 200,
+  "recall@1": 0.785,
+  "gold_recall@1": 0.78,
+  "recall@5": 0.945,
+  "gold_recall@5": 0.94,
+  "recall@20": 0.995,
+  "gold_recall@20": 0.9925,
+  "mrr@20": 0.8594563492063492
+ },
+ "hybrid_question_answer|llm_generated_unreviewed": {
+  "n": 100,
+  "recall@1": 0.67,
+  "gold_recall@1": 0.65,
+  "recall@5": 0.87,
+  "gold_recall@5": 0.86,
+  "recall@20": 0.94,
+  "gold_recall@20": 0.935,
+  "mrr@20": 0.7510235597735598
+ }
+}

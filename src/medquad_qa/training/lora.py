@@ -276,6 +276,12 @@ def load_base_for_training(base: GeneratorConfig, device: torch.device, bf16: bo
     return model.to(device), tokenizer  # type: ignore[arg-type]
 
 
+def _make_world_readable(directory: Path) -> None:
+    for path in directory.iterdir():
+        if path.is_file():
+            path.chmod(0o644)
+
+
 def _disable_adapter_input_casting(model: Any) -> int:
     from peft.tuners.tuners_utils import BaseTunerLayer
 
@@ -455,6 +461,7 @@ def run_sft(
     val_after = trainer.evaluate(metric_key_prefix="eval")["eval_loss"]
 
     peft_model.save_pretrained(str(adapter_dir))
+    _make_world_readable(adapter_dir)  # safetensors writes 0600; the API container (uid 10001) must read it
     if steps_done < planned_steps:
         status = "partial_time_cap" if callback.hit_cap else "partial"
     else:

@@ -31,6 +31,7 @@ artifacts/models/answerability/**/pairs_*.jsonl
 artifacts/models/answerability/**/model.json
 artifacts/models/answerability/**/*.npy
 artifacts/models/runs/**/trainer/
+artifacts/models/runs/**/reload_samples.jsonl
 artifacts/models/**/checkpoint-*/
 artifacts/indexes/*
 !artifacts/indexes/manifests/
