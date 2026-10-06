@@ -77,6 +77,12 @@ Every error body has the same shape: `{"error_code", "message", "request_id"}`, 
 - `pipeline.answer` runs in a worker thread. After a 504, the slot stays held until that thread actually returns, because the GPU is still busy. Requests arriving in the meantime receive 503 `busy`.
 - The pipeline is built in a background thread at startup. Liveness is immediate, and readiness follows the build. A failed build keeps the process alive, and `/health/ready` reports `"pipeline": "failed"` with the exception type and a short message.
 
+Sizing (model-engineer bench, `artifacts/models/bench/generator_base_cuda.json`, GB10 bf16):
+- Generator load takes about 6 s.
+- Peak CUDA memory is about 8.5 GiB, and peak process RSS during load is about 12 GiB, so budget at least 16 GiB for the API container.
+- Throughput is about 20 tokens/s; 256 new tokens take a median 12.9 s.
+- The generator's 60 s deadline includes queue time, so `max_new_tokens` above about 1000 will usually return 504 `generation_timeout`.
+
 ## Configuration (`MEDQUAD_*` environment)
 
 | Variable | Default | Meaning |

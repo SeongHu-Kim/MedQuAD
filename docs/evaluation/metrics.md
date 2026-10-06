@@ -72,6 +72,14 @@ Median and p95 use numpy's linear interpolation. Component latencies are summari
 - **Paired cluster bootstrap**: clusters are `split_group_id`; 10,000 resamples; seed 20261006; percentile 95% CI of the B − A mean; two-sided bootstrap p-value floored at 1/(R+1).
 - **Exact McNemar**: binomial test on discordant pairs.
 
+## Pre-registered secondary analyses (fixed 2026-10-06, before any TEST run)
+- **Resource-list gold** (`qa_report.is_resource_list_gold`): items whose every gold answer begins "These resources address the diagnosis or management of".
+  - These are GHR link lists (1,085 corpus records), so INSUFFICIENT_EVIDENCE is arguably grounded there.
+  - Counts: Track A TEST 12, Track C 6, DEV 4, train_probe 4.
+  - Frozen labels stay unchanged and primary tables include these items. Secondary tables report the subgroup on its own and the remainder without it.
+  - This was suggested from DEV triage (retrieval-engineer, DEV over-refusals) and fixed before any TEST output existed.
+- **Closed-book expectations** (`qa_report.expected_for_mode`, D-023): see Abstention above.
+
 ## Supplementary only (`text_metrics.py`)
 ROUGE-L F and token-F1, both computed after citation markers are stripped. These are never primary evidence of correctness.
 

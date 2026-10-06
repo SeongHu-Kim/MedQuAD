@@ -1,4 +1,4 @@
-# Project Status — MedQuAD Evidence-Grounded Medical QA
+| R5 (PARTIAL: real end-to-end on DEV 60 done; config frozen (D-037); prompt A/B pending; F-002..F-006 committed, retest pending) || R4 (PARTIAL: DEV runs for all 8 variants done; TEST runs by the evaluator after freeze) || S6 (COMPLETE (technical integration): GPU 6-step PASS, rollback drill PASS; finetuned mode pending M4) || S4 (COMPLETE: GPU 6.5 GB and CPU 1.8 GB images, in-image CUDA smoke passes, hardened compose) |# Project Status — MedQuAD Evidence-Grounded Medical QA
 
 Owner: lead. Status categories: **COMPLETE** (implemented, executed, validated) ·
 **PARTIAL** (implemented, missing execution/validation) · **BLOCKED** · **PENDING** (not started).
