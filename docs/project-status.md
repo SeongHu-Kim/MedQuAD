@@ -139,6 +139,9 @@ Current verified status. The "BLOCKED" Docker entries in the session-1 log above
   - The lead added `tests/test_repo_hygiene.py`, which fails if invisible or control characters appear in `src/`.
   - model-engineer was reminded of the ownership rule.
 
+- **E4 leakage gate PASS** (`artifacts/evaluation/leakage/protected_check_m4.json`): no eval group overlaps the SFT data (12,636 records, M4 run) or the classifier train pairs; no TEST item overlaps the validation/threshold data. train_probe ∩ SFT = 100/100, as designed.
+- **R4 TEST retrieval runs** are being redone on CPU, because 3 of the 8 overlapped the M4 launch on the GPU. The GPU runs are kept as a cross-check, and no latency is reported for runs that overlapped M4.
+
 ## Resume checklist (session 2)
 
 1. `id | grep docker && docker info && docker compose version` — must succeed; else stop and report.

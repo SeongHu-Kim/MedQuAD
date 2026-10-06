@@ -1,0 +1,23 @@
+{
+ "errors": [],
+ "inputs": {
+  "artifacts/models/answerability/pairs/pairs_manifest_train.jsonl": "66f4b9a1d611be946ec4ed124ad5cdab71158f4cc1af0d08090a1d68dbb4cc4f",
+  "artifacts/models/answerability/pairs/pairs_manifest_validation.jsonl": "ff64f29821986c46636a449c2f86bede5c4484676aa8576bd6075f60a14dc827",
+  "artifacts/models/runs/sft-main-20261006-081347-3f16e30e/sft_record_ids.jsonl": "647d4f19554eb8890d4f15e75659e4becbaf8438eb3f357c3eb26c6c0f6c9d02"
+ },
+ "n_eval_examples": 700,
+ "passed": true,
+ "protected_record_ids": {
+  "classifier_train": 12636,
+  "sft": 12636,
+  "threshold": 1610
+ },
+ "rows": {
+  "pairs_train": 30506,
+  "pairs_validation": 3960,
+  "sft": 12636
+ },
+ "split_version": "split-20261006-2f0fb25ee6d8",
+ "train_probe_sft_overlap": 100,
+ "warnings": []
+}
