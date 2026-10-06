@@ -276,6 +276,17 @@ def load_base_for_training(base: GeneratorConfig, device: torch.device, bf16: bo
     return model.to(device), tokenizer  # type: ignore[arg-type]
 
 
+def _disable_adapter_input_casting(model: Any) -> int:
+    from peft.tuners.tuners_utils import BaseTunerLayer
+
+    n = 0
+    for module in model.modules():
+        if isinstance(module, BaseTunerLayer):
+            module.cast_input_dtype_enabled = False  # type: ignore[attr-defined]
+            n += 1
+    return n
+
+
 def _write_sft_ids(examples: list[SFTExample], path: Path, split_version: str | None) -> None:
     """IDs-only list of the records actually trained on (for the evaluator's leakage gate; no text)."""
     with path.open("w", encoding="utf-8") as f:
@@ -349,6 +360,10 @@ def run_sft(
         task_type="CAUSAL_LM",
     )
     peft_model = get_peft_model(model, lora_cfg)
+    # LoRA weights stay fp32 (optimizer precision) but PEFT would also cast every adapter INPUT to fp32, which made
+    # a step ~2.5x slower on GB10 (profiled: 3.85 s vs 1.51 s per 4x512 micro-batch). Under bf16 autocast the
+    # adapter matmuls run in bf16 either way, so input casting is disabled for training only.
+    n_uncast = _disable_adapter_input_casting(peft_model) if use_bf16 else 0
     trainable, total = peft_model.get_nb_trainable_parameters()
 
     effective_batch = config.per_device_batch_size * config.grad_accum_steps
@@ -479,7 +494,8 @@ def run_sft(
         },
         "training": {
             "device": str(dev),
-            "precision": "bf16" if use_bf16 else "fp32",
+            "precision": "bf16 autocast, fp32 LoRA weights" if use_bf16 else "fp32",
+            "adapter_input_casting_disabled_modules": n_uncast,
             "trainable_params": trainable,
             "total_params": total,
             "effective_batch": effective_batch,
