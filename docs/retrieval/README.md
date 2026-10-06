@@ -144,7 +144,7 @@ Coverage fell, so p1 stays (`rag-v1+df593554`). Logs: `artifacts/logs/pipeline_r
 | index versions | `dense-qa-dc6b6a345fca` (BGE-small @5c38ec7c), fallback `bm25-qa-d5f777b26f79` |
 | top_k | 5 |
 | prompts | RAG `rag-v1+df593554`; closed-book `cb-v1+a1f08aaf` |
-| safety rules | see `SAFETY_RULES_VERSION` in `src/medquad_qa/rag/safety.py` (final value in the freeze message) |
+| safety rules | `safety-v2+43836b6c` (freeze commit 1c84b60, D-043) |
 | answerability gate | model-engineer's lexical LR, `answerability-lexlr@3defcd00a31f:maxf1-val:0.307172` |
 
 ## Limitations and disclosures
