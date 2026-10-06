@@ -130,6 +130,15 @@ Current verified status. The "BLOCKED" Docker entries in the session-1 log above
   - The model-engineer real-generator tests are marked `real_model`/`gpu` and are excluded from `make test`.
 - **Open:** two cross-split topics differ only by a bracketed name ("bile duct cancer (cholangiocarcinoma)", "chronic fatigue syndrome (cfs)"). This is pending the evaluator's ruling during E1 sign-off.
 
+- **R2/R3/R5 verified by the lead:**
+  - `pytest tests/retrieval tests/rag -m "not real_model"`: 99 passed.
+  - ruff and mypy are clean on 26 files.
+  - The embedder is `BAAI/bge-small-en-v1.5@5c38ec7c…` (MIT).
+- **Incident:** a bulk `ruff format` run by model-engineer outside its own paths turned `\u` escapes in `rag/sanitize.py` into literal bidi control characters.
+  - retrieval-engineer restored the escapes.
+  - The lead added `tests/test_repo_hygiene.py`, which fails if invisible or control characters appear in `src/`.
+  - model-engineer was reminded of the ownership rule.
+
 ## Resume checklist (session 2)
 
 1. `id | grep docker && docker info && docker compose version` — must succeed; else stop and report.
@@ -166,10 +175,10 @@ Status of every task below: **PENDING** (team not yet spawned).
 | ID | Task | Depends | Acceptance |
 |---|---|---|---|
 | R1 (COMPLETE: plan received) | Discovery + retriever/RAG design plan | — | plan received |
-| R2 (IN PROGRESS) | BM25 retriever (common interface), lexical fallback | G1, fixtures | unit tests on fixtures; runs on real corpus after D2 |
-| R3 | Dense retriever + Qdrant index lifecycle + index manifest | R2, D2 | build/rebuild/verify commands; manifest w/ model rev + corpus_version |
+| R2 (COMPLETE on synthetic fixtures; real-corpus build next) | BM25 retriever (common interface), lexical fallback | G1, fixtures | unit tests on fixtures; runs on real corpus after D2 |
+| R3 (PARTIAL: dense + Qdrant lifecycle implemented; real BGE test passed on the synthetic corpus; real-corpus index pending) | Dense retriever + Qdrant index lifecycle + index manifest | R2, D2 | build/rebuild/verify commands; manifest w/ model rev + corpus_version |
 | R4 | Hybrid (RRF) + optional reranker; answer-only vs Q+A indexing variants | R3 | all variants run on frozen eval queries |
-| R5 | LangChain RAG pipeline, prompt templates, citation validation, abstention | R2, M1 | invalid IDs stripped+flagged; injection-in-evidence tests |
+| R5 (PARTIAL: LCEL pipeline, safety, sanitiser, citations, gate, budget implemented offline; real generator pending M2) | LangChain RAG pipeline, prompt templates, citation validation, abstention | R2, M1 | invalid IDs stripped+flagged; injection-in-evidence tests |
 | R6 | Tests, failure cases, docs; respond to E5 review | R2–R5 | tests green; findings resolved/documented |
 
 ### model-engineer (owns models/, training/, configs/models/, configs/training/, scripts/training/, tests/models/, tests/training/, docs/models/, artifacts/models/)
