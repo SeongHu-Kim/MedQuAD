@@ -264,3 +264,24 @@ def test_exact_mcnemar() -> None:
     assert (r["a_only_correct"], r["b_only_correct"]) == (0, 10)
     assert r["p_value"] == pytest.approx(2 * 0.5**10)
     assert stats.exact_mcnemar([True], [True])["p_value"] == 1.0
+
+
+# ------------------------------------------------------------------ offline summary
+def test_offline_summary_format(tmp_path: Path) -> None:
+    from medquad_qa.evaluation.summary import build_summary, write_summary_atomic
+
+    s = build_summary(
+        "e4-run.1",
+        [
+            ("A", "hybrid_rrf:answer", "recall@5", 0.8),
+            ("B", "rag", "citation_validity", None),
+            ("B", "rag", "x", float("nan")),
+        ],
+    )
+    assert s["metrics"] == [{"track": "A", "mode": "hybrid_rrf_answer", "metric": "recall_at_5", "value": 0.8}]
+    with pytest.raises(ValueError):
+        build_summary("bad id with spaces", [("A", "rag", "m", 1.0)])
+    p = tmp_path / "s" / "latest_offline_eval.json"
+    write_summary_atomic(s, p)
+    assert json.loads(p.read_text())["eval_run_id"] == "e4-run.1"
+    assert [f.name for f in p.parent.iterdir()] == ["latest_offline_eval.json"]

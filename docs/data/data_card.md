@@ -88,7 +88,7 @@ blocking check.
 
 | disclosure | value | source |
 |---|---|---|
-| Cross-split topic families, from the evaluator's crude suffix rule. Diagnostic only: the rule over-merges (e.g. Vitamin A/C/D/E), and the families' answers are distinct | 67 | `artifacts/evaluation/split_verification/report_retest_2f0fb25ee6d8.json` → `diagnostic_counts.topic_family` |
+| Cross-split topic families, from the evaluator's crude suffix rule. Diagnostic only: the rule over-merges (e.g. Vitamin A/C/D/E), and no family has content near-duplicates across splits (`answer_content_near_dup` = 0 in the same report). Families that share an answer verbatim are linked | 67 | `artifacts/evaluation/split_verification/report_retest_2f0fb25ee6d8.json` → `diagnostic_counts.topic_family` |
 | Residual cross-split pairs with topic-masked Jaccard 0.5–0.8. Listed by record ID; diagnostic only | 671 of 2215 | `data/manifests/leakage_report.json` → `diagnostics.residual_pairs_cross_split` / `residual_pairs_total` |
 | Generic boilerplate answers present in more than one split (clinical-trials and inheritance-pattern text; reviewed by the evaluator) | 7 | `data/manifests/leakage_report.json` → `diagnostics.boilerplate_answers_cross_split` |
 | Grouping basis | content and topic, not documents (the export has no URLs or document IDs) | `data/manifests/corpus_manifest.json` → `grouping_disclosure` |
