@@ -1,4 +1,4 @@
-| R5 (PARTIAL: real end-to-end on DEV 60 done; config frozen (D-037); prompt A/B pending; F-002..F-006 committed, retest pending) || R4 (PARTIAL: DEV runs for all 8 variants done; TEST runs by the evaluator after freeze) || S6 (COMPLETE (technical integration): GPU 6-step PASS, rollback drill PASS; finetuned mode pending M4) || S4 (COMPLETE: GPU 6.5 GB and CPU 1.8 GB images, in-image CUDA smoke passes, hardened compose) |# Project Status — MedQuAD Evidence-Grounded Medical QA
+# Project Status — MedQuAD Evidence-Grounded Medical QA
 
 Owner: lead. Status categories: **COMPLETE** (implemented, executed, validated) ·
 **PARTIAL** (implemented, missing execution/validation) · **BLOCKED** · **PENDING** (not started).
@@ -177,8 +177,8 @@ Status of every task below: **PENDING** (team not yet spawned).
 | R1 (COMPLETE: plan received) | Discovery + retriever/RAG design plan | — | plan received |
 | R2 (COMPLETE: real BM25 indexes bm25-answer-3c6bf6f998cf, bm25-qa-d5f777b26f79) | BM25 retriever (common interface), lexical fallback | G1, fixtures | unit tests on fixtures; runs on real corpus after D2 |
 | R3 (COMPLETE on local mode: 4 real indexes on corpus 86e384302357, 16,336 records / 26,596 chunks, verify ok; server-mode Qdrant build pending S4) | Dense retriever + Qdrant index lifecycle + index manifest | R2, D2 | build/rebuild/verify commands; manifest w/ model rev + corpus_version |
-| R4 | Hybrid (RRF) + optional reranker; answer-only vs Q+A indexing variants | R3 | all variants run on frozen eval queries |
-| R5 (PARTIAL: LCEL pipeline, safety, sanitiser, citations, gate, budget implemented offline; real generator pending M2) | LangChain RAG pipeline, prompt templates, citation validation, abstention | R2, M1 | invalid IDs stripped+flagged; injection-in-evidence tests |
+| R4 (PARTIAL: DEV runs for all 8 variants done; TEST runs by the evaluator after freeze) | Hybrid (RRF) + optional reranker; answer-only vs Q+A indexing variants | R3 | all variants run on frozen eval queries |
+| R5 (PARTIAL: real end-to-end on DEV 60 done; config frozen (D-037); prompt A/B pending; F-002..F-006 committed, retest pending) | LangChain RAG pipeline, prompt templates, citation validation, abstention | R2, M1 | invalid IDs stripped+flagged; injection-in-evidence tests |
 | R6 | Tests, failure cases, docs; respond to E5 review | R2–R5 | tests green; findings resolved/documented |
 
 ### model-engineer (owns models/, training/, configs/models/, configs/training/, scripts/training/, tests/models/, tests/training/, docs/models/, artifacts/models/)
@@ -197,9 +197,9 @@ Status of every task below: **PENDING** (team not yet spawned).
 | S1 (COMPLETE: plan received) | Discovery + service/deploy plan (ARM64 images) | — | plan received |
 | S2 (COMPLETE: offline with FakePipeline) | FastAPI: /v1/qa, /health/live, /health/ready, /metrics; bounds, timeouts, request IDs | G1 | API tests with fake pipeline green |
 | S3 (PARTIAL: Streamlit UI and AppTest tests done; manual smoke against a real answer pending GPU) | Streamlit demo (answer, citations, versions, disclaimer) | S2 | manual smoke against running API |
-| S4 (PARTIAL: hardened arm64 compose, CPU stack up and healthy on 127.0.0.1; GPU image approved, build pending) | Dockerfiles + Compose (api, ui, qdrant, mlflow; localhost binds, non-root) | S2, **Docker access** | compose config validates; stack up; health OK |
+| S4 (COMPLETE: GPU 6.5 GB and CPU 1.8 GB images, in-image CUDA smoke passes, hardened compose) | Dockerfiles + Compose (api, ui, qdrant, mlflow; localhost binds, non-root) | S2, **Docker access** | compose config validates; stack up; health OK |
 | S5 (COMPLETE: metrics, logs, MLflow server smoke, Prometheus scrape up=1, CI workflow (never run on GitHub); local make ci exit 0) | Metrics, structured logs (no raw content by default), MLflow server, CI workflow | S2 | metrics test; CI lint+offline tests locally |
-| S6 | Real-artifact integration in stack + runbook (deploy, rollback, troubleshooting) | S4, R5, M2 | real QA request recorded here |
+| S6 (COMPLETE (technical integration): GPU 6-step PASS, rollback drill PASS; finetuned mode pending M4) | Real-artifact integration in stack + runbook (deploy, rollback, troubleshooting) | S4, R5, M2 | real QA request recorded here |
 
 ### evaluation-safety-engineer (owns evaluation/, configs/evaluation/, scripts/evaluation/, tests/evaluation/, tests/security/, tests/integration/, docs/evaluation/, docs/security/, artifacts/evaluation/)
 | ID | Task | Depends | Acceptance |
