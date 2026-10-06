@@ -1,0 +1,197 @@
+{
+  "run_id": "sft-main-20261006-081347-3f16e30e",
+  "run_kind": "main",
+  "status": "completed",
+  "base_model": {
+    "model_id": "Qwen/Qwen3-4B-Instruct-2507",
+    "revision": "cdbee75f17c01a7cc42f958dc650907174af0554"
+  },
+  "config": {
+    "format_version": "sft-closed-v1",
+    "max_seq_len": 1024,
+    "seed": 42,
+    "lora": {
+      "r": 16,
+      "alpha": 32,
+      "dropout": 0.05,
+      "target_modules": "all-linear"
+    },
+    "optim": {
+      "learning_rate": 0.0002,
+      "lr_scheduler_type": "cosine",
+      "warmup_fraction": 0.03,
+      "weight_decay": 0.0,
+      "max_grad_norm": 1.0
+    },
+    "per_device_batch_size": 4,
+    "grad_accum_steps": 4,
+    "num_train_epochs": 1.0,
+    "max_steps": null,
+    "time_cap_hours": 2.5,
+    "bf16": true,
+    "gradient_checkpointing": true,
+    "sampling": "group_by_length",
+    "logging_steps": 10,
+    "save_steps": 200,
+    "eval_max_examples": 512
+  },
+  "seeds": {
+    "seed": 42,
+    "data_seed": 42
+  },
+  "data": {
+    "train_path": "data/processed/exports/records_train.jsonl",
+    "val_path": "data/processed/exports/records_validation.jsonl",
+    "train_sha256": "819e783c515aa1e6c1f8eee25b180664c5d6707d81fc23b6a4641d1d440000ec",
+    "val_sha256": "9033931b6fe0512a2674e31cdb93a69ee2422dd75e953d8bc17fd0b64fa12436",
+    "heldout_sha256": {
+      "data/processed/exports/records_validation.jsonl": "9033931b6fe0512a2674e31cdb93a69ee2422dd75e953d8bc17fd0b64fa12436",
+      "data/processed/exports/records_test.jsonl": "1fa115fe2941f89882389f54cd7c2c4f5aa1cfa193105435340e90b5e1d27688"
+    },
+    "split_isolation": {
+      "train_records": 13014,
+      "train_groups": 3338,
+      "overlap_groups": 0,
+      "overlap_ids": 0
+    },
+    "versions": {
+      "exports_manifest": "data/manifests/exports_manifest.json",
+      "corpus_version": "medquad-1.0.0-86e384302357",
+      "split_version": "split-20261006-2f0fb25ee6d8",
+      "export_sha256_verified": {
+        "train": "819e783c515aa1e6c1f8eee25b180664c5d6707d81fc23b6a4641d1d440000ec",
+        "validation": "9033931b6fe0512a2674e31cdb93a69ee2422dd75e953d8bc17fd0b64fa12436",
+        "test": "1fa115fe2941f89882389f54cd7c2c4f5aa1cfa193105435340e90b5e1d27688"
+      },
+      "message_builder": "cb-v1+a1f08aaf"
+    },
+    "sft_build_train": {
+      "format_version": "sft-closed-v1",
+      "max_seq_len": 1024,
+      "n_records_in": 13014,
+      "n_examples": 12636,
+      "excluded": {
+        "boilerplate_answer": 378
+      },
+      "n_truncated": 369,
+      "truncated_by_source": {
+        "NIHSeniorHealth": 34,
+        "CancerGov": 146,
+        "GARD": 61,
+        "CDC": 7,
+        "NHLBI": 62,
+        "NIDDK": 59
+      },
+      "examples_by_source": {
+        "NIHSeniorHealth": 577,
+        "CancerGov": 590,
+        "MPlusHealthTopics": 780,
+        "GARD": 4316,
+        "CDC": 208,
+        "NHLBI": 430,
+        "NINDS": 874,
+        "GHR": 3965,
+        "NIDDK": 896
+      },
+      "answer_tokens_total": 3505637,
+      "answer_tokens_dropped_by_truncation": 289763,
+      "input_sha256": "819e783c515aa1e6c1f8eee25b180664c5d6707d81fc23b6a4641d1d440000ec"
+    },
+    "sft_build_val": {
+      "format_version": "sft-closed-v1",
+      "max_seq_len": 1024,
+      "n_records_in": 1665,
+      "n_examples": 1610,
+      "excluded": {
+        "boilerplate_answer": 55
+      },
+      "n_truncated": 42,
+      "truncated_by_source": {
+        "NIHSeniorHealth": 15,
+        "CancerGov": 13,
+        "GARD": 6,
+        "CDC": 4,
+        "NHLBI": 3,
+        "NIDDK": 1
+      },
+      "examples_by_source": {
+        "NIHSeniorHealth": 103,
+        "CancerGov": 61,
+        "MPlusHealthTopics": 104,
+        "GARD": 501,
+        "CDC": 28,
+        "NHLBI": 61,
+        "NINDS": 118,
+        "GHR": 507,
+        "NIDDK": 127
+      },
+      "answer_tokens_total": 427670,
+      "answer_tokens_dropped_by_truncation": 22257,
+      "input_sha256": "9033931b6fe0512a2674e31cdb93a69ee2422dd75e953d8bc17fd0b64fa12436"
+    }
+  },
+  "training": {
+    "device": "cuda",
+    "precision": "bf16 autocast, fp32 LoRA weights",
+    "adapter_input_casting_disabled_modules": 252,
+    "trainable_params": 33030144,
+    "total_params": 4055498240,
+    "effective_batch": 16,
+    "steps_per_epoch": 790,
+    "planned_steps": 790,
+    "steps_done": 790,
+    "epochs_done": 1.0,
+    "warmup_steps": 24,
+    "hit_time_cap": false,
+    "train_runtime_s": 4399.1981340269995,
+    "sec_per_step_mean": 5.540009899197717,
+    "final_train_loss_mean": 1.1150252115877368,
+    "val_loss_before": 2.157168388366699,
+    "val_loss_after": 1.1190440654754639,
+    "val_loss_examples": 512,
+    "cuda_max_allocated_gib": 15.79461669921875,
+    "cuda_max_reserved_gib": 17.59765625
+  },
+  "adapter": {
+    "dir": "artifacts/models/adapters/sft-main-20261006-081347-3f16e30e",
+    "weights_sha256": "fc8d5d08d0c4654cc306a65e5dd7af372b21a68e367fedcf5d6508ca8d808011",
+    "manifest": {
+      "run_id": "sft-main-20261006-081347-3f16e30e",
+      "status": "completed",
+      "base_model_id": "Qwen/Qwen3-4B-Instruct-2507",
+      "base_revision": "cdbee75f17c01a7cc42f958dc650907174af0554",
+      "format_version": "sft-closed-v1",
+      "message_builder": "cb-v1+a1f08aaf",
+      "tokenizer": {
+        "class": "Qwen2Tokenizer",
+        "vocab_size": 151669,
+        "eos_token": "<|im_end|>",
+        "pad_token": "<|endoftext|>",
+        "chat_template_sha256": "64f85b198065d0fba2a81f37e10ed68161ce2c19a754c7100e67e0ca2ee9c326",
+        "prompt_fingerprint_sha256": "08ec7c9f075a5ce5f814ff5b1e7aba2b4976b375cf555c8df1438f578e410a40",
+        "end_of_turn_ids": [
+          151645
+        ]
+      },
+      "created_at_utc": "2026-10-06T08:13:47+00:00"
+    }
+  },
+  "tracking": {
+    "mlflow_tracking_uri": "sqlite:////home/hangds/Desktop/SeongHuKim/MedQuAD/artifacts/models/mlruns-local/mlflow.db",
+    "mlflow_run_id": "ac6321e7fadd48079f9b307d1146e648",
+    "mlflow_error": null
+  },
+  "env": {
+    "torch": "2.14.1+cu130",
+    "cuda": "13.0",
+    "transformers": "5.18.0",
+    "peft": "0.21.2",
+    "gpu": "NVIDIA GB10",
+    "machine": "aarch64",
+    "python": "3.12.3",
+    "git_sha": "40bd8a9dfc8d57f53ca446e90932698bd6397bf3",
+    "torch_native_triton_ops": "disabled (TORCH_DISABLE_NATIVE_JIT=1)"
+  },
+  "wall_time_s": 4537.687720624,
+  "created_at_utc": "2026-10-06T08:13:47+00:00"
+}
