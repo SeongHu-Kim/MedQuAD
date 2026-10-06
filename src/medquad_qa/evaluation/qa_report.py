@@ -17,6 +17,19 @@ from medquad_qa.evaluation import abstention, latency
 from medquad_qa.evaluation.retrieval_metrics import aggregate as aggregate_retrieval
 from medquad_qa.evaluation.retrieval_metrics import score_query
 
+RESOURCE_LIST_PREFIX = "These resources address the diagnosis or management of"
+
+
+def is_resource_list_gold(example: EvaluationExample, answers: dict[str, str]) -> bool:
+    """Pre-registered secondary-analysis subgroup (2026-10-06, before any TEST run): every gold record's answer
+    is a GHR resource-link list (starts with ``RESOURCE_LIST_PREFIX``), so abstaining is arguably grounded.
+
+    Frozen labels are NOT changed; this subgroup is reported separately and excluded only in secondary tables.
+    """
+    return bool(example.gold_record_ids) and all(
+        answers.get(g, "").startswith(RESOURCE_LIST_PREFIX) for g in example.gold_record_ids
+    )
+
 
 def expected_for_mode(example: EvaluationExample, mode: str) -> str:
     """D-023: personalized-advice refusals apply in all modes; evidence-based abstentions only in RAG modes.

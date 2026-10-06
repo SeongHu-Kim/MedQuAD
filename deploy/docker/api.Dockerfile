@@ -49,4 +49,7 @@ USER 10001:10001
 EXPOSE 8000
 HEALTHCHECK --interval=15s --timeout=3s --start-period=20s --retries=3 \
   CMD ["python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/health/live', timeout=2).status == 200 else 1)"]
+# Last so a new BUILD_ID only adds a metadata layer (distinct image ID for rollback drills / provenance).
+ARG BUILD_ID=local
+LABEL medquad.build_id="${BUILD_ID}"
 CMD ["python", "-m", "medquad_qa.api"]

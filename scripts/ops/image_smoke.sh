@@ -25,6 +25,13 @@ check 503 "$(code "http://127.0.0.1:${PORT}/health/ready")" "GET /health/ready"
 check 503 "$(code -X POST -H 'content-type: application/json' -d '{"question":"What is synthetic X?"}' "http://127.0.0.1:${PORT}/v1/qa")" "POST /v1/qa"
 check 422 "$(code -X POST -H 'content-type: application/json' -d '{"question":"x"}' "http://127.0.0.1:${PORT}/v1/qa")" "POST /v1/qa (invalid)"
 if curl -s "http://127.0.0.1:${PORT}/metrics" | grep -q '^medquad_pipeline_state'; then echo "ok   /metrics exposes medquad_pipeline_state"; else echo "FAIL /metrics"; fail=1; fi
+# D-036: TensorFlow must be absent from API images (importing it before Triton segfaults).
+if docker run --rm --network none --read-only --tmpfs /tmp --cap-drop ALL --user 10001:10001 "$IMAGE" \
+    python -c "import tensorflow" >/dev/null 2>&1; then
+  echo "FAIL tensorflow is importable in $IMAGE"; fail=1
+else
+  echo "ok   tensorflow absent (import fails)"
+fi
 echo "user: $(docker exec "$NAME" id -u 2>/dev/null || echo '?')"
 docker logs "$NAME" 2>&1 | tail -n 5
 exit "$fail"

@@ -233,3 +233,12 @@ def test_closed_book_expectations_follow_d023() -> None:
     assert expected_for_mode(unans, "rag") == "abstain" and expected_for_mode(unans, "base") == "either"
     assert expected_for_mode(personal, "base") == "abstain" and expected_for_mode(personal, "finetuned") == "abstain"
     assert expected_for_mode(ex(), "finetuned") == "answer"
+
+
+def test_resource_list_subgroup() -> None:
+    from medquad_qa.evaluation.qa_report import RESOURCE_LIST_PREFIX, is_resource_list_gold
+
+    e = ex(gold_record_ids=[TE, TE2])
+    assert is_resource_list_gold(e, {TE: RESOURCE_LIST_PREFIX + " X: - link", TE2: RESOURCE_LIST_PREFIX + " Y"})
+    assert not is_resource_list_gold(e, {TE: RESOURCE_LIST_PREFIX + " X", TE2: "X is a disorder."})
+    assert not is_resource_list_gold(ex(gold_record_ids=[]), {})

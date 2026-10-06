@@ -90,7 +90,7 @@ services:
     build:
       context: ..
       dockerfile: deploy/docker/api.Dockerfile
-      args: {VARIANT: gpu}
+      args: {VARIANT: gpu, BUILD_ID: "${MEDQUAD_BUILD_ID:-local}"}
     devices:
       - nvidia.com/gpu=all             # CDI (spec /var/run/cdi/nvidia.yaml); no nvidia runtime needed
     environment:
@@ -108,7 +108,7 @@ services:
     build:
       context: ..
       dockerfile: deploy/docker/api.Dockerfile
-      args: {VARIANT: cpu}
+      args: {VARIANT: cpu, BUILD_ID: "${MEDQUAD_BUILD_ID:-local}"}
     environment:
       <<: *api-env
       MEDQUAD_DEVICE: cpu
