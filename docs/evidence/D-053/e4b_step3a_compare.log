@@ -1,0 +1,16 @@
+== byte identity (5 data files)
+  MATCH    sft_record_ids.jsonl  old=b90bfa3aa0a931c70ab9359831db5569fdd5fba8b525471b0f398d004ebe56c6  new=b90bfa3aa0a931c70ab9359831db5569fdd5fba8b525471b0f398d004ebe56c6
+  MATCH    val_record_ids.jsonl  old=b23dd5c379f64829d1c1228cbc84fa0c1dbaaad6713cc865ce6cad084076014c  new=b23dd5c379f64829d1c1228cbc84fa0c1dbaaad6713cc865ce6cad084076014c
+  MATCH    sft_build_train.json  old=fb7860ea02ce34dc878ebd4997157a57c741dc698e24107e445a1528cc4528e8  new=fb7860ea02ce34dc878ebd4997157a57c741dc698e24107e445a1528cc4528e8
+  MATCH    sft_build_val.json  old=b53e7d29564b40de7f62199d30d3a74f07c3e3728cec4aa51542c42bdabe0d8f  new=b53e7d29564b40de7f62199d30d3a74f07c3e3728cec4aa51542c42bdabe0d8f
+  MATCH    sft_build_val_rag.json  old=c3f1b617f2561c509f645851b1e53b1ef32e0826aa7f6f52535b7323d89ca202  new=c3f1b617f2561c509f645851b1e53b1ef32e0826aa7f6f52535b7323d89ca202
+== build_summary.json (only 'out' removed)
+  out: old='artifacts/models/builds/sft-mix-v2-20261007-035957'  new='artifacts/models/builds/sft-mix-v2-20261007-081755'
+  IDENTICAL after removing 'out'
+== protected_check.json (build-dir prefix of 'inputs' keys -> <BUILD>)
+  inputs key path: 'artifacts/models/builds/sft-mix-v2-20261007-035957/sft_record_ids.jsonl' -> '<BUILD>/sft_record_ids.jsonl'
+  inputs key path: 'artifacts/models/builds/sft-mix-v2-20261007-035957/val_record_ids.jsonl' -> '<BUILD>/val_record_ids.jsonl'
+  inputs key path: 'artifacts/models/builds/sft-mix-v2-20261007-081755/sft_record_ids.jsonl' -> '<BUILD>/sft_record_ids.jsonl'
+  inputs key path: 'artifacts/models/builds/sft-mix-v2-20261007-081755/val_record_ids.jsonl' -> '<BUILD>/val_record_ids.jsonl'
+  IDENTICAL after normalising the build-dir prefix of 'inputs' keys (sha256 values compared)
+RESULT: PASS

@@ -33,6 +33,7 @@ artifacts/models/answerability/**/*.npy
 artifacts/models/runs/**/trainer/
 artifacts/models/runs/**/reload_samples.jsonl
 artifacts/models/**/checkpoint-*/
+artifacts/models/builds/
 artifacts/indexes/*
 !artifacts/indexes/manifests/
 artifacts/logs/
@@ -42,6 +43,7 @@ mlruns/
 mlartifacts/
 qdrant_storage/
 *.log
+!docs/evidence/**/*.log
 
 # private query logs
 logs/

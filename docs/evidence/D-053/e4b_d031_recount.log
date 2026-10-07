@@ -1,0 +1,42 @@
+== A. v2 build: on-topic blocks per RAG prompt (D-031 topic_key)
+  [sft_record_ids.jsonl] rag_answerable: >=1 on-topic block (incl. gold): 2697
+  [sft_record_ids.jsonl] rag_answerable: >=1 on-topic distractor (excl. gold): 0
+  [sft_record_ids.jsonl] rag_answerable: n: 2697
+  [sft_record_ids.jsonl] rag_answerable: question topic_key None: 0
+  [sft_record_ids.jsonl] rag_insufficient: >=1 on-topic block (incl. gold): 0
+  [sft_record_ids.jsonl] rag_insufficient: >=1 on-topic distractor (excl. gold): 0
+  [sft_record_ids.jsonl] rag_insufficient: n: 500
+  [sft_record_ids.jsonl] rag_insufficient: question topic_key None: 1
+  [val_record_ids.jsonl] rag_answerable: >=1 on-topic block (incl. gold): 222
+  [val_record_ids.jsonl] rag_answerable: >=1 on-topic distractor (excl. gold): 0
+  [val_record_ids.jsonl] rag_answerable: n: 223
+  [val_record_ids.jsonl] rag_answerable: question topic_key None: 1
+  [val_record_ids.jsonl] rag_insufficient: >=1 on-topic block (incl. gold): 0
+  [val_record_ids.jsonl] rag_insufficient: >=1 on-topic distractor (excl. gold): 0
+  [val_record_ids.jsonl] rag_insufficient: n: 31
+  [val_record_ids.jsonl] rag_insufficient: question topic_key None: 0
+== B. (b') candidates per v2 train RAG question (same split group + same topic_key), guards applied in order
+  rag_answerable: candidates after guards (n=2697) 0: 389 (14.4%), 1: 129 (4.8%), 2: 88 (3.3%), 3+: 2091 (77.5%)
+  rag_answerable: drops by guard (first matching guard): {'same question_type': 1187, 'boilerplate / excluded flags': 444, "gold's duplicate group": 4}
+  rag_insufficient: candidates after guards (n=500) 0: 85 (17.0%), 1: 15 (3.0%), 2: 11 (2.2%), 3+: 389 (77.8%)
+  rag_insufficient: drops by guard (first matching guard): {'same question_type': 167, 'boilerplate / excluded flags': 79, "gold's duplicate group": 3}
+statuses: [('corpus', True, 'medquad-1.0.0-86e384302357'), ('retriever:bm25', True, 'bm25-qa-d5f777b26f79'), ('retriever:dense', True, 'dense-qa-dc6b6a345fca')]
+== C. validation questions: 1665 | top_k=5 | other on-topic blocks (excl. the question's own record)
+  all questions (n=1665) 0: 321 (19.3%), 1: 301 (18.1%), 2: 274 (16.5%), 3+: 769 (46.2%)
+  gold retrieved (n=1570) 0: 317 (20.2%), 1: 293 (18.7%), 2: 257 (16.4%), 3+: 703 (44.8%)
+  gold retrieved, other on-topic blocks by question_type (block counts): {'same question_type, different duplicate group': 438, 'different question_type': 2900, 'duplicate of gold (same duplicate_group_id)': 2}
+  gold retrieved, per question (which categories present): {'dup>0=False same>0=True diff>0=False': 52, 'dup>0=False same>0=False diff>0=False': 317, 'dup>0=False same>0=True diff>0=True': 251, 'dup>0=False same>0=False diff>0=True': 948, 'dup>0=True same>0=False diff>0=True': 2}
+  gold retrieved, per question, duplicates of gold (n=1570) 0: 1568 (99.9%), 1: 2 (0.1%), 2: 0 (0.0%), 3+: 0 (0.0%)
+  gold retrieved, per question, same type / different dup group (n=1570) 0: 1267 (80.7%), 1: 216 (13.8%), 2: 49 (3.1%), 3+: 38 (2.4%)
+  gold retrieved, per question, DIFFERENT question_type (what b' can reproduce) (n=1570) 0: 369 (23.5%), 1: 337 (21.5%), 2: 272 (17.3%), 3+: 592 (37.7%)
+  all questions: on-topic hits outside validation: 0
+  gold-retrieved: on-topic hits outside validation: 0
+  lexical_fallback warnings: 0
+  question topic_key None: 11
+  retriever name dense:qa: 1665
+Exception ignored in: <function QdrantClient.__del__ at 0xe7e70b704f40>
+Traceback (most recent call last):
+  File "/home/hangds/Desktop/SeongHuKim/MedQuAD/.venv/lib/python3.12/site-packages/qdrant_client/qdrant_client.py", line 169, in __del__
+  File "/home/hangds/Desktop/SeongHuKim/MedQuAD/.venv/lib/python3.12/site-packages/qdrant_client/qdrant_client.py", line 178, in close
+  File "/home/hangds/Desktop/SeongHuKim/MedQuAD/.venv/lib/python3.12/site-packages/qdrant_client/local/qdrant_local.py", line 109, in close
+ImportError: sys.meta_path is None, Python is likely shutting down

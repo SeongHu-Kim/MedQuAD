@@ -1,0 +1,8 @@
+# v2 pin check: committed code (git archive ff49304) vs working tree, synthetic fixture only
+== committed code (ff49304)
+module file: /tmp/claude-1000/-home-hangds-Desktop-SeongHuKim-MedQuAD/8509dc6a-7edf-42b5-bc59-cbc01100fbfa/scratchpad/head_ff49304/src/medquad_qa/training/sft_rag_data.py
+v2 hash: 89ba82c48335f2a4e2c523b8446c172559a6bbf7235c81e0b1c7826b44954074
+== working tree (v2b r1, sft_rag_data.py sha256 f2811511bee7e418438c42a01557b04855e0bb02cda06d48288c40db1847a8c4)
+module file: /home/hangds/Desktop/SeongHuKim/MedQuAD/src/medquad_qa/training/sft_rag_data.py
+v2 hash: 89ba82c48335f2a4e2c523b8446c172559a6bbf7235c81e0b1c7826b44954074
+test golden: 89ba82c48335f2a4e2c523b8446c172559a6bbf7235c81e0b1c7826b44954074

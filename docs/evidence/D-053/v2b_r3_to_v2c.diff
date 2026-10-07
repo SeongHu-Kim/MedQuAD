@@ -1,0 +1,214 @@
+--- r3/src/medquad_qa/training/sft_rag_data.py
++++ v2c/src/medquad_qa/training/sft_rag_data.py
+@@ -97,6 +97,13 @@
+     n_sentinel_info: int = 0  # of n_rag_insufficient: info-type questions with off-topic evidence only
+     info_qtype: str = "information"
+     jaccard_max: float = 0.5  # G5: drop candidates with content-token Jaccard >= this vs the gold chunk
++    # False (sft-mix-v2c, option D): every sentinel shows off-topic evidence only; no candidate-based skips
++    sentinel_same_topic: bool = True
++
++    @property
++    def sentinel_kind(self) -> str:
++        """Row ``sentinel_kind`` of the non-information sentinels."""
++        return "sentinel_same_topic" if self.sentinel_same_topic else "sentinel_offtopic"
+ 
+     @property
+     def v2b(self) -> bool:
+@@ -108,6 +115,8 @@
+             for key in list(d):
+                 if key not in _V2_PLAN_KEYS:
+                     d.pop(key)
++        elif self.sentinel_same_topic:  # keep the sft-mix-v2b report byte-identical
++            d.pop("sentinel_same_topic")
+         return d
+ 
+ 
+@@ -388,7 +397,7 @@
+             if len(sent_same) < n_same:
+                 if qt in plan.sentinel_disallowed_qtypes:
+                     assign_skips["sentinel_disallowed_qtype"] += 1
+-                elif ctx.candidates(r, sentinel=True)[0]:
++                elif not plan.sentinel_same_topic or ctx.candidates(r, sentinel=True)[0]:
+                     sent_same.append(r)
+                     continue
+                 else:
+@@ -396,7 +405,7 @@
+             rest.append(r)
+         closed = rest[: plan.n_closed_book]
+ 
+-        jobs = [(q, "answerable") for q in answerable] + [(q, "sentinel_same_topic") for q in sent_same]
++        jobs = [(q, "answerable") for q in answerable] + [(q, plan.sentinel_kind) for q in sent_same]
+         jobs += [(q, "sentinel_info_offtopic") for q in sent_info]
+         doc = self.embedder.encode_documents([index_text(c, r, "question_answer") for r, c in ctx.chunks])
+         qv = self.embedder.encode_queries([q.question for q, _ in jobs]) if jobs else np.zeros((0, doc.shape[1]))
+@@ -431,7 +440,7 @@
+             )
+         assigned = {
+             "answerable": len(answerable),
+-            "sentinel_same_topic": len(sent_same),
++            plan.sentinel_kind: len(sent_same),
+             "sentinel_info_offtopic": len(sent_info),
+             "closed_book": len(closed),
+         }
+@@ -457,11 +466,13 @@
+             drawn, cap = drawn_m, plan.k - 1
+         elif kind == "sentinel_same_topic":
+             drawn, cap = drawn_m + 1, plan.k  # total on-topic T = m + 1, same weights as gold + m
+-        else:
++        else:  # information or (v2c) all sentinels: off-topic evidence only
+             drawn, cap = 0, 0
+         gold = ctx.first_chunk[q.record_id]
+         cands: dict[str, list[int]] = {}
+-        if kind != "sentinel_info_offtopic":
++        if kind == "sentinel_offtopic":  # no candidates are generated, so every guard counts 0 for this class
++            guard_drops.setdefault(kind, Counter())
++        elif kind != "sentinel_info_offtopic":
+             cands, drops, pairs = ctx.candidates(q, sentinel=not answerable)
+             guard_drops.setdefault(kind, Counter()).update(drops)
+             g7_pairs.update(pairs)
+@@ -739,16 +750,17 @@
+ ) -> dict[str, dict[str, int | None]]:
+     """planned (config) -> assigned (after seeded assignment) -> realised (after post-assignment skips, which
+     are not replaced, so realised may be below plan)."""
++    sentinel_kind = plan.sentinel_kind if plan is not None else "sentinel_same_topic"
+     kinds = {
+         "answerable": lambda r: r["format"] == "rag_answerable",
+-        "sentinel_same_topic": lambda r: r["sentinel_kind"] == "sentinel_same_topic",
++        sentinel_kind: lambda r: r["sentinel_kind"] == sentinel_kind,
+         "sentinel_info_offtopic": lambda r: r["sentinel_kind"] == "sentinel_info_offtopic",
+         "closed_book": lambda r: r["format"] == "closed_book",
+     }
+     planned = (
+         {
+             "answerable": plan.n_rag_answerable,
+-            "sentinel_same_topic": plan.n_rag_insufficient - plan.n_sentinel_info,
++            sentinel_kind: plan.n_rag_insufficient - plan.n_sentinel_info,
+             "sentinel_info_offtopic": plan.n_sentinel_info,
+             "closed_book": plan.n_closed_book,
+         }
+@@ -782,7 +794,12 @@
+     nonzero = [r for r in rag if r["same_topic_available_after_guards"] > 0]
+     sentinel_qtypes = sorted({str(r["question_type"]) for r in sen})
+     classes = {"rag_answerable": ans, "rag_insufficient": sen}
+-    for kind in ("sentinel_same_topic", "sentinel_info_offtopic"):
++    sentinel_kinds = ["sentinel_same_topic", "sentinel_info_offtopic"]
++    if any(r["sentinel_kind"] == "sentinel_offtopic" for r in sen) or (
++        plan is not None and not plan.sentinel_same_topic
++    ):
++        sentinel_kinds.insert(1, "sentinel_offtopic")
++    for kind in sentinel_kinds:
+         classes[kind] = [r for r in sen if r["sentinel_kind"] == kind]
+     return {
+         "assignment_skips": dict(assign_skips),
+--- r3/tests/training/test_training_sft_rag_data.py
++++ v2c/tests/training/test_training_sft_rag_data.py
+@@ -255,8 +255,8 @@
+ 
+ def _v2b_plan(**overrides: Any) -> MixPlan:
+     kw = {"n_rag_answerable": 18, "n_rag_insufficient": 10, "n_sentinel_info": 2, "n_closed_book": 8, "k": 4}
+-    kw.update(overrides)
+-    return MixPlan(max_target_tokens=400, **V2B_PLAN_KW, **kw)
++    kw = {**V2B_PLAN_KW, **kw, **overrides}  # overrides win (e.g. mix_version for v2c)
++    return MixPlan(max_target_tokens=400, **kw)
+ 
+ 
+ def _build_v2b(tok: Any, plan: MixPlan | None = None, max_seq_len: int = 4096) -> tuple[Any, Any, Any, Any]:
+@@ -469,3 +469,63 @@
+     for r in rows:
+         if r["format"] != "closed_book":
+             assert "n_offgroup" not in r and r["n_offgroup_final"] <= r["n_offgroup_initial"]
++
++
++# ---------------------------------------------------------------------------------------------- v2b pin, v2c
++V2B_GOLDEN_ROWS_SHA256 = "b54243c7e9af27cec272335e8f220c661d7360d02898a283c1c97ffff2877a3e"  # pre-v2c code
++V2B_GOLDEN_REPORT_SHA256 = "057b401ffa8567f1238cec736caa522526b19f1f021cc09f722b6a56764d6e35"
++
++
++def test_v2b_output_unchanged_by_v2c_switch(tiny_tokenizer: Any) -> None:
++    import hashlib
++    import json
++
++    _, examples, report, rows = _build_v2b(tiny_tokenizer)
++    h = hashlib.sha256()
++    for ex, row in zip(examples, rows, strict=True):
++        h.update(json.dumps([row, ex.input_ids, ex.labels], sort_keys=True).encode())
++    assert h.hexdigest() == V2B_GOLDEN_ROWS_SHA256
++    report_json = json.dumps(report.to_dict(), sort_keys=True, default=str).encode()
++    assert hashlib.sha256(report_json).hexdigest() == V2B_GOLDEN_REPORT_SHA256
++
++
++def test_v2c_sentinels_offtopic_only(tiny_tokenizer: Any) -> None:
++    plan = _v2b_plan(sentinel_same_topic=False, mix_version="sft-mix-v2c")
++    recs, examples, report, rows = _build_v2b(tiny_tokenizer, plan)
++    by_id = {r.record_id: r for r in recs}
++    sen = [r for r in rows if r["format"] == "rag_insufficient"]
++    ans = [r for r in rows if r["format"] == "rag_answerable"]
++    assert sen and all(r["on_topic_total"] == 0 and r["same_topic_realised_final"] == 0 for r in sen)
++    assert {r["sentinel_kind"] for r in sen} == {"sentinel_offtopic", "sentinel_info_offtopic"}
++    for r in sen:
++        if r["sentinel_kind"] == "sentinel_offtopic":
++            assert r["question_type"] not in V2B_PLAN_KW["sentinel_disallowed_qtypes"]
++        else:
++            assert r["question_type"] == "information"
++        assert all(by_id[e].split_group_id != by_id[r["record_id"]].split_group_id for e in r["evidence_record_ids"])
++    assert any(r["same_topic_realised_final"] > 0 for r in ans)  # answerable prompts keep v2b same-topic blocks
++    v = report.v2b
++    assert "sentinel_no_candidates_after_guards" not in v["assignment_skips"]
++    pvr = v["plan_vs_realised"]
++    assert "sentinel_same_topic" not in pvr
++    assert pvr["sentinel_offtopic"]["planned"] == pvr["sentinel_offtopic"]["realised"] == 8
++    assert pvr["sentinel_info_offtopic"]["planned"] == pvr["sentinel_info_offtopic"]["realised"] == 2
++    assert v["guard_drops_candidate_chunks"]["sentinel_offtopic"] == {
++        g: 0 for g in v["guard_drops_candidate_chunks"]["sentinel_offtopic"]
++    }
++    assert v["on_topic_total_hist"]["rag_insufficient"]["0"] == len(sen)
++    assert report.to_dict()["mix_version"] == "sft-mix-v2c" and report.plan["sentinel_same_topic"] is False
++    assert _assert_pipeline_parity(tiny_tokenizer, by_id, examples, rows, 4) == len(sen) + len(ans)
++
++
++def test_v2c_config_matches_v2b_except_sentinel_switch() -> None:
++    from pathlib import Path
++
++    import yaml
++
++    root = Path(__file__).resolve().parents[2] / "configs" / "training"
++    b = yaml.safe_load((root / "mix_v2b.yaml").read_text())
++    c = yaml.safe_load((root / "mix_v2c.yaml").read_text())
++    assert c["mix_version"] == "sft-mix-v2c" and c["v2b"].pop("sentinel_same_topic") is False
++    b.pop("mix_version"), c.pop("mix_version")
++    assert b == c
+--- r3/configs/training/mix_v2b.yaml
++++ v2c/configs/training/mix_v2c.yaml
+@@ -1,16 +1,18 @@
+-# Adapter v2b data mix (option b'; D-051 follow-up). Same as mix_v2.yaml plus same-topic distractors.
+-# Each train question is used in at most one format (seeded hash order). sft-mix-v2 provenance is mix_v2.yaml.
+-mix_version: sft-mix-v2b
++# Adapter v2c data mix (option D, after the failed sft-mix-v2b sentinel review). Identical to mix_v2b.yaml except:
++# every sentinel shows OFF-TOPIC evidence only (sentinel_same_topic: false), so no sentinel is skipped for lack of
++# same-topic candidates. Answerable prompts keep v2b's same-topic blocks. mix_v2b.yaml stays the v2b provenance.
++mix_version: sft-mix-v2c
+ closed_max_seq_len: 1024        # closed-book examples built exactly as in v1
+ v2b:                            # applies to both the train and the validation_rag plans
++  sentinel_same_topic: false     # option D: sentinels get off-topic evidence only (on_topic_total == 0)
+   # P(m = 0..4) extra same-topic, different-question_type blocks in answerable prompts. Measured: serving dense:qa
+   # top-5 on 1,570 validation questions with gold retrieved (D-031 topic_key). Sentinels use T = m + 1 on-topic blocks.
+   same_topic_weights: [23.5, 21.5, 17.3, 22.2, 15.5]
+-  sentinel_selection: top_score  # top_score | random (pre-agreed fallback if the sentinel review fails)
++  sentinel_selection: top_score  # no effect when sentinel_same_topic is false
+   jaccard_max: 0.5               # G5: drop same-topic chunks with content-token Jaccard >= 0.5 vs the gold chunk
+   info_qtype: information
+   sentinel_disallowed_qtypes: [information, other, support_groups]  # never drawn as same-topic sentinels
+-  sentinel_excluded_qtypes:      # G7 (sentinels only): question qtype -> same-topic block qtypes never shown
++  sentinel_excluded_qtypes:      # G7: no effect when sentinel_same_topic is false (kept for comparison with v2b)
+     causes: [genetic_changes, inheritance, susceptibility, information]
+     genetic_changes: [causes, inheritance, susceptibility, information]
+     inheritance: [genetic_changes, causes, susceptibility, information]
+@@ -27,7 +29,7 @@
+     frequency: [susceptibility, information]
+ train:
+   n_rag_answerable: 2700
+-  n_rag_insufficient: 500        # 450 same-topic sentinels + 50 information-type off-topic sentinels
++  n_rag_insufficient: 500        # 450 off-topic sentinels (allowed types) + 50 information-type off-topic sentinels
+   n_sentinel_info: 50            # 10%, fixed by principle (not tuned on any eval set)
+   n_closed_book: 6500
+   k: 5

@@ -1,0 +1,70 @@
+$ pytest (CPU-only, offline)
+............                                                             [100%]
+=============================== warnings summary ===============================
+tests/training/test_training_lora_smoke.py::test_lora_smoke_train_and_reload
+  /home/hangds/Desktop/SeongHuKim/MedQuAD/.venv/lib/python3.12/site-packages/mlflow/store/tracking/utils/sql_trace_metrics_utils.py:155: SADeprecationWarning: The ``noload`` loader strategy is deprecated and will be removed in a future release.  This option produces incorrect results by returning ``None`` for related items. (deprecated since: 2.1) (This warning originated from the `configure_mappers()` process, which was invoked automatically in response to a user-initiated operation.)
+    _SESSION_TRACE_METADATA = aliased(SqlTraceMetadata)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+==================================== PASSES ====================================
+________________ test_mix_counts_formats_and_disjoint_questions ________________
+---------------------------- Captured stdout setup -----------------------------
+
+
+
+_______________________ test_lora_smoke_train_and_reload _______________________
+---------------------------- Captured stdout setup -----------------------------
+
+
+
+---------------------------- Captured stderr setup -----------------------------
+----------------------------- Captured stdout call -----------------------------
+{'loss': '6.01', 'grad_norm': '0.2657', 'learning_rate': '0', 'epoch': '0.25'}
+{'loss': '6.014', 'grad_norm': '0.2652', 'learning_rate': '0.0002', 'epoch': '0.5'}
+{'loss': '6.007', 'grad_norm': '0.2667', 'learning_rate': '0.0001', 'epoch': '0.75'}
+{'train_runtime': '0.161', 'train_samples_per_second': '37.27', 'train_steps_per_second': '18.64', 'train_loss': '6.01', 'epoch': '0.75'}
+----------------------------- Captured stderr call -----------------------------
+2026/10/07 12:28:45 INFO mlflow.agent.hint: Load the `instrumenting-with-mlflow-tracing` skill at /home/hangds/Desktop/SeongHuKim/MedQuAD/.venv/lib/python3.12/site-packages/mlflow/assistant/skills/instrumenting-with-mlflow-tracing/SKILL.md before writing any tracing code; it ships with this MLflow install. Set MLFLOW_DISABLE_AGENT_HINT=1 to silence this.
+2026/10/07 12:28:45 INFO mlflow.store.db.utils: Creating initial MLflow database tables...
+2026/10/07 12:28:45 INFO mlflow.store.db.utils: Updating database tables
+______________________ test_mixed_v2_smoke_two_eval_sets _______________________
+----------------------------- Captured stdout call -----------------------------
+{'loss': '6.011', 'grad_norm': '0.1991', 'learning_rate': '0', 'epoch': '0.2'}
+{'loss': '6.013', 'grad_norm': '0.2775', 'learning_rate': '0.0002', 'epoch': '0.4'}
+{'train_runtime': '0.3331', 'train_samples_per_second': '12.01', 'train_steps_per_second': '6.004', 'train_loss': '6.012', 'epoch': '0.4'}
+----------------------------- Captured stderr call -----------------------------
+_________________ test_build_only_with_mix_v2_passes_the_guard _________________
+----------------------------- Captured stderr call -----------------------------
+usage: pytest [-h] [--config CONFIG] [--exports-dir EXPORTS_DIR]
+              [--run-kind {smoke,main}] [--max-steps MAX_STEPS]
+              [--device DEVICE] [--prompt-builder {default,pipeline}]
+              [--out-root OUT_ROOT]
+              [--expect-prompt-version EXPECT_PROMPT_VERSION]
+              [--mix {none,v2}] [--mix-config MIX_CONFIG]
+              [--expect-rag-prompt-version EXPECT_RAG_PROMPT_VERSION]
+              [--build-only]
+pytest: error: --run-kind is required unless --build-only
+=========================== short test summary info ============================
+PASSED tests/training/test_training_sft_rag_data.py::test_cited_target_cites_every_sentence
+PASSED tests/training/test_training_sft_rag_data.py::test_mix_counts_formats_and_disjoint_questions
+PASSED tests/training/test_training_sft_rag_data.py::test_rag_targets_validate_and_evidence_stays_in_pool
+PASSED tests/training/test_training_sft_rag_data.py::test_length_budget_drops_distractors_never_gold
+PASSED tests/training/test_training_sft_rag_data.py::test_empty_rag_plan_is_closed_book_only[0]
+PASSED tests/training/test_training_sft_rag_data.py::test_train_serve_rag_prompt_parity_through_pipeline
+PASSED tests/training/test_training_lora_smoke.py::test_split_isolation_detects_shared_group
+PASSED tests/training/test_training_lora_smoke.py::test_lora_smoke_train_and_reload
+PASSED tests/training/test_training_lora_smoke.py::test_mixed_v2_smoke_two_eval_sets
+PASSED tests/training/test_training_lora_smoke.py::test_build_only_without_mix_v2_exits_before_any_work[argv0]
+PASSED tests/training/test_training_lora_smoke.py::test_build_only_without_mix_v2_exits_before_any_work[argv1]
+PASSED tests/training/test_training_lora_smoke.py::test_build_only_with_mix_v2_passes_the_guard
+12 passed, 1 warning in 4.55s
+PYTEST_EXIT=0
+$ ruff check
+All checks passed!
+RUFF_CHECK_EXIT=0
+$ ruff format --check
+3 files already formatted
+RUFF_FORMAT_EXIT=0
+$ mypy
+Success: no issues found in 9 source files
+MYPY_EXIT=0

@@ -1,0 +1,5 @@
+== 2. answerable targets (EOS: code appends eot_ids to every RAG target, truncated or not)
+[sft_record_ids.jsonl] final-piece abbreviation endings, truncated=True: {'no abbreviation ending': 1166, 'single capital + period': 2}
+[sft_record_ids.jsonl] final-piece abbreviation endings, truncated=False: {'no abbreviation ending': 1528, 'single capital + period': 1}
+[val_record_ids.jsonl] final-piece abbreviation endings, truncated=True: {'no abbreviation ending': 96}
+[val_record_ids.jsonl] final-piece abbreviation endings, truncated=False: {'no abbreviation ending': 127}

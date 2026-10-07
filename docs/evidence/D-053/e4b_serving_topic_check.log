@@ -1,0 +1,25 @@
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 12466.45it/s]
+/home/hangds/Desktop/SeongHuKim/MedQuAD/src/medquad_qa/retrieval/dense.py:45: UserWarning: Local mode is not recommended for collections with more than 20,000 points. Collection <dense-answer-4729100e34a8> contains 26596 points. Consider using Qdrant in Docker or Qdrant Cloud for better performance with large datasets.
+  return QdrantClient(path=loc["path"])
+/home/hangds/Desktop/SeongHuKim/MedQuAD/src/medquad_qa/retrieval/dense.py:45: UserWarning: Local mode is not recommended for collections with more than 20,000 points. Collection <dense-qa-dc6b6a345fca> contains 26596 points. Consider using Qdrant in Docker or Qdrant Cloud for better performance with large datasets.
+  return QdrantClient(path=loc["path"])
+statuses: [('corpus', True, 'medquad-1.0.0-86e384302357'), ('retriever:bm25', True, 'bm25-qa-d5f777b26f79'), ('retriever:dense', True, 'dense-qa-dc6b6a345fca')]
+== 1. validation questions: 1665 | top_k=5
+  on-topic blocks in top 5 [all] (n=1665): 0: 3 (0.2%), 1: 317 (19.0%), 2: 315 (18.9%), 3+: 1030 (61.9%)
+  on-topic blocks in top 5 [gold retrieved] (n=1570): 0: 0 (0.0%), 1: 308 (19.6%), 2: 298 (19.0%), 3+: 964 (61.4%)
+  on-topic blocks in top 5 [gold retrieved: on-topic NON-gold blocks] (n=1570): 0: 308 (19.6%), 1: 298 (19.0%), 2: 262 (16.7%), 3+: 702 (44.7%)
+  eligible as builder question (no excluded flags): 1610
+  hits outside validation split: 2703
+  hits returned: 8325
+  lexical_fallback warnings: 0
+  question topic empty: 11
+  retriever name dense:qa: 1665
+== 2. (b') candidates per v2 train RAG question: same-topic, different question_type, same split group
+  rag_answerable (n=2697): 0: 389 (14.4%), 1: 131 (4.9%), 2: 93 (3.4%), 3+: 2084 (77.3%)
+  rag_insufficient (n=500): 0: 85 (17.0%), 1: 15 (3.0%), 2: 11 (2.2%), 3+: 389 (77.8%)
+Exception ignored in: <function QdrantClient.__del__ at 0xecdabd274f40>
+Traceback (most recent call last):
+  File "/home/hangds/Desktop/SeongHuKim/MedQuAD/.venv/lib/python3.12/site-packages/qdrant_client/qdrant_client.py", line 169, in __del__
+  File "/home/hangds/Desktop/SeongHuKim/MedQuAD/.venv/lib/python3.12/site-packages/qdrant_client/qdrant_client.py", line 178, in close
+  File "/home/hangds/Desktop/SeongHuKim/MedQuAD/.venv/lib/python3.12/site-packages/qdrant_client/local/qdrant_local.py", line 109, in close
+ImportError: sys.meta_path is None, Python is likely shutting down

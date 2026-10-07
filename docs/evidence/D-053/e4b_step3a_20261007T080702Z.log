@@ -1,0 +1,41 @@
+start 20261007T080702Z  HEAD=ff49304e371eec331896707a80ad9717a72ff6b5
+code: sft_rag_data.py e280663943008a83f75cdf3ebe4d44c7af0d6a88b0925a57b05450d879d28968  train_lora.py 72c9d595fbe0454afe9e8fe0227cbcb4922279df982c75e51116de304908d1b2
+configs (committed, must be unmodified): 0 modified
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 27012.73it/s]
+{
+  "out": "artifacts/models/builds/sft-mix-v2-20261007-081755",
+  "train_examples": 9697,
+  "train_tokens": 6494454,
+  "val_sets": {
+    "eval": 512,
+    "eval_rag": 254
+  },
+  "versions": {
+    "exports_manifest": "data/manifests/exports_manifest.json",
+    "corpus_version": "medquad-1.0.0-86e384302357",
+    "split_version": "split-20261006-2f0fb25ee6d8",
+    "export_sha256_verified": {
+      "train": "819e783c515aa1e6c1f8eee25b180664c5d6707d81fc23b6a4641d1d440000ec",
+      "validation": "9033931b6fe0512a2674e31cdb93a69ee2422dd75e953d8bc17fd0b64fa12436",
+      "test": "1fa115fe2941f89882389f54cd7c2c4f5aa1cfa193105435340e90b5e1d27688"
+    },
+    "message_builder": "cb-v1+a1f08aaf",
+    "mix_version": "sft-mix-v2",
+    "rag_prompt_version": "rag-v1+df593554",
+    "embedder": {
+      "model_id": "BAAI/bge-small-en-v1.5",
+      "revision": "5c38ec7c405ec4b44b94cc5a9bb96e735b38267a",
+      "query_prefix": "Represent this sentence for searching relevant passages: "
+    }
+  }
+}
+BUILD_EXIT=0 elapsed_s=654
+OUT=artifacts/models/builds/sft-mix-v2-20261007-081755
+f8019b5801e39df53c40e100109744a2ff0c838f9886469fc2674b2b272f833d  artifacts/models/builds/sft-mix-v2-20261007-081755/build_summary.json
+fb7860ea02ce34dc878ebd4997157a57c741dc698e24107e445a1528cc4528e8  artifacts/models/builds/sft-mix-v2-20261007-081755/sft_build_train.json
+b53e7d29564b40de7f62199d30d3a74f07c3e3728cec4aa51542c42bdabe0d8f  artifacts/models/builds/sft-mix-v2-20261007-081755/sft_build_val.json
+c3f1b617f2561c509f645851b1e53b1ef32e0826aa7f6f52535b7323d89ca202  artifacts/models/builds/sft-mix-v2-20261007-081755/sft_build_val_rag.json
+b90bfa3aa0a931c70ab9359831db5569fdd5fba8b525471b0f398d004ebe56c6  artifacts/models/builds/sft-mix-v2-20261007-081755/sft_record_ids.jsonl
+b23dd5c379f64829d1c1228cbc84fa0c1dbaaad6713cc865ce6cad084076014c  artifacts/models/builds/sft-mix-v2-20261007-081755/val_record_ids.jsonl
+artifacts/evaluation: nothing created or modified since 20261007T080702Z
+FINAL_EXIT=0 total_elapsed_s=654

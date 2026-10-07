@@ -1,0 +1,19 @@
+{
+ "answer_trained_both_roles": 0,
+ "answer_trained_closed_book": 56,
+ "answer_trained_rag_gold": 18,
+ "answer_trained_total": 74,
+ "evidence_only": 18,
+ "neither": 8,
+ "probe_items": 100,
+ "rag_insufficient_question_only": 0,
+ "sft_formats": {
+  "closed_book": 6500,
+  "rag_answerable": 2698,
+  "rag_insufficient": 499
+ },
+ "sft_rows": 9697,
+ "split_versions": [
+  "split-20261006-2f0fb25ee6d8"
+ ]
+}

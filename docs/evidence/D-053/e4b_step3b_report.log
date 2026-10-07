@@ -1,0 +1,107 @@
+
+######## train: sft_build_train.json (mix_version sft-mix-v2b)
+  manifest consistency violations: 0
+  plan vs realised: {"answerable": {"planned": 2700, "assigned": 2700, "realised": 2698}, "sentinel_same_topic": {"planned": 450, "assigned": 450, "realised": 450}, "sentinel_info_offtopic": {"planned": 50, "assigned": 50, "realised": 50}, "closed_book": {"planned": 6500, "assigned": 6500, "realised": 6500}}
+  assignment skips: {'sentinel_no_candidates_after_guards': 232, 'sentinel_disallowed_qtype': 225}
+  question-type mix by format: {"rag_answerable": {"causes": 122, "complications": 10, "considerations": 33, "exams_and_tests": 96, "frequency": 189, "genetic_changes": 202, "information": 731, "inheritance": 177, "other": 4, "outlook": 72, "prevention": 36, "research": 66, "stages": 7, "susceptibility": 53, "symptoms": 500, "treatment": 400}, "rag_insufficient": {"causes": 48, "complications": 3, "considerations": 10, "exams_and_tests": 37, "frequency": 44, "genetic_changes": 38, "information": 50, "inheritance": 51, "outlook": 7, "prevention": 3, "research": 15, "stages": 6, "susceptibility": 22, "symptoms": 80, "treatment": 86}, "closed_book": {"causes": 260, "complications": 18, "considerations": 95, "exams_and_tests": 264, "frequency": 445, "genetic_changes": 450, "information": 1902, "inheritance": 393, "other": 14, "outlook": 145, "prevention": 78, "research": 137, "stages": 30, "support_groups": 1, "susceptibility": 124, "symptoms": 1147, "treatment": 997}}
+  PRIMARY answerable added same-topic blocks (n=2698): value: realised-final | drawn | serving different-type %
+    0: 939 (34.8%) | 636 (23.6%) | 23.5%
+    1: 545 (20.2%) | 581 (21.5%) | 21.5%
+    2: 400 (14.8%) | 450 (16.7%) | 17.3%
+    3: 563 (20.9%) | 626 (23.2%) | 22.2%
+    4: 251 (9.3%) | 405 (15.0%) | 15.5%
+    context only, serving ALL types other on-topic (incl. same-type, excluded by design): {'0': 20.2, '1': 18.7, '2': 16.4, '3+': 44.8}
+  on_topic_total exact 0-5 per class (report): {"rag_answerable": {"0": 0, "1": 939, "2": 545, "3": 400, "4": 563, "5": 251}, "rag_insufficient": {"0": 50, "1": 221, "2": 123, "3": 65, "4": 30, "5": 11}, "sentinel_same_topic": {"0": 0, "1": 221, "2": 123, "3": 65, "4": 30, "5": 11}, "sentinel_info_offtopic": {"0": 50, "1": 0, "2": 0, "3": 0, "4": 0, "5": 0}}
+  same-topic sentinels with on_topic_total == 0 after length drops: 0
+  zero-candidate per class: {'rag_answerable': 389, 'rag_insufficient': 50, 'sentinel_same_topic': 0, 'sentinel_info_offtopic': 50} | by sentinel qtype: {'information': 50}
+  CUE CHECK (rule = best answer/refuse rule from on_topic_total alone):
+    all: n=3198 rule_accuracy=0.859 majority_baseline=0.844 excess=+0.016 counts={'0': {'rag_insufficient': 50}, '1': {'rag_answerable': 939, 'rag_insufficient': 221}, '2': {'rag_answerable': 545, 'rag_insufficient': 123}, '3': {'rag_answerable': 400, 'rag_insufficient': 65}, '4': {'rag_answerable': 563, 'rag_insufficient': 30}, '5': {'rag_answerable': 251, 'rag_insufficient': 11}}
+    excluding_zero_candidate: n=2759 rule_accuracy=0.837 majority_baseline=0.837 excess=+0.000 counts={'1': {'rag_answerable': 550, 'rag_insufficient': 221}, '2': {'rag_answerable': 545, 'rag_insufficient': 123}, '3': {'rag_answerable': 400, 'rag_insufficient': 65}, '4': {'rag_answerable': 563, 'rag_insufficient': 30}, '5': {'rag_answerable': 251, 'rag_insufficient': 11}}
+    recomputed from manifest (all): rule_accuracy=0.859 majority_baseline=0.844 n=3198
+    per sentinel question type (answerable + sentinel rows of that type):
+      causes: n=170 rule_accuracy=0.718 majority=0.718 excess=+0.000
+      complications: n=13 rule_accuracy=0.769 majority=0.769 excess=+0.000
+      considerations: n=43 rule_accuracy=0.767 majority=0.767 excess=+0.000
+      exams_and_tests: n=133 rule_accuracy=0.722 majority=0.722 excess=+0.000
+      frequency: n=233 rule_accuracy=0.811 majority=0.811 excess=+0.000
+      genetic_changes: n=240 rule_accuracy=0.842 majority=0.842 excess=+0.000
+      information: n=781 rule_accuracy=1.000 majority=0.936 excess=+0.064
+      inheritance: n=228 rule_accuracy=0.776 majority=0.776 excess=+0.000
+      outlook: n=79 rule_accuracy=0.911 majority=0.911 excess=+0.000
+      prevention: n=39 rule_accuracy=0.923 majority=0.923 excess=+0.000
+      research: n=81 rule_accuracy=0.815 majority=0.815 excess=+0.000
+      stages: n=13 rule_accuracy=0.692 majority=0.538 excess=+0.154
+      susceptibility: n=75 rule_accuracy=0.707 majority=0.707 excess=+0.000
+      symptoms: n=580 rule_accuracy=0.862 majority=0.862 excess=+0.000
+      treatment: n=486 rule_accuracy=0.823 majority=0.823 excess=+0.000
+  REFUSE SHARE by on_topic_total (descriptive; sentinels / all RAG prompts at that count):
+    0: 50/50 = 100.0%
+    1: 221/1160 = 19.1%
+    2: 123/668 = 18.4%
+    3: 65/465 = 14.0%
+    4: 30/593 = 5.1%
+    5: 11/262 = 4.2%
+  guard drops (candidate chunks, first failing guard): {"answerable": {"G1_same_qtype": 2155, "G2_gold_dup_group": 14, "G3_excluded_flags": 0, "G4_text_equal_gold": 2, "G5_gold_jaccard": 68, "G6_coverage_ge_gold": 0, "G7_sentinel_qtype_pair": 0}, "sentinel_same_topic": {"G1_same_qtype": 373, "G2_gold_dup_group": 10, "G3_excluded_flags": 0, "G4_text_equal_gold": 0, "G5_gold_jaccard": 19, "G6_coverage_ge_gold": 2502, "G7_sentinel_qtype_pair": 1454}}
+  G7 drops by pair (47 pairs, total 1454): {"causes->genetic_changes": 13, "causes->information": 83, "causes->inheritance": 24, "causes->susceptibility": 5, "complications->information": 8, "complications->symptoms": 6, "considerations->information": 18, "considerations->prevention": 1, "considerations->treatment": 3, "exams_and_tests->information": 98, "exams_and_tests->stages": 36, "exams_and_tests->symptoms": 74, "frequency->information": 21, "frequency->susceptibility": 1, "genetic_changes->causes": 6, "genetic_changes->information": 51, "genetic_changes->inheritance": 23, "genetic_changes->susceptibility": 2, "inheritance->causes": 14, "inheritance->genetic_changes": 44, "inheritance->information": 69, "inheritance->susceptibility": 3, "outlook->stages": 3, "prevention->causes": 7, "prevention->considerations": 1, "prevention->information": 6, "prevention->susceptibility": 3, "prevention->treatment": 5, "research->information": 36, "research->treatment": 68, "stages->exams_and_tests": 13, "stages->information": 21, "stages->outlook": 4, "stages->symptoms": 2, "susceptibility->causes": 10, "susceptibility->frequency": 2, "susceptibility->genetic_changes": 2, "susceptibility->information": 84, "symptoms->complications": 3, "symptoms->exams_and_tests": 83, "symptoms->information": 137, "symptoms->outlook": 18, "symptoms->stages": 94, "treatment->considerations": 12, "treatment->information": 166, "treatment->prevention": 40, "treatment->research": 31}
+  length drops: {'offgroup': 79}
+  gold position: {'E1': 510, 'E2': 543, 'E3': 571, 'E4': 550, 'E5': 524}
+  RAG prompt tokens: {'n': 3198, 'median': 1208, 'p90': 1649, 'max': 2024} | distractor drop events: 79
+  truncated rows (kind, truncated): count: {'closed_book,False': 6336, 'closed_book,True': 164, 'rag_answerable,False': 1529, 'rag_answerable,True': 1169, 'sentinel_info_offtopic,False': 50, 'sentinel_same_topic,False': 450}
+  closed-book builder: n_examples=6500 n_truncated=164 max_seq_len=1024
+
+######## validation_rag: sft_build_val_rag.json (mix_version sft-mix-v2b)
+  manifest consistency violations: 0
+  plan vs realised: {"answerable": {"planned": 224, "assigned": 224, "realised": 223}, "sentinel_same_topic": {"planned": 29, "assigned": 29, "realised": 29}, "sentinel_info_offtopic": {"planned": 3, "assigned": 3, "realised": 3}, "closed_book": {"planned": 0, "assigned": 0, "realised": 0}}
+  assignment skips: {'sentinel_no_candidates_after_guards': 21, 'sentinel_disallowed_qtype': 20}
+  question-type mix by format: {"rag_answerable": {"causes": 9, "complications": 1, "considerations": 5, "exams_and_tests": 6, "frequency": 15, "genetic_changes": 11, "information": 64, "inheritance": 19, "other": 1, "outlook": 4, "prevention": 2, "research": 3, "stages": 2, "susceptibility": 3, "symptoms": 38, "treatment": 40}, "rag_insufficient": {"causes": 2, "exams_and_tests": 1, "frequency": 3, "genetic_changes": 1, "information": 3, "inheritance": 4, "prevention": 1, "research": 2, "susceptibility": 4, "symptoms": 6, "treatment": 5}, "closed_book": {}}
+  PRIMARY answerable added same-topic blocks (n=223): value: realised-final | drawn | serving different-type %
+    0: 76 (34.1%) | 52 (23.3%) | 23.5%
+    1: 50 (22.4%) | 54 (24.2%) | 21.5%
+    2: 33 (14.8%) | 40 (17.9%) | 17.3%
+    3: 43 (19.3%) | 46 (20.6%) | 22.2%
+    4: 21 (9.4%) | 31 (13.9%) | 15.5%
+    context only, serving ALL types other on-topic (incl. same-type, excluded by design): {'0': 20.2, '1': 18.7, '2': 16.4, '3+': 44.8}
+  on_topic_total exact 0-5 per class (report): {"rag_answerable": {"0": 1, "1": 75, "2": 50, "3": 33, "4": 43, "5": 21}, "rag_insufficient": {"0": 3, "1": 12, "2": 12, "3": 2, "4": 1, "5": 2}, "sentinel_same_topic": {"0": 0, "1": 12, "2": 12, "3": 2, "4": 1, "5": 2}, "sentinel_info_offtopic": {"0": 3, "1": 0, "2": 0, "3": 0, "4": 0, "5": 0}}
+  same-topic sentinels with on_topic_total == 0 after length drops: 0
+  zero-candidate per class: {'rag_answerable': 30, 'rag_insufficient': 3, 'sentinel_same_topic': 0, 'sentinel_info_offtopic': 3} | by sentinel qtype: {'information': 3}
+  CUE CHECK (rule = best answer/refuse rule from on_topic_total alone):
+    all: n=255 rule_accuracy=0.882 majority_baseline=0.875 excess=+0.008 counts={'0': {'rag_answerable': 1, 'rag_insufficient': 3}, '1': {'rag_answerable': 75, 'rag_insufficient': 12}, '2': {'rag_answerable': 50, 'rag_insufficient': 12}, '3': {'rag_answerable': 33, 'rag_insufficient': 2}, '4': {'rag_answerable': 43, 'rag_insufficient': 1}, '5': {'rag_answerable': 21, 'rag_insufficient': 2}}
+    excluding_zero_candidate: n=222 rule_accuracy=0.869 majority_baseline=0.869 excess=+0.000 counts={'1': {'rag_answerable': 46, 'rag_insufficient': 12}, '2': {'rag_answerable': 50, 'rag_insufficient': 12}, '3': {'rag_answerable': 33, 'rag_insufficient': 2}, '4': {'rag_answerable': 43, 'rag_insufficient': 1}, '5': {'rag_answerable': 21, 'rag_insufficient': 2}}
+    recomputed from manifest (all): rule_accuracy=0.882 majority_baseline=0.875 n=255
+    per sentinel question type (answerable + sentinel rows of that type):
+      causes: n=11 rule_accuracy=0.818 majority=0.818 excess=+0.000
+      exams_and_tests: n=7 rule_accuracy=0.857 majority=0.857 excess=+0.000
+      frequency: n=18 rule_accuracy=0.833 majority=0.833 excess=+0.000
+      genetic_changes: n=12 rule_accuracy=0.917 majority=0.917 excess=+0.000
+      information: n=67 rule_accuracy=1.000 majority=0.955 excess=+0.045
+      inheritance: n=23 rule_accuracy=0.826 majority=0.826 excess=+0.000
+      prevention: n=3 rule_accuracy=1.000 majority=0.667 excess=+0.333
+      research: n=5 rule_accuracy=1.000 majority=0.600 excess=+0.400
+      susceptibility: n=7 rule_accuracy=0.714 majority=0.571 excess=+0.143
+      symptoms: n=44 rule_accuracy=0.864 majority=0.864 excess=+0.000
+      treatment: n=45 rule_accuracy=0.889 majority=0.889 excess=+0.000
+  REFUSE SHARE by on_topic_total (descriptive; sentinels / all RAG prompts at that count):
+    0: 3/4 = 75.0%
+    1: 12/87 = 13.8%
+    2: 12/62 = 19.4%
+    3: 2/35 = 5.7%
+    4: 1/44 = 2.3%
+    5: 2/23 = 8.7%
+  guard drops (candidate chunks, first failing guard): {"answerable": {"G1_same_qtype": 257, "G2_gold_dup_group": 0, "G3_excluded_flags": 0, "G4_text_equal_gold": 0, "G5_gold_jaccard": 5, "G6_coverage_ge_gold": 0, "G7_sentinel_qtype_pair": 0}, "sentinel_same_topic": {"G1_same_qtype": 24, "G2_gold_dup_group": 0, "G3_excluded_flags": 0, "G4_text_equal_gold": 0, "G5_gold_jaccard": 1, "G6_coverage_ge_gold": 199, "G7_sentinel_qtype_pair": 66}}
+  G7 drops by pair (20 pairs, total 66): {"causes->information": 4, "causes->inheritance": 2, "exams_and_tests->information": 2, "exams_and_tests->symptoms": 3, "genetic_changes->information": 2, "genetic_changes->inheritance": 2, "inheritance->causes": 1, "inheritance->genetic_changes": 3, "inheritance->information": 3, "prevention->information": 9, "prevention->treatment": 1, "research->information": 1, "research->treatment": 2, "susceptibility->causes": 1, "susceptibility->information": 9, "symptoms->exams_and_tests": 1, "symptoms->information": 8, "symptoms->outlook": 1, "treatment->information": 10, "treatment->research": 1}
+  length drops: {'offgroup': 4}
+  gold position: {'E1': 47, 'E2': 46, 'E3': 42, 'E4': 46, 'E5': 42}
+  RAG prompt tokens: {'n': 255, 'median': 1199, 'p90': 1596, 'max': 2011} | distractor drop events: 4
+  truncated rows (kind, truncated): count: {'closed_book,False': 483, 'closed_book,True': 29, 'rag_answerable,False': 127, 'rag_answerable,True': 96, 'sentinel_info_offtopic,False': 3, 'sentinel_same_topic,False': 29}
+  closed-book builder: n_examples=0 n_truncated=0 max_seq_len=1024
+
+######## contrast: original v2 build sft-mix-v2-20261007-035957, refuse share by on-topic total (D-031)
+  source: docs/evidence/D-053/e4b_d031_recount.log section A (no new reads): train answerable 2,697 with exactly
+  1 on-topic block (gold; 0 on-topic distractors), sentinels 500 with 0; validation answerable 222 with 1, 1 with 0
+  (topic_key None), sentinels 31 with 0.
+    train:      0: 500/500 = 100.0% | 1: 0/2697 = 0.0% | 2-5: none
+    validation: 0: 31/32 = 96.9%   | 1: 0/222 = 0.0%  | 2-5: none
+
+######## build_summary: {"train_examples": 9698, "train_tokens": 6460238, "val_sets": {"eval": 512, "eval_rag": 255}} | versions: {"mix_version": "sft-mix-v2b", "split_version": "split-20261006-2f0fb25ee6d8", "corpus_version": "medquad-1.0.0-86e384302357", "message_builder": "cb-v1+a1f08aaf", "rag_prompt_version": "rag-v1+df593554"} | embedder revision: 5c38ec7c405ec4b44b94cc5a9bb96e735b38267a
+gate: {"passed": true, "rows": {"pairs_train": 30506, "pairs_validation": 3960, "sft": 9698}, "protected_record_ids": {"classifier_train": 12636, "sft": 11429, "threshold": 1610}, "train_probe_sft_overlap": 96} errors: 0 warnings: 0
+REPORT: OK

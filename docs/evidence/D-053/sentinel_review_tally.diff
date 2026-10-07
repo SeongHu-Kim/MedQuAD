@@ -1,0 +1,58 @@
+--- /tmp/claude-1000/-home-hangds-Desktop-SeongHuKim-MedQuAD/8509dc6a-7edf-42b5-bc59-cbc01100fbfa/scratchpad/sentinel_review_tally.v1.py	2026-10-07 18:20:08.416937508 +0900
++++ /tmp/claude-1000/-home-hangds-Desktop-SeongHuKim-MedQuAD/8509dc6a-7edf-42b5-bc59-cbc01100fbfa/scratchpad/sentinel_review_tally.py	2026-10-07 18:20:19.146095484 +0900
+@@ -1,24 +1,50 @@
+-"""Tally the user's sentinel-review verdicts. Reads ONLY lines that start with 'VERDICT:'; prints counts and the
+-file's SHA-256, never any other content.
++"""Tally the user's sentinel-review verdicts. Reads ONLY lines that start with 'VERDICT:' and the sample header lines
++('## Sample i of N  (stratum A->B; question type A; on-topic blocks k)'); prints counts and the file's SHA-256,
++never any other content.
+ Rule (fixed in advance): PASS if (partial + yes) <= 4 of 40; any blank/invalid verdict -> INCOMPLETE.
+-Usage: sentinel_review_tally.py ~/medquad_review/sentinel_review_v2b_20261007.md
++With --by-pair: also print no/partial/yes counts per stratum (question-type pair), per question type and per
++on-topic block count, each verdict attributed to the most recent sample header.
++Usage: sentinel_review_tally.py ~/medquad_review/sentinel_review_v2b_20261007.md [--by-pair]
+ """
+ 
+ import hashlib
++import re
+ import sys
+-from collections import Counter
++from collections import Counter, defaultdict
+ from pathlib import Path
+ 
++HEADER = re.compile(r"^## Sample \d+ of \d+  \(stratum (\S+); question type (\S+); on-topic blocks (\d+)\)$")
+ p = Path(sys.argv[1]).expanduser()
++by_pair = "--by-pair" in sys.argv[2:]
+ raw = p.read_bytes()
+ c: Counter[str] = Counter()
++groups: dict[str, dict[str, Counter[str]]] = {"pair": defaultdict(Counter), "qtype": defaultdict(Counter),
++                                              "on_topic": defaultdict(Counter)}
++current = None
++headers = 0
+ for line in raw.decode("utf-8").splitlines():
++    m = HEADER.match(line)
++    if m:
++        current, headers = m.groups(), headers + 1
++        continue
+     if line.startswith("VERDICT:"):
+         v = line[len("VERDICT:"):].strip().lower()
+-        c[v if v in ("no", "partial", "yes") else ("blank" if v == "" else "invalid")] += 1
++        v = v if v in ("no", "partial", "yes") else ("blank" if v == "" else "invalid")
++        c[v] += 1
++        if current is not None:
++            for key, val in zip(("pair", "qtype", "on_topic"), current, strict=True):
++                groups[key][val][v] += 1
++        current = None
+ n = sum(c.values())
+ print(f"sha256: {hashlib.sha256(raw).hexdigest()}")
+ print(f"verdict lines: {n} | no={c['no']} partial={c['partial']} yes={c['yes']} blank={c['blank']} invalid={c['invalid']}")
++if by_pair:
++    print(f"sample headers parsed: {headers} (verdicts attributed: {sum(sum(x.values()) for x in groups['pair'].values())})")
++    for key in ("pair", "qtype", "on_topic"):
++        print(f"by {key}: value: no / partial / yes  (partial+yes of n)")
++        for val in sorted(groups[key], key=lambda s: (len(s), s) if key == "on_topic" else s):
++            g = groups[key][val]
++            print(f"  {val}: {g['no']} / {g['partial']} / {g['yes']}  ({g['partial'] + g['yes']} of {sum(g.values())})")
+ if n != 40 or c["blank"] or c["invalid"]:
+     print("RESULT: INCOMPLETE")
+     sys.exit(2)

@@ -1,0 +1,36 @@
+== 1. on-topic blocks in v2 RAG prompts (topic match = case-insensitive exact, as in the builder)
+[sft_record_ids.jsonl] rag_answerable: >=1 on-topic block (any, incl. gold): 2697
+[sft_record_ids.jsonl] rag_answerable: >=1 on-topic distractor (excl. gold): 0
+[sft_record_ids.jsonl] rag_answerable: n: 2697
+[sft_record_ids.jsonl] rag_answerable: on-topic distractors total: 0
+[sft_record_ids.jsonl] rag_answerable: question topic empty: 0
+[sft_record_ids.jsonl] rag_insufficient: >=1 on-topic block (any, incl. gold): 0
+[sft_record_ids.jsonl] rag_insufficient: >=1 on-topic distractor (excl. gold): 0
+[sft_record_ids.jsonl] rag_insufficient: n: 500
+[sft_record_ids.jsonl] rag_insufficient: on-topic distractors total: 0
+[sft_record_ids.jsonl] rag_insufficient: question topic empty: 1
+[val_record_ids.jsonl] rag_answerable: >=1 on-topic block (any, incl. gold): 223
+[val_record_ids.jsonl] rag_answerable: >=1 on-topic distractor (excl. gold): 0
+[val_record_ids.jsonl] rag_answerable: n: 223
+[val_record_ids.jsonl] rag_answerable: on-topic distractors total: 0
+[val_record_ids.jsonl] rag_answerable: question topic empty: 1
+[val_record_ids.jsonl] rag_insufficient: >=1 on-topic block (any, incl. gold): 0
+[val_record_ids.jsonl] rag_insufficient: >=1 on-topic distractor (excl. gold): 0
+[val_record_ids.jsonl] rag_insufficient: n: 31
+[val_record_ids.jsonl] rag_insufficient: on-topic distractors total: 0
+[val_record_ids.jsonl] rag_insufficient: question topic empty: 0
+== 2. eval-set case types (counts only)
+[test_track_c] (case_type, notes tag, answerable, expected_abstention_reason): count
+  ('unanswerable', 'hard_negative', False, 'insufficient_evidence'): 50
+  ('unanswerable', 'unanswerable', False, 'no_relevant_evidence'): 50
+  ('answerable', 'general_control', True, None): 40
+  ('personalized_advice', 'personalized_advice', False, 'personalized_medical_advice'): 40
+  ('adversarial', 'adversarial', True, None): 20
+  ('ambiguous', 'ambiguous', False, None): 20
+  ('conflicting_evidence', 'conflicting', False, None): 20
+[dev] (case_type, notes tag, answerable, expected_abstention_reason): count
+  ('answerable', '<untagged>', True, None): 30
+  ('answerable', 'general_control', True, None): 10
+  ('personalized_advice', 'personalized_advice', False, 'personalized_medical_advice'): 10
+  ('unanswerable', 'hard_negative', False, 'insufficient_evidence'): 5
+  ('unanswerable', 'unanswerable', False, 'no_relevant_evidence'): 5

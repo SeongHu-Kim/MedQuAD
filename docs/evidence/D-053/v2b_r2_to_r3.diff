@@ -1,0 +1,146 @@
+--- r2/src/medquad_qa/training/sft_rag_data.py
++++ r3/src/medquad_qa/training/sft_rag_data.py
+@@ -429,7 +429,13 @@
+                     "truncated": ex.truncated,
+                 }
+             )
+-        report.v2b = v2b_summary(id_rows, guard_drops, g7_pairs, assign_skips)
++        assigned = {
++            "answerable": len(answerable),
++            "sentinel_same_topic": len(sent_same),
++            "sentinel_info_offtopic": len(sent_info),
++            "closed_book": len(closed),
++        }
++        report.v2b = v2b_summary(id_rows, guard_drops, g7_pairs, assign_skips, plan, assigned)
+         return examples, report, id_rows
+ 
+     def _rag_example_v2b(
+@@ -495,6 +501,7 @@
+         if len(off) < need_off:
+             report.skipped["too_few_distractors"] += 1
+             return None, None
++        n_off_initial = len(off)
+ 
+         gold_slot = rng_q.randrange(plan.k) if answerable else -1
+         dropped: Counter[str] = Counter()
+@@ -531,7 +538,8 @@
+             "same_topic_available_after_guards": len(ranked),
+             "same_topic_realised_after_guards": n_take,
+             "same_topic_realised_final": len(same),
+-            "n_offgroup": len(off),
++            "n_offgroup_initial": n_off_initial,
++            "n_offgroup_final": len(off),
+             "dropped_for_length": dict(dropped),
+             "truncated": ex.truncated,
+         }
+@@ -726,13 +734,48 @@
+     }
+ 
+ 
++def _plan_vs_realised(
++    rows: Sequence[dict[str, Any]], plan: MixPlan | None, assigned: dict[str, int] | None
++) -> dict[str, dict[str, int | None]]:
++    """planned (config) -> assigned (after seeded assignment) -> realised (after post-assignment skips, which
++    are not replaced, so realised may be below plan)."""
++    kinds = {
++        "answerable": lambda r: r["format"] == "rag_answerable",
++        "sentinel_same_topic": lambda r: r["sentinel_kind"] == "sentinel_same_topic",
++        "sentinel_info_offtopic": lambda r: r["sentinel_kind"] == "sentinel_info_offtopic",
++        "closed_book": lambda r: r["format"] == "closed_book",
++    }
++    planned = (
++        {
++            "answerable": plan.n_rag_answerable,
++            "sentinel_same_topic": plan.n_rag_insufficient - plan.n_sentinel_info,
++            "sentinel_info_offtopic": plan.n_sentinel_info,
++            "closed_book": plan.n_closed_book,
++        }
++        if plan is not None
++        else {}
++    )
++    return {
++        k: {
++            "planned": planned.get(k),
++            "assigned": (assigned or {}).get(k),
++            "realised": sum(1 for r in rows if pred(r)),
++        }
++        for k, pred in kinds.items()
++    }
++
++
+ def v2b_summary(
+     rows: Sequence[dict[str, Any]],
+     guard_drops: dict[str, Counter[str]],
+     g7_pairs: Counter[str],
+     assign_skips: Counter[str],
++    plan: MixPlan | None = None,
++    assigned: dict[str, int] | None = None,
+ ) -> dict[str, Any]:
+-    """IDs/counts-only diagnostics for the step-3 report (all recomputable from the manifest rows)."""
++    """IDs/counts-only diagnostics for the step-3 report (all recomputable from the manifest rows).
++
++    Produced once per build (train and validation_rag have separate reports, hence separate plan-vs-realised)."""
+     rag = [r for r in rows if r["format"] != "closed_book"]
+     ans = [r for r in rag if r["format"] == "rag_answerable"]
+     sen = [r for r in rag if r["format"] == "rag_insufficient"]
+@@ -749,7 +792,13 @@
+             f: dict(sorted(Counter(str(r["question_type"]) for r in rows if r["format"] == f).items()))
+             for f in ("rag_answerable", "rag_insufficient", "closed_book")
+         },
+-        "on_topic_total_hist": {k: _hist([r["on_topic_total"] for r in v]) for k, v in classes.items()},
++        "on_topic_total_hist": {
++            k: {str(n): sum(r["on_topic_total"] == n for r in v) for n in range(6)} for k, v in classes.items()
++        },
++        "sentinel_same_topic_zero_on_topic_after_length_drops": sum(
++            r["on_topic_total"] == 0 for r in classes["sentinel_same_topic"]
++        ),
++        "plan_vs_realised": _plan_vs_realised(rows, plan, assigned),
+         "same_topic_drawn_hist": {k: _hist([r["same_topic_drawn"] for r in v], 5) for k, v in classes.items()},
+         "same_topic_realised_final_hist": {
+             k: _hist([r["same_topic_realised_final"] for r in v], 5) for k, v in classes.items()
+--- r2/tests/training/test_training_sft_rag_data.py
++++ r3/tests/training/test_training_sft_rag_data.py
+@@ -424,7 +424,9 @@
+         tiny_tokenizer, _v2b_plan(n_rag_answerable=60, n_rag_insufficient=0, n_sentinel_info=0, n_closed_book=0)
+     )
+     zero = [r for r in rows if r["format"] == "rag_answerable" and r["same_topic_available_after_guards"] == 0]
+-    assert zero and all(r["on_topic_total"] == 1 and r["n_offgroup"] == len(r["evidence_record_ids"]) - 1 for r in zero)
++    assert zero and all(
++        r["on_topic_total"] == 1 and r["n_offgroup_final"] == len(r["evidence_record_ids"]) - 1 for r in zero
++    )
+     assert report.v2b["zero_candidate"]["rag_answerable"] == len(zero)
+ 
+ 
+@@ -437,7 +439,8 @@
+     for r in rows:
+         assert r["record_id"] in r["evidence_record_ids"]  # gold never dropped
+         if r["dropped_for_length"].get("same_topic"):
+-            assert r["n_offgroup"] - r["dropped_for_length"].get("offgroup", 0) == 0
++            assert r["n_offgroup_final"] == 0  # same-topic blocks are only dropped once off-group ones are gone
++        assert r["n_offgroup_final"] == r["n_offgroup_initial"] - r["dropped_for_length"].get("offgroup", 0)
+         assert r["same_topic_realised_final"] == r["same_topic_realised_after_guards"] - r["dropped_for_length"].get(
+             "same_topic", 0
+         )
+@@ -447,3 +450,22 @@
+     recs, examples, _, rows = _build_v2b(tiny_tokenizer)
+     n = _assert_pipeline_parity(tiny_tokenizer, {r.record_id: r for r in recs}, examples, rows, 4)
+     assert n == sum(r["format"] != "closed_book" for r in rows) > 0
++
++
++def test_v2b_report_plan_vs_realised_and_exact_histograms(tiny_tokenizer: Any) -> None:
++    _, _, report, rows = _build_v2b(tiny_tokenizer)
++    v = report.v2b
++    pvr = v["plan_vs_realised"]
++    assert pvr["answerable"]["planned"] == 18 and pvr["sentinel_same_topic"]["planned"] == 8
++    assert pvr["sentinel_info_offtopic"]["planned"] == 2 and pvr["closed_book"]["planned"] == 8
++    for k, d in pvr.items():
++        assert d["realised"] <= d["assigned"] <= d["planned"], k
++    assert pvr["answerable"]["realised"] == report.to_dict()["counts"]["rag_answerable"]
++    hist = v["on_topic_total_hist"]
++    assert all(set(h) == {"0", "1", "2", "3", "4", "5"} for h in hist.values())
++    assert sum(hist["rag_answerable"].values()) == pvr["answerable"]["realised"]
++    zero_same = sum(r["sentinel_kind"] == "sentinel_same_topic" and r["on_topic_total"] == 0 for r in rows)
++    assert v["sentinel_same_topic_zero_on_topic_after_length_drops"] == zero_same
++    for r in rows:
++        if r["format"] != "closed_book":
++            assert "n_offgroup" not in r and r["n_offgroup_final"] <= r["n_offgroup_initial"]

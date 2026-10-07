@@ -1,0 +1,13 @@
+# v2c verification; sft_rag_data.py ff5d67ca6ed1f9ca10d07917885efa5155d1d576e08a4cd9ea264efaacf08101; tests 4e8771bf081ec4948aef9b1753f66afa207efe0fa86576265d34af7de144d6e7; mix_v2c.yaml 841902938914854d0d47f74b389209b6b77b49dc7ada0ed8a4f6cf7483740fcc
+60 passed, 3 deselected, 5 warnings in 11.51s
+PYTEST_EXIT=0
+All checks passed!
+RUFF_EXIT=0
+3 files already formatted
+FMT_EXIT=0
+Success: no issues found in 9 source files
+MYPY_EXIT=0
+== v2 pin (synthetic fixture)
+v2 hash: 89ba82c48335f2a4e2c523b8446c172559a6bbf7235c81e0b1c7826b44954074
+== v2b pin test present and passing
+3 passed, 19 deselected in 0.73s

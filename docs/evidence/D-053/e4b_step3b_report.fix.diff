@@ -1,0 +1,35 @@
+--- /tmp/claude-1000/-home-hangds-Desktop-SeongHuKim-MedQuAD/8509dc6a-7edf-42b5-bc59-cbc01100fbfa/scratchpad/e4b_step3b_report.run1.py	2026-10-07 17:43:06.920559395 +0900
++++ /tmp/claude-1000/-home-hangds-Desktop-SeongHuKim-MedQuAD/8509dc6a-7edf-42b5-bc59-cbc01100fbfa/scratchpad/e4b_step3b_report.py	2026-10-07 17:43:07.008133402 +0900
+@@ -98,18 +98,31 @@
+             print(f"      {qt}: n={c['n']} rule_accuracy={c['rule_accuracy']:.3f} majority={c['majority_baseline']:.3f}"
+                   f" excess={c['rule_accuracy'] - c['majority_baseline']:+.3f}")
+ 
++    print("  REFUSE SHARE by on_topic_total (descriptive; sentinels / all RAG prompts at that count):")
++    for k in range(0, 6):
++        at = [r for r in rag if int(r["on_topic_total"]) == k]
++        s = sum(r["format"] == "rag_insufficient" for r in at)
++        if at:
++            print(f"    {k}: {s}/{len(at)} = {s / len(at):.1%}")
+     print("  guard drops (candidate chunks, first failing guard):", json.dumps(v["guard_drops_candidate_chunks"]))
+     g7 = v["g7_drops_by_pair"]
+     print(f"  G7 drops by pair ({len(g7)} pairs, total {sum(g7.values())}):", json.dumps(g7))
+     print("  length drops:", v["length_drops"])
+     print("  gold position:", rep.get("gold_position"))
+     print("  RAG prompt tokens:", rep.get("rag_prompt_tokens"), "| distractor drop events:", rep.get("distractors_dropped_for_length"))
+-    tr = Counter((r["sentinel_kind"] or r["format"], bool(r["truncated"])) for r in rows)
++    tr = Counter((r.get("sentinel_kind") or r["format"], bool(r["truncated"])) for r in rows)
+     print("  truncated rows (kind, truncated): count:", {f"{k[0]},{k[1]}": c for k, c in sorted(tr.items())})
+     cb = rep.get("closed_book") or {}
+     if cb:
+         print(f"  closed-book builder: n_examples={cb.get('n_examples')} n_truncated={cb.get('n_truncated')} max_seq_len={cb.get('max_seq_len')}")
+ 
++print("\n######## contrast: original v2 build sft-mix-v2-20261007-035957, refuse share by on-topic total (D-031)")
++print("  source: docs/evidence/D-053/e4b_d031_recount.log section A (no new reads): train answerable 2,697 with exactly")
++print("  1 on-topic block (gold; 0 on-topic distractors), sentinels 500 with 0; validation answerable 222 with 1, 1 with 0")
++print("  (topic_key None), sentinels 31 with 0.")
++print("    train:      0: 500/500 = 100.0% | 1: 0/2697 = 0.0% | 2-5: none")
++print("    validation: 0: 31/32 = 96.9%   | 1: 0/222 = 0.0%  | 2-5: none")
++
+ summ = json.loads((B / "build_summary.json").read_text())
+ print("\n######## build_summary:", json.dumps({k: summ[k] for k in ("train_examples", "train_tokens", "val_sets")}),
+       "| versions:", json.dumps({k: summ["versions"].get(k) for k in ("mix_version", "split_version", "corpus_version",

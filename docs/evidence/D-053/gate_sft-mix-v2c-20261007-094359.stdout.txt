@@ -1,0 +1,1 @@
+{"passed": true, "rows": {"sft": 9697, "pairs_train": 30506, "pairs_validation": 3960}, "protected_record_ids": {"sft": 11371, "classifier_train": 12636, "threshold": 1610}, "train_probe_sft_overlap": 96}

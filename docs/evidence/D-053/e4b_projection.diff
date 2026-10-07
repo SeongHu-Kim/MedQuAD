@@ -1,0 +1,81 @@
+--- /tmp/claude-1000/-home-hangds-Desktop-SeongHuKim-MedQuAD/8509dc6a-7edf-42b5-bc59-cbc01100fbfa/scratchpad/e4b_projection.shown_v1.py	2026-10-07 16:01:47.074570666 +0900
++++ /tmp/claude-1000/-home-hangds-Desktop-SeongHuKim-MedQuAD/8509dc6a-7edf-42b5-bc59-cbc01100fbfa/scratchpad/e4b_projection.py	2026-10-07 16:02:08.563326660 +0900
+@@ -10,12 +10,13 @@
+     scores and are NOT applied, so availability here is an upper bound.
+     Reported: zero-candidate share per question type over the whole eligible train pool; then for the two
+     sentinel populations: (a) table as proposed (all types), (b) information/other/support_groups removed.
+-P3. Can 500 sentinels be drawn from the allowed types: count of allowed-type records in the builder's seeded
+-    order after the first 2,700 answerable draws; share by question type of that population vs the Track C
+-    (test) and DEV hard negatives' missing question types (from the fixed 'hard_negative:missing_qtype=<t>'
+-    notes tag only).
++P3. Sentinel draw = 450 allowed-type + 50 information-type (off-topic evidence only): can they be drawn from the
++    builder's seeded order after the first 2,700 answerable draws; zero-candidate share of the 450; type mix of
++    the 450 vs the hard-negative question types AS DEFINED IN CODE (evalset_builder.HARD_NEGATIVE_QTYPES) and the
++    DEV hard negatives' missing types (fixed 'hard_negative:missing_qtype=<t>' notes tag only).
++    No TEST eval set (Track C) is read.
+ Reads: records_{train,validation}.jsonl (record_id, question, answer, topic, question_type, quality_flags,
+-split_group_id, duplicate_group_id); test_track_c.jsonl and dev.jsonl (notes tag only); serving artifacts.
++split_group_id, duplicate_group_id); dev.jsonl (notes tag only); serving artifacts.
+ """
+ 
+ import hashlib
+@@ -27,9 +28,10 @@
+ 
+ sys.path.insert(0, "src")
+ from medquad_qa.data.normalize import topic_key  # noqa: E402
++from medquad_qa.evaluation.evalset_builder import HARD_NEGATIVE_QTYPES  # noqa: E402
+ from medquad_qa.training.sft_data import EXCLUDED_FLAGS  # noqa: E402
+ 
+-SEED, N_ANS, N_SENT, TOPK = 20261006, 2700, 500, 5
++SEED, N_ANS, N_SENT, N_INFO_SENT, TOPK = 20261006, 2700, 500, 50, 5
+ NO_SENTINEL = {"information", "other", "support_groups"}
+ INFO = "information"
+ G7 = {  # sentinel question type -> excluded block question types (model-engineer's table)
+@@ -119,25 +121,29 @@
+ 
+ # ---------------------------------------------------------------- P3. can 500 be drawn; type mix vs hard negatives
+ ordered = sorted(pool, key=lambda r: hashlib.sha256(f"{SEED}:{r['record_id']}".encode()).hexdigest())
++n_allowed = N_SENT - N_INFO_SENT
+ rest = [x for x in ordered[N_ANS:] if x["question_type"] not in NO_SENTINEL]
+-first500 = rest[:N_SENT]
+-print(f"== P3. allowed-type records after the first {N_ANS} answerable draws (builder's seeded order): {len(rest)}"
+-      f" -> 500 sentinels drawable: {len(rest) >= N_SENT}")
+-mix = Counter(x["question_type"] for x in first500)
+-z500 = sum(ncand[x["record_id"]] == 0 for x in first500)
+-print(f"  first 500 allowed-type records in seeded order: zero-candidate {z500}/500 = {z500 / 5:.1f}%")
+-hn = {}
+-for es in ("test_track_c", "dev"):
+-    c = Counter()
+-    for line in open(f"artifacts/evaluation/evalsets/{es}.jsonl", encoding="utf-8"):
+-        m = HN.fullmatch(json.loads(line).get("notes") or "")
+-        if m:
+-            c[m.group(1)] += 1
+-    hn[es] = c
+-types = sorted(set(mix) | set(hn["test_track_c"]) | set(hn["dev"]), key=lambda t: -mix[t])
+-print("  question type: sentinel draw (first 500) | Track C hard negatives missing type | DEV hard negatives")
+-for t in types:
+-    print(f"    {t}: {mix[t]} ({mix[t] / 5:.1f}%) | {hn['test_track_c'][t]} | {hn['dev'][t]}")
++info_rest = [x for x in ordered[N_ANS:] if x["question_type"] == INFO]
++s_allowed, s_info = rest[:n_allowed], info_rest[:N_INFO_SENT]
++print(f"== P3. after the first {N_ANS} answerable draws (builder's seeded order): allowed-type records {len(rest)}"
++      f" (need {n_allowed}: {len(rest) >= n_allowed}); information-type records {len(info_rest)}"
++      f" (need {N_INFO_SENT}: {len(info_rest) >= N_INFO_SENT})")
++mix = Counter(x["question_type"] for x in s_allowed)
++z = sum(ncand[x["record_id"]] == 0 for x in s_allowed)
++print(f"  {n_allowed} allowed-type sentinels: zero-candidate {z}/{n_allowed} = {z / n_allowed:.1%}")
++print(f"  {N_INFO_SENT} information-type sentinels: 0 same-topic blocks by design")
++print(f"  all {N_SENT} sentinels: 0 same-topic blocks (upper-bound availability) = {z + len(s_info)}/{N_SENT}"
++      f" = {(z + len(s_info)) / N_SENT:.1%}")
++dev_hn = Counter()
++for line in open("artifacts/evaluation/evalsets/dev.jsonl", encoding="utf-8"):
++    m = HN.fullmatch(json.loads(line).get("notes") or "")
++    if m:
++        dev_hn[m.group(1)] += 1
++print("  question type: allowed-type sentinel draw | in code HARD_NEGATIVE_QTYPES | DEV hard negatives (missing type)")
++for t in sorted(set(mix) | set(HARD_NEGATIVE_QTYPES) | set(dev_hn), key=lambda t: -mix[t]):
++    print(f"    {t}: {mix[t]} ({mix[t] / n_allowed:.1%}) | {'yes' if t in HARD_NEGATIVE_QTYPES else 'no'} | {dev_hn[t]}")
++hn_share = sum(mix[t] for t in HARD_NEGATIVE_QTYPES) / n_allowed
++print(f"  share of the {n_allowed} allowed-type sentinels whose type is in HARD_NEGATIVE_QTYPES: {hn_share:.1%}")
+ 
+ # ---------------------------------------------------------------- P1. serving 0..4 split of different-type blocks
+ from medquad_qa.retrieval.factory import build_retriever  # noqa: E402

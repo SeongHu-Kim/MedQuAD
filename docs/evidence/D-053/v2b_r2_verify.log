@@ -1,0 +1,11 @@
+# v2b r2 verification; sft_rag_data.py 45e474cc5b4a172e4af10b1c062fa4fad66d9e9142a2f14f4ef6db4abd741fdb
+56 passed, 3 deselected, 5 warnings in 11.77s
+PYTEST_EXIT=0
+All checks passed!
+RUFF_EXIT=0
+3 files already formatted
+FMT_EXIT=0
+Success: no issues found in 9 source files
+MYPY_EXIT=0
+== v2 pin on r2 (synthetic fixture)
+v2 hash: 89ba82c48335f2a4e2c523b8446c172559a6bbf7235c81e0b1c7826b44954074

@@ -1,0 +1,55 @@
+== P2. sentinel candidates under G1-G4 + G7 (upper bound; G5/G6 not applied), whole eligible train pool
+    information: n=3558 zero-candidate=3558 (100.0%)
+    symptoms: n=2203 zero-candidate=1228 (55.7%)
+    treatment: n=1940 zero-candidate=50 (2.6%)
+    frequency: n=888 zero-candidate=0 (0.0%)
+    genetic_changes: n=865 zero-candidate=0 (0.0%)
+    inheritance: n=798 zero-candidate=5 (0.6%)
+    causes: n=558 zero-candidate=12 (2.2%)
+    exams_and_tests: n=517 zero-candidate=12 (2.3%)
+    research: n=295 zero-candidate=0 (0.0%)
+    outlook: n=290 zero-candidate=0 (0.0%)
+    susceptibility: n=265 zero-candidate=1 (0.4%)
+    considerations: n=179 zero-candidate=14 (7.8%)
+    prevention: n=154 zero-candidate=3 (1.9%)
+    stages: n=64 zero-candidate=0 (0.0%)
+    complications: n=37 zero-candidate=0 (0.0%)
+    other: n=24 zero-candidate=24 (100.0%)
+    support_groups: n=1 zero-candidate=1 (100.0%)
+  (a) table as proposed, all types: pool-proportional zero-candidate share = 4908/12636 = 38.8%
+  (b) information/other/support_groups removed: pool-proportional zero-candidate share = 1325/9053 = 14.6%
+== P3. after the first 2700 answerable draws (builder's seeded order): allowed-type records 7088 (need 450: True); information-type records 2827 (need 50: True)
+  450 allowed-type sentinels: zero-candidate 56/450 = 12.4%
+  50 information-type sentinels: 0 same-topic blocks by design
+  all 500 sentinels: 0 same-topic blocks (upper-bound availability) = 106/500 = 21.2%
+  question type: allowed-type sentinel draw | in code HARD_NEGATIVE_QTYPES | DEV hard negatives (missing type)
+    symptoms: 113 (25.1%) | no | 0
+    treatment: 93 (20.7%) | no | 0
+    inheritance: 41 (9.1%) | no | 0
+    frequency: 40 (8.9%) | yes | 0
+    exams_and_tests: 39 (8.7%) | no | 0
+    causes: 36 (8.0%) | no | 0
+    genetic_changes: 34 (7.6%) | yes | 1
+    susceptibility: 16 (3.6%) | no | 0
+    research: 13 (2.9%) | yes | 1
+    outlook: 10 (2.2%) | no | 0
+    considerations: 7 (1.6%) | no | 0
+    stages: 3 (0.7%) | yes | 1
+    prevention: 3 (0.7%) | yes | 1
+    complications: 2 (0.4%) | yes | 1
+  share of the 450 allowed-type sentinels whose type is in HARD_NEGATIVE_QTYPES: 21.1%
+statuses: [('corpus', True, 'medquad-1.0.0-86e384302357'), ('retriever:bm25', True, 'bm25-qa-d5f777b26f79'), ('retriever:dense', True, 'dense-qa-dc6b6a345fca')]
+== P1. serving, gold retrieved (n=1570): other on-topic DIFFERENT-type blocks per question
+    0: 369 (23.5%)
+    1: 337 (21.5%)
+    2: 272 (17.3%)
+    3: 349 (22.2%)
+    4: 243 (15.5%)
+  lexical_fallback warnings: 0
+  retriever name dense:qa: 1665
+Exception ignored in: <function QdrantClient.__del__ at 0xe9381267d3a0>
+Traceback (most recent call last):
+  File "/home/hangds/Desktop/SeongHuKim/MedQuAD/.venv/lib/python3.12/site-packages/qdrant_client/qdrant_client.py", line 169, in __del__
+  File "/home/hangds/Desktop/SeongHuKim/MedQuAD/.venv/lib/python3.12/site-packages/qdrant_client/qdrant_client.py", line 178, in close
+  File "/home/hangds/Desktop/SeongHuKim/MedQuAD/.venv/lib/python3.12/site-packages/qdrant_client/local/qdrant_local.py", line 109, in close
+ImportError: sys.meta_path is None, Python is likely shutting down

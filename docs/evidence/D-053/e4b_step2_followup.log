@@ -1,0 +1,34 @@
+== 1. dropped evidence (dropped blocks are always the lowest-ranked distractors: picked.pop())
+[sft_record_ids.jsonl] RNG reconstruction on non-dropped answerable rows: match=2582 mismatch=0
+[sft_record_ids.jsonl] drop cases: 135 | {'drop_answerable_gold_kept': 115, 'drop_insufficient': 20} | blocks dropped per case: {1: 135}
+[sft_record_ids.jsonl] gold position in drop cases: {'gold slot unchanged': 88, 'gold moved E5->E4': 27}
+[sft_record_ids.jsonl] answerable rows with gold ID missing (any row): 0 | by (blocks dropped, intended slot): {}
+[val_record_ids.jsonl] RNG reconstruction on non-dropped answerable rows: match=218 mismatch=0
+[val_record_ids.jsonl] drop cases: 7 | {'drop_answerable_gold_kept': 5, 'drop_insufficient': 2} | blocks dropped per case: {1: 7}
+[val_record_ids.jsonl] gold position in drop cases: {'gold moved E5->E4': 1, 'gold slot unchanged': 4}
+[val_record_ids.jsonl] answerable rows with gold ID missing (any row): 0 | by (blocks dropped, intended slot): {}
+== 2. answerable targets (EOS: code appends eot_ids to every RAG target, truncated or not)
+[sft_record_ids.jsonl] answerable rows skipped because gold ID missing from evidence: 0
+[sft_record_ids.jsonl] recomputed truncation flag agrees with build manifest: 2696/2697 (disagree=1)
+[sft_record_ids.jsonl] truncated=True: {'n': 1168, 'kept has >=1 marker': 1168, 'last sentence ends . ! ?': 1129, 'last piece has no terminal punctuation': 39}
+[sft_record_ids.jsonl] truncated=False: {'n': 1529, 'kept has >=1 marker': 1529, 'last sentence ends . ! ?': 1235, 'last piece has no terminal punctuation': 294}
+[sft_record_ids.jsonl] full targets with no marker (excluded from stats): 0
+[sft_record_ids.jsonl] first-marker token position, full targets: median=20 p90=43 max=229
+[sft_record_ids.jsonl] first-marker token position, kept targets: median=20 p90=43
+[val_record_ids.jsonl] answerable rows skipped because gold ID missing from evidence: 0
+[val_record_ids.jsonl] recomputed truncation flag agrees with build manifest: 223/223 (disagree=0)
+[val_record_ids.jsonl] truncated=True: {'n': 96, 'kept has >=1 marker': 96, 'last sentence ends . ! ?': 95, 'last piece has no terminal punctuation': 1}
+[val_record_ids.jsonl] truncated=False: {'n': 127, 'kept has >=1 marker': 127, 'last sentence ends . ! ?': 93, 'last piece has no terminal punctuation': 34}
+[val_record_ids.jsonl] full targets with no marker (excluded from stats): 0
+[val_record_ids.jsonl] first-marker token position, full targets: median=19 p90=41 max=211
+[val_record_ids.jsonl] first-marker token position, kept targets: median=19 p90=41
+== 3. train_probe items (n=100) by v2 role of their gold/derived record IDs:
+   29  closed_book target
+   28  closed_book target + evidence block in another example (loss-masked prompt)
+   12  rag_answerable gold target
+   11  evidence block in another example (loss-masked prompt)
+    9  absent from v2 build
+    6  evidence block in another example (loss-masked prompt) + rag_answerable gold target
+    2  evidence block in another example (loss-masked prompt) + rag_insufficient question (answer not trained)
+    2  rag_insufficient question (answer not trained)
+    1  absent from v2 build + evidence block in another example (loss-masked prompt) + rag_insufficient question (answer not trained)

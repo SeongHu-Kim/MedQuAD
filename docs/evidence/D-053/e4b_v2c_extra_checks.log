@@ -1,0 +1,7 @@
+[sft_record_ids.jsonl] sentinels: 499 | with any on-topic block: 0 | kinds: {'sentinel_offtopic': 449, 'sentinel_info_offtopic': 50}
+[sft_record_ids.jsonl] answerable rows: v2c 2698 | v2b 2698 | identical (whole rows, order kept): True
+[sft_record_ids.jsonl] closed-book rows: v2c 6500 | v2b 6500
+[val_record_ids.jsonl] sentinels: 31 | with any on-topic block: 0 | kinds: {'sentinel_offtopic': 28, 'sentinel_info_offtopic': 3}
+[val_record_ids.jsonl] answerable rows: v2c 223 | v2b 223 | identical (whole rows, order kept): True
+[val_record_ids.jsonl] closed-book rows: v2c 512 | v2b 512
+EXTRA CHECKS: OK

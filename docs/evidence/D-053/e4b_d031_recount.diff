@@ -1,0 +1,52 @@
+--- /tmp/claude-1000/-home-hangds-Desktop-SeongHuKim-MedQuAD/8509dc6a-7edf-42b5-bc59-cbc01100fbfa/scratchpad/e4b_d031_recount.reviewed_v1.py	2026-10-07 13:56:27.314006669 +0900
++++ /tmp/claude-1000/-home-hangds-Desktop-SeongHuKim-MedQuAD/8509dc6a-7edf-42b5-bc59-cbc01100fbfa/scratchpad/e4b_d031_recount.py	2026-10-07 13:56:49.378560589 +0900
+@@ -123,6 +123,7 @@
+ dist_all, dist_gold = Counter(), Counter()
+ qt_split = Counter()
+ per_q_types = Counter()
++per_q_dup, per_q_same, per_q_diff = Counter(), Counter(), Counter()
+ other = Counter()
+ for x in val.values():
+     hits, name, warnings = ret.retrieve_with_info(x["question"], TOPK)
+@@ -131,25 +132,36 @@
+     other["question topic_key None"] += x["tkey"] is None
+     others = [h for h in hits if h.record_id != x["record_id"] and on(topic_key(h.topic), x["tkey"])]
+     dist_all[bucket(len(others))] += 1
++    other["all questions: on-topic hits outside validation"] += sum(h.record_id not in val for h in others)
+     if any(h.record_id == x["record_id"] for h in hits):
+         dist_gold[bucket(len(others))] += 1
+-        same = diff = 0
++        dup = same = diff = outside = 0
+         for h in others:
+             y = val.get(h.record_id)
+             if y is None:
++                outside += 1
+                 qt_split["on-topic hit outside validation (type not looked up)"] += 1
++            elif y["duplicate_group_id"] == x["duplicate_group_id"]:
++                dup += 1
++                qt_split["duplicate of gold (same duplicate_group_id)"] += 1
+             elif y["question_type"] == x["question_type"]:
+                 same += 1
+-                qt_split["same question_type"] += 1
++                qt_split["same question_type, different duplicate group"] += 1
+             else:
+                 diff += 1
+                 qt_split["different question_type"] += 1
+-        per_q_types[("has same-type" if same else "no same-type") + " / " + ("has diff-type" if diff else "no diff-type")] += 1
+-        other["gold-retrieved: different-type other on-topic blocks " + bucket(diff)] += 1
++        per_q_types[f"dup>0={dup > 0} same>0={same > 0} diff>0={diff > 0}"] += 1
++        per_q_dup[bucket(dup)] += 1
++        per_q_same[bucket(same)] += 1
++        per_q_diff[bucket(diff)] += 1
++        other["gold-retrieved: on-topic hits outside validation"] += outside
+ print(f"== C. validation questions: {len(val)} | top_k={TOPK} | other on-topic blocks (excl. the question's own record)")
+ print(f"  all questions {fmt(dist_all)}")
+ print(f"  gold retrieved {fmt(dist_gold)}")
+ print(f"  gold retrieved, other on-topic blocks by question_type (block counts): {dict(qt_split)}")
+-print(f"  gold retrieved, per question: {dict(per_q_types)}")
++print(f"  gold retrieved, per question (which categories present): {dict(per_q_types)}")
++print(f"  gold retrieved, per question, duplicates of gold {fmt(per_q_dup)}")
++print(f"  gold retrieved, per question, same type / different dup group {fmt(per_q_same)}")
++print(f"  gold retrieved, per question, DIFFERENT question_type (what b' can reproduce) {fmt(per_q_diff)}")
+ for k in sorted(other):
+     print(f"  {k}: {other[k]}")

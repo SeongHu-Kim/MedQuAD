@@ -1,0 +1,72 @@
+start 20261007T034907Z  HEAD=6b4c44b48216d5901ac04531567dceefb2f966c5  env: CUDA_VISIBLE_DEVICES='' HF_HUB_OFFLINE=1
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 6807.38it/s]
+{
+  "out": "artifacts/models/builds/sft-mix-v2-20261007-035957",
+  "train_examples": 9697,
+  "train_tokens": 6494454,
+  "val_sets": {
+    "eval": 512,
+    "eval_rag": 254
+  },
+  "versions": {
+    "exports_manifest": "data/manifests/exports_manifest.json",
+    "corpus_version": "medquad-1.0.0-86e384302357",
+    "split_version": "split-20261006-2f0fb25ee6d8",
+    "export_sha256_verified": {
+      "train": "819e783c515aa1e6c1f8eee25b180664c5d6707d81fc23b6a4641d1d440000ec",
+      "validation": "9033931b6fe0512a2674e31cdb93a69ee2422dd75e953d8bc17fd0b64fa12436",
+      "test": "1fa115fe2941f89882389f54cd7c2c4f5aa1cfa193105435340e90b5e1d27688"
+    },
+    "message_builder": "cb-v1+a1f08aaf",
+    "mix_version": "sft-mix-v2",
+    "rag_prompt_version": "rag-v1+df593554",
+    "embedder": {
+      "model_id": "BAAI/bge-small-en-v1.5",
+      "revision": "5c38ec7c405ec4b44b94cc5a9bb96e735b38267a",
+      "query_prefix": "Represent this sentence for searching relevant passages: "
+    }
+  }
+}
+BUILD_EXIT=0 elapsed_s=651
+OUT=artifacts/models/builds/sft-mix-v2-20261007-035957
+{"passed": true, "rows": {"sft": 9697, "pairs_train": 30506, "pairs_validation": 3960}, "protected_record_ids": {"sft": 11154, "classifier_train": 12636, "threshold": 1610}, "train_probe_sft_overlap": 97}
+GATE_EXIT=0
+split_version in manifests: ['split-20261006-2f0fb25ee6d8'] | frozen: split-20261006-2f0fb25ee6d8
+pool check sft_record_ids.jsonl: 11154 distinct IDs, all in train: OK
+pool check val_record_ids.jsonl: 1035 distinct IDs, all in validation: OK
+build_summary.json: text-like=0 test-split IDs=0 unknown IDs=0
+protected_check.json: text-like=0 test-split IDs=0 unknown IDs=0
+sft_build_train.json: text-like=0 test-split IDs=0 unknown IDs=0
+sft_build_val.json: text-like=0 test-split IDs=0 unknown IDs=0
+sft_build_val_rag.json: text-like=0 test-split IDs=0 unknown IDs=0
+sft_record_ids.jsonl: text-like=0 test-split IDs=0 unknown IDs=0
+val_record_ids.jsonl: text-like=0 test-split IDs=0 unknown IDs=0
+embedder loaded: BAAI/bge-small-en-v1.5 @ 5c38ec7c405ec4b44b94cc5a9bb96e735b38267a
+versions: {'mix_version': 'sft-mix-v2', 'rag_prompt_version': 'rag-v1+df593554', 'message_builder': 'cb-v1+a1f08aaf', 'split_version': 'split-20261006-2f0fb25ee6d8', 'corpus_version': 'medquad-1.0.0-86e384302357'}
+train counts: {'rag_answerable': 2697, 'rag_insufficient': 500, 'closed_book': 6500} | plan: {'n_rag_answerable': 2700, 'n_rag_insufficient': 500, 'n_closed_book': 6500}
+sentinel share of RAG examples: 500/3197 = 0.156 (pre-declared ~0.16)
+closed-book vs v1: 6500/12636 = 0.514 (pre-declared 'about half')
+skipped (train): {'too_few_distractors': 3} | val sets: {'eval': 512, 'eval_rag': 254}
+[sft_build_train.json] RAG examples with distractors dropped to fit the training budget: 135/3197 = 4.223%  <-- FLAG: above 3%, user decision needed before step 3
+[sft_build_train.json]   drop events: 135; skipped: {'too_few_distractors': 3}
+[sft_build_train.json]   answerable targets cut at 256 tokens: 1168/2697
+[sft_build_train.json]   RAG prompt tokens: {'n': 3197, 'median': 1229, 'p90': 1726, 'max': 2039}; gold position: {'E1': 517, 'E2': 530, 'E3': 526, 'E4': 589, 'E5': 535}
+[sft_build_val_rag.json] RAG examples with distractors dropped to fit the training budget: 7/254 = 2.756%
+[sft_build_val_rag.json]   drop events: 7; skipped: {'too_few_distractors': 2}
+[sft_build_val_rag.json]   answerable targets cut at 256 tokens: 96/223
+[sft_build_val_rag.json]   RAG prompt tokens: {'n': 254, 'median': 1255, 'p90': 1742, 'max': 2011}; gold position: {'E1': 42, 'E2': 40, 'E3': 46, 'E4': 46, 'E5': 49}
+note: every drop is counted as caused by the 2048 budget; this is an upper bound for drops that serving's 3072 limit would not also make
+closed-book truncated at max_seq_len 1024: 177/6500
+limits: train RAG prompt+target <= 2048 (lora_sft_mixed_v2.yaml), target <= 256, closed-book <= 1024 (as v1); serving: max_input_tokens 3072 (prompt only), max_new_tokens 256
+leakage gate: {'passed': True, 'rows': {'pairs_train': 30506, 'pairs_validation': 3960, 'sft': 9697}, 'protected_record_ids': {'classifier_train': 12636, 'sft': 11154, 'threshold': 1610}, 'train_probe_sft_overlap': 97} errors: 0
+REPORT: OK
+REPORT_EXIT=0
+921625ecfdc2d1e8662d2e7646f28ac2dd8bd8299fac9325680c738ee96ee457  artifacts/models/builds/sft-mix-v2-20261007-035957/build_summary.json
+7cf77ce1214599a8d225c95e28d072fd79d6eb66fe9d2471b365cb8bf0d83be9  artifacts/models/builds/sft-mix-v2-20261007-035957/protected_check.json
+fb7860ea02ce34dc878ebd4997157a57c741dc698e24107e445a1528cc4528e8  artifacts/models/builds/sft-mix-v2-20261007-035957/sft_build_train.json
+b53e7d29564b40de7f62199d30d3a74f07c3e3728cec4aa51542c42bdabe0d8f  artifacts/models/builds/sft-mix-v2-20261007-035957/sft_build_val.json
+c3f1b617f2561c509f645851b1e53b1ef32e0826aa7f6f52535b7323d89ca202  artifacts/models/builds/sft-mix-v2-20261007-035957/sft_build_val_rag.json
+b90bfa3aa0a931c70ab9359831db5569fdd5fba8b525471b0f398d004ebe56c6  artifacts/models/builds/sft-mix-v2-20261007-035957/sft_record_ids.jsonl
+b23dd5c379f64829d1c1228cbc84fa0c1dbaaad6713cc865ce6cad084076014c  artifacts/models/builds/sft-mix-v2-20261007-035957/val_record_ids.jsonl
+artifacts/evaluation: nothing created or modified since 20261007T034907Z
+FINAL_EXIT=0 total_elapsed_s=654

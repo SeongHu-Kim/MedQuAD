@@ -1,0 +1,10 @@
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+54 passed, 3 deselected, 5 warnings in 11.94s
+PYTEST_EXIT=0
+All checks passed!
+RUFF_EXIT=0
+3 files already formatted
+FMT_EXIT=0
+Success: no issues found in 9 source files
+MYPY_EXIT=0

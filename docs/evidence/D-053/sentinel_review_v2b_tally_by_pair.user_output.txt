@@ -1,0 +1,24 @@
+# User-supplied output of sentinel_review_tally.py --by-pair, run by the user in their own terminal on
+# ~/medquad_review/sentinel_review_v2b_20261007.md (the review file was never opened in the lead's session).
+# Pasted into the session on 2026-10-07; transcribed verbatim. Per-pair lines (29 pairs) were not pasted.
+sha256: 31a6e5db400beebd3b499f67764c17a1de6e1bcc2591e268ca9492b3dae1a2d5
+verdict lines: 40 | no=18 partial=17 yes=5 blank=0 invalid=0
+sample headers parsed: 40 (verdicts attributed: 40)
+by qtype: value: no / partial / yes  (partial+yes of n)
+  causes: 2 / 3 / 1  (4 of 6)
+  exams_and_tests: 1 / 2 / 0  (2 of 3)
+  frequency: 2 / 1 / 1  (2 of 4)
+  genetic_changes: 3 / 0 / 0  (0 of 3)
+  inheritance: 3 / 1 / 0  (1 of 4)
+  research: 1 / 0 / 0  (0 of 1)
+  stages: 0 / 1 / 0  (1 of 1)
+  susceptibility: 0 / 2 / 0  (2 of 2)
+  symptoms: 3 / 3 / 3  (6 of 9)
+  treatment: 3 / 4 / 0  (4 of 7)
+by on_topic: value: no / partial / yes  (partial+yes of n)
+  1: 9 / 8 / 3  (11 of 20)
+  2: 6 / 3 / 1  (4 of 10)
+  3: 2 / 5 / 1  (6 of 8)
+  4: 0 / 1 / 0  (1 of 1)
+  5: 1 / 0 / 0  (0 of 1)
+partial+yes = 22 (limit 4) -> RESULT: FAIL
