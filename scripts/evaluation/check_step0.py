@@ -1,8 +1,11 @@
 """Verify E4 Step 0 (D-048) outputs and project the TEST runtime.
 
 Usage: python scripts/evaluation/check_step0.py [--dir artifacts/evaluation/e4/step0_dev]
-       [--pre-resume <snapshot of per_item/dev__base.jsonl taken right after the kill>]
-Writes <dir>/step0_check.json (IDs, counts, versions, timings only).
+       [--pre-resume <snapshot of per_item/dev__<resume-mode>.jsonl taken right after the kill>]
+       [--modes base rag finetuned finetuned_rag] [--resume-mode base] [--require-cited-mode MODE] [--out PATH]
+Writes <dir>/step0_check.json (IDs, counts, versions, timings only). Defaults reproduce the E4 Step 0 check;
+E4b (amendment 1, L14) adds ``--require-cited-mode finetuned_rag``: at least one answered DEV item must carry
+a valid citation, otherwise the check fails.
 """
 
 from __future__ import annotations
@@ -34,13 +37,17 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--dir", default=str(ROOT / "artifacts/evaluation/e4/step0_dev"))
     ap.add_argument("--pre-resume", default=None)
+    ap.add_argument("--modes", nargs="+", default=list(MODES))
+    ap.add_argument("--resume-mode", default="base")
+    ap.add_argument("--require-cited-mode", default=None)
+    ap.add_argument("--out", default=None)
     args = ap.parse_args()
     d = Path(args.dir)
     ex = {e.example_id: e for e in load_eval_set(ROOT / "artifacts/evaluation/evalsets/dev.jsonl")}
     out: dict[str, Any] = {"modes": {}}
     ok = True
     timings: dict[str, dict[str, float]] = {}
-    for mode in MODES:
+    for mode in args.modes:
         path = d / "per_item" / f"dev__{mode}.jsonl"
         rows = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()]
         ids = [r["example_id"] for r in rows]
@@ -105,11 +112,15 @@ def main() -> int:
         }
         if mode in RAG_MODES:
             m["missing_citations_rate"] = sum(x.abstention_reason == "missing_citations" for x in resps) / len(resps)
+        if mode == args.require_cited_mode:
+            n_cited = sum(1 for x in answered if x.citations)
+            m["answered_with_valid_citation"] = n_cited
+            ok &= n_cited >= 1
         ok &= schema_errors == 0 and len(set(ids)) == len(ids) and prov_ok and subset and m["lexical_fallback"] == 0
         out["modes"][mode] = m
     if args.pre_resume:
         before = Path(args.pre_resume).read_text(encoding="utf-8").splitlines()
-        after = (d / "per_item" / "dev__base.jsonl").read_text(encoding="utf-8").splitlines()
+        after = (d / "per_item" / f"dev__{args.resume_mode}.jsonl").read_text(encoding="utf-8").splitlines()
         out["resume_test"] = {
             "rows_before_kill": len(before),
             "prefix_byte_identical": after[: len(before)] == before,
@@ -121,12 +132,14 @@ def main() -> int:
     # no-generation mean; other items assumed to generate (upper bound: early gate abstentions are faster).
     proj = {}
     for mode, parts in PLAN.items():
+        if mode not in timings:
+            continue
         t = timings[mode]
         gen_items = sum(v for k, v in parts.items() if k != "c_personal")
         proj[mode] = gen_items * t["gen_mean_s"] + parts.get("c_personal", 0) * t["early_mean_s"]
     out["projection_s"] = {**proj, "total": sum(proj.values()), "total_hours": sum(proj.values()) / 3600}
     out["passed"] = bool(ok)
-    (d / "step0_check.json").write_text(json.dumps(out, indent=1, sort_keys=True, default=str) + "\n")
+    Path(args.out or d / "step0_check.json").write_text(json.dumps(out, indent=1, sort_keys=True, default=str) + "\n")
     print(json.dumps(out, indent=1, default=str)[:6000])
     return 0 if ok else 1
 

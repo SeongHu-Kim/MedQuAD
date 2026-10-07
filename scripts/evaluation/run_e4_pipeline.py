@@ -32,7 +32,14 @@ from medquad_qa.evaluation.fixture_retriever import FixtureRetriever
 
 ROOT = Path(__file__).resolve().parents[2]
 TOP_K = 5
-ENV_KEYS = ("MEDQUAD_RETRIEVER", "MEDQUAD_INDEX_TEXT_MODE", "MEDQUAD_GATE_MODE", "MEDQUAD_QDRANT_URL", "HF_HUB_OFFLINE")
+ENV_KEYS = (
+    "MEDQUAD_RETRIEVER",
+    "MEDQUAD_INDEX_TEXT_MODE",
+    "MEDQUAD_GATE_MODE",
+    "MEDQUAD_QDRANT_URL",
+    "MEDQUAD_ADAPTER_DIR",
+    "HF_HUB_OFFLINE",
+)
 
 
 def git_sha() -> str:
