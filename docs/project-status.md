@@ -3,7 +3,7 @@
 Owner: lead. Status categories: **COMPLETE** (implemented, executed, validated) ·
 **PARTIAL** (implemented, missing execution/validation) · **BLOCKED** · **PENDING** (not started).
 
-Last updated: 2026-10-06 (session 2, lead)
+Last updated: 2026-10-08 (session 3, lead). The task-ledger rows below reflect D-051 to D-058.
 
 ## Session log
 
@@ -142,6 +142,18 @@ Current verified status. The "BLOCKED" Docker entries in the session-1 log above
 - **E4 leakage gate PASS** (`artifacts/evaluation/leakage/protected_check_m4.json`): no eval group overlaps the SFT data (12,636 records, M4 run) or the classifier train pairs; no TEST item overlaps the validation/threshold data. train_probe ∩ SFT = 100/100, as designed.
 - **R4 TEST retrieval runs** are being redone on CPU, because 3 of the 8 overlapped the M4 launch on the GPU. The GPU runs are kept as a cross-check, and no latency is reported for runs that overlapped M4.
 
+### Session 3 (cont.) — 2026-10-06 to 2026-10-08: E4, E4b, remediation start
+
+Decisions D-051 to D-058 in `docs/decisions.md` hold the details; commits in brackets.
+- D-051: E4 run as frozen at `1c84b60` [4a1b2de]. E4b pre-declaration [b502e60].
+- D-052: F-009 (high) and F-010 (medium) opened; deployment and demo blocked until the user approves remediation evidence [6b4c44b].
+- D-053/D-054: adapter v2 superseded, v2b rejected after the user's review, v2c accepted and trained (`sft-main-20261007-104043-4c946221`, 607/607 steps, cap 7 h) [f2f93de, 5873adf, cfa2132].
+- D-055/D-056: E4 (v1) results committed; Holm families restored to the pre-declared ones; private-reserve hashes on record [2b3593c].
+- D-057: E4b harness and analysis definitions fixed before any E4b output [960849e].
+- D-058: E4b results; v2c not promoted (`adapters/CURRENT` stays v1); F-011 (medium) opened [ff211fe].
+- R5 closed as complete as of the `1c84b60` freeze (user decision, 2026-10-08). F-010 is tracked as a post-E4 follow-up under the F-009/F-010/F-011 remediation.
+- Remediation (D-052 rules): acceptance criteria `docs/evaluation/remediation_f009_f010_f011_acceptance.md` committed before any fresh probe exists. Next: fresh probes written and hash-registered, then the safety change, one fresh retest, and the four-mode regression.
+
 ## Resume checklist (session 2)
 
 1. `id | grep docker && docker info && docker compose version` — must succeed; else stop and report.
@@ -162,7 +174,7 @@ Current verified status. The "BLOCKED" Docker entries in the session-1 log above
 ## Task ledger
 
 Gate: G1 = architecture gate (all plans reviewed + lead sends START IMPLEMENTATION).
-Status of every task below: **PENDING** (team not yet spawned).
+A task without a status in its ID cell has not started.
 
 ### data-steward (owns src/medquad_qa/data/, configs/data/, scripts/data/, tests/data/, docs/data/, data/)
 | ID | Task | Depends | Acceptance |
@@ -181,7 +193,7 @@ Status of every task below: **PENDING** (team not yet spawned).
 | R2 (COMPLETE: real BM25 indexes bm25-answer-3c6bf6f998cf, bm25-qa-d5f777b26f79) | BM25 retriever (common interface), lexical fallback | G1, fixtures | unit tests on fixtures; runs on real corpus after D2 |
 | R3 (COMPLETE on local mode: 4 real indexes on corpus 86e384302357, 16,336 records / 26,596 chunks, verify ok; server-mode Qdrant build pending S4) | Dense retriever + Qdrant index lifecycle + index manifest | R2, D2 | build/rebuild/verify commands; manifest w/ model rev + corpus_version |
 | R4 (COMPLETE: 8 TEST runs on CPU; frozen dense:qa R@1 0.830 / R@5 0.950 / MRR 0.884; GPU and CPU rankings identical) | Hybrid (RRF) + optional reranker; answer-only vs Q+A indexing variants | R3 | all variants run on frozen eval queries |
-| R5 (PARTIAL: real end-to-end on DEV 60 done; config frozen (D-037); prompt A/B pending; F-002..F-006 committed, retest pending) | LangChain RAG pipeline, prompt templates, citation validation, abstention | R2, M1 | invalid IDs stripped+flagged; injection-in-evidence tests |
+| R5 (COMPLETE as of the `1c84b60` freeze (user decision, 2026-10-08); F-010 tracked as a post-E4 follow-up under the F-009/F-010/F-011 remediation) | LangChain RAG pipeline, prompt templates, citation validation, abstention | R2, M1 | invalid IDs stripped+flagged; injection-in-evidence tests |
 | R6 | Tests, failure cases, docs; respond to E5 review | R2–R5 | tests green; findings resolved/documented |
 
 ### model-engineer (owns models/, training/, configs/models/, configs/training/, scripts/training/, tests/models/, tests/training/, docs/models/, artifacts/models/)
@@ -210,9 +222,9 @@ Status of every task below: **PENDING** (team not yet spawned).
 | E1 (COMPLETE: F-001 retest PASS; split sign-off granted) | Eval tracks, leakage controls, answerability label design; review D4 split design | — | written approval/requests to data-steward & model-engineer |
 | E2 (COMPLETE: 700 frozen items, A 300 / C 240 / probe 100 / dev 60, sha256-pinned, leakage 0 errors; spot-check sheet exported, non-blocking) | Frozen eval set (paraphrases, hard negatives, case types) with label provenance | D4 | manifest w/ checksum; no test-set tuning |
 | E3 (COMPLETE: harness + fixtures + threat model, 38 offline tests) | Metric harness: retrieval, citation validity/support, rubric, abstention, classifier, latency | G1 | unit tests on fixtures |
-| E4 | Run 4-way comparison (base / rag / finetuned / finetuned_rag) + retriever comparison | E2, E3, R5, M4 | saved metrics + failure examples |
-| E5 (PARTIAL: first pass done, 72 passed, open findings marked strict-xfail; F-002 high open) | Security/safety tests: injection, citations, personalized advice, malformed input, missing artifacts, secrets, logging | R5, S2 | severity-ranked findings + retests |
-| E6 | Independent evaluation report | E4, E5 | report citing artifacts |
+| E4 (COMPLETE: E4 v1 results D-055 [2b3593c]; E4b v2c results D-058 [ff211fe]) | Run 4-way comparison (base / rag / finetuned / finetuned_rag) + retriever comparison | E2, E3, R5, M4 | saved metrics + failure examples |
+| E5 (PARTIAL: F-002 and F-007 resolved (D-039, D-041); F-009 high, F-010 and F-011 medium open; remediation under D-052 with pre-declared acceptance criteria) | Security/safety tests: injection, citations, personalized advice, malformed input, missing artifacts, secrets, logging | R5, S2 | severity-ranked findings + retests |
+| E6 (PENDING: outline approved 2026-10-08; final after the remediation retest; latency not measured unless the user approves the S3 run) | Independent evaluation report | E4, E5 | report citing artifacts |
 
 ### lead
 | ID | Task | Depends | Acceptance |
