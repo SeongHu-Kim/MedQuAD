@@ -42,6 +42,33 @@ REVIEWED_FALSE_POSITIVES = {
         "Secret Keyword",
         "f580337b1cc1d9726ec955972c2e635dd90b7bb0",
     ),  # synthetic canary marker named SECRET, not a credential
+    # D-053 evidence files (lead-owned, sha256-cited in D-053, must not be edited): Base64-entropy hits are
+    # build-output path strings ("artifacts/models/builds/sft-mix-v2…"), reviewed 2026-10-07, not credentials.
+    (
+        "docs/evidence/D-053/e4b_step2_20261007T034907Z.log",
+        "Base64 High Entropy String",
+        "9a4591a9282d75d934b192fb365f4769582353f9",
+    ),
+    (
+        "docs/evidence/D-053/e4b_step2_summary_20261007T034907Z.json",
+        "Base64 High Entropy String",
+        "9a4591a9282d75d934b192fb365f4769582353f9",
+    ),
+    (
+        "docs/evidence/D-053/e4b_step3a_compare.log",
+        "Base64 High Entropy String",
+        "9a4591a9282d75d934b192fb365f4769582353f9",
+    ),
+    (
+        "docs/evidence/D-053/e4b_step3b_20261007T082524Z.log",
+        "Base64 High Entropy String",
+        "6995af548d65bc8cdd5e6e7195795baaaa161f10",
+    ),
+    (
+        "docs/evidence/D-053/e4b_v2c_20261007T093306Z.log",
+        "Base64 High Entropy String",
+        "da6ddbee9c17381d836b0fabc55b2e38565ef492",
+    ),
 }
 
 

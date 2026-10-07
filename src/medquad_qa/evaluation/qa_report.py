@@ -59,12 +59,15 @@ def summarize_mode(
     if len(modes) != 1:
         raise ValueError(f"mixed experiment modes in one run: {sorted(modes)}")
     mode = modes.pop()
+    # Fixture-served items (Track C conflict/injection; retriever "fixture") legitimately report the fixture corpus.
+    real = [r for r in responses if r.retriever != "fixture"] or list(responses)
     versions = {
-        k: sorted({str(getattr(r, k)) for r in responses})
+        k: sorted({str(getattr(r, k)) for r in (responses if k in ("model_version", "prompt_version") else real)})
         for k in ("model_version", "prompt_version", "corpus_version", "index_version", "retriever")
     }
+    versions["n_fixture_served"] = [str(sum(r.retriever == "fixture" for r in responses))]
     for k, v in versions.items():
-        if len(v) > 1 and k != "retriever":
+        if len(v) > 1 and k not in ("retriever", "n_fixture_served"):
             raise ValueError(f"{k} changed within one run: {v}")
 
     outcomes = [

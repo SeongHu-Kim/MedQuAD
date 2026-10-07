@@ -1,0 +1,600 @@
+{
+ "completed_at": "2026-10-07T13:37:34+00:00",
+ "eval_run_id": "e4-1c84b60-20261006",
+ "metrics": [
+  {
+   "metric": "recall_at_1",
+   "mode": "bm25_answer",
+   "track": "A",
+   "value": 0.5033333333333333
+  },
+  {
+   "metric": "recall_at_5",
+   "mode": "bm25_answer",
+   "track": "A",
+   "value": 0.7433333333333333
+  },
+  {
+   "metric": "mrr_at_20",
+   "mode": "bm25_answer",
+   "track": "A",
+   "value": 0.6035023292983819
+  },
+  {
+   "metric": "recall_at_1",
+   "mode": "bm25_qa",
+   "track": "A",
+   "value": 0.6066666666666667
+  },
+  {
+   "metric": "recall_at_5",
+   "mode": "bm25_qa",
+   "track": "A",
+   "value": 0.8433333333333334
+  },
+  {
+   "metric": "mrr_at_20",
+   "mode": "bm25_qa",
+   "track": "A",
+   "value": 0.7068802891008773
+  },
+  {
+   "metric": "recall_at_1",
+   "mode": "dense_answer",
+   "track": "A",
+   "value": 0.6733333333333333
+  },
+  {
+   "metric": "recall_at_5",
+   "mode": "dense_answer",
+   "track": "A",
+   "value": 0.89
+  },
+  {
+   "metric": "mrr_at_20",
+   "mode": "dense_answer",
+   "track": "A",
+   "value": 0.7653718133718134
+  },
+  {
+   "metric": "recall_at_1",
+   "mode": "dense_qa",
+   "track": "A",
+   "value": 0.83
+  },
+  {
+   "metric": "recall_at_5",
+   "mode": "dense_qa",
+   "track": "A",
+   "value": 0.95
+  },
+  {
+   "metric": "mrr_at_20",
+   "mode": "dense_qa",
+   "track": "A",
+   "value": 0.8838928571428571
+  },
+  {
+   "metric": "recall_at_1",
+   "mode": "hybrid_rrf+ce_answer",
+   "track": "A",
+   "value": 0.6933333333333334
+  },
+  {
+   "metric": "recall_at_5",
+   "mode": "hybrid_rrf+ce_answer",
+   "track": "A",
+   "value": 0.85
+  },
+  {
+   "metric": "mrr_at_20",
+   "mode": "hybrid_rrf+ce_answer",
+   "track": "A",
+   "value": 0.7656049658402599
+  },
+  {
+   "metric": "recall_at_1",
+   "mode": "hybrid_rrf+ce_qa",
+   "track": "A",
+   "value": 0.6933333333333334
+  },
+  {
+   "metric": "recall_at_5",
+   "mode": "hybrid_rrf+ce_qa",
+   "track": "A",
+   "value": 0.87
+  },
+  {
+   "metric": "mrr_at_20",
+   "mode": "hybrid_rrf+ce_qa",
+   "track": "A",
+   "value": 0.7708510009798709
+  },
+  {
+   "metric": "recall_at_1",
+   "mode": "hybrid_rrf_answer",
+   "track": "A",
+   "value": 0.6433333333333333
+  },
+  {
+   "metric": "recall_at_5",
+   "mode": "hybrid_rrf_answer",
+   "track": "A",
+   "value": 0.8533333333333334
+  },
+  {
+   "metric": "mrr_at_20",
+   "mode": "hybrid_rrf_answer",
+   "track": "A",
+   "value": 0.7341200402910929
+  },
+  {
+   "metric": "recall_at_1",
+   "mode": "hybrid_rrf_qa",
+   "track": "A",
+   "value": 0.7466666666666667
+  },
+  {
+   "metric": "recall_at_5",
+   "mode": "hybrid_rrf_qa",
+   "track": "A",
+   "value": 0.92
+  },
+  {
+   "metric": "mrr_at_20",
+   "mode": "hybrid_rrf_qa",
+   "track": "A",
+   "value": 0.8233120860620861
+  },
+  {
+   "metric": "over_refusal_rate",
+   "mode": "base",
+   "track": "B",
+   "value": 0.0
+  },
+  {
+   "metric": "ref_coverage",
+   "mode": "base",
+   "track": "B",
+   "value": 0.38362866762866765
+  },
+  {
+   "metric": "ref_unsupported_claim_rate",
+   "mode": "base",
+   "track": "B",
+   "value": 0.7140952952276481
+  },
+  {
+   "metric": "p95_latency_ms",
+   "mode": "base",
+   "track": "B",
+   "value": 13491.77
+  },
+  {
+   "metric": "median_latency_ms",
+   "mode": "base",
+   "track": "B",
+   "value": 12810.400000000001
+  },
+  {
+   "metric": "over_refusal_rate",
+   "mode": "finetuned",
+   "track": "B",
+   "value": 0.0
+  },
+  {
+   "metric": "ref_coverage",
+   "mode": "finetuned",
+   "track": "B",
+   "value": 0.35362012987012986
+  },
+  {
+   "metric": "ref_unsupported_claim_rate",
+   "mode": "finetuned",
+   "track": "B",
+   "value": 0.4332261026011026
+  },
+  {
+   "metric": "p95_latency_ms",
+   "mode": "finetuned",
+   "track": "B",
+   "value": 14965.31
+  },
+  {
+   "metric": "median_latency_ms",
+   "mode": "finetuned",
+   "track": "B",
+   "value": 6933.15
+  },
+  {
+   "metric": "over_refusal_rate",
+   "mode": "finetuned_rag",
+   "track": "B",
+   "value": 0.9766666666666667
+  },
+  {
+   "metric": "ref_coverage",
+   "mode": "finetuned_rag",
+   "track": "B",
+   "value": 0.023333333333333334
+  },
+  {
+   "metric": "ref_unsupported_claim_rate",
+   "mode": "finetuned_rag",
+   "track": "B",
+   "value": 0.07142857142857142
+  },
+  {
+   "metric": "p95_latency_ms",
+   "mode": "finetuned_rag",
+   "track": "B",
+   "value": 16275.75
+  },
+  {
+   "metric": "median_latency_ms",
+   "mode": "finetuned_rag",
+   "track": "B",
+   "value": 10185.3
+  },
+  {
+   "metric": "citation_validity",
+   "mode": "finetuned_rag",
+   "track": "B",
+   "value": 1.0
+  },
+  {
+   "metric": "citation_support",
+   "mode": "finetuned_rag",
+   "track": "B",
+   "value": 1.0
+  },
+  {
+   "metric": "unsupported_claim_rate",
+   "mode": "finetuned_rag",
+   "track": "B",
+   "value": 0.0
+  },
+  {
+   "metric": "over_refusal_rate",
+   "mode": "rag",
+   "track": "B",
+   "value": 0.19
+  },
+  {
+   "metric": "ref_coverage",
+   "mode": "rag",
+   "track": "B",
+   "value": 0.37855194805194803
+  },
+  {
+   "metric": "ref_unsupported_claim_rate",
+   "mode": "rag",
+   "track": "B",
+   "value": 0.26780325298843816
+  },
+  {
+   "metric": "p95_latency_ms",
+   "mode": "rag",
+   "track": "B",
+   "value": 12317.050000000001
+  },
+  {
+   "metric": "median_latency_ms",
+   "mode": "rag",
+   "track": "B",
+   "value": 5484.75
+  },
+  {
+   "metric": "citation_validity",
+   "mode": "rag",
+   "track": "B",
+   "value": 1.0
+  },
+  {
+   "metric": "citation_support",
+   "mode": "rag",
+   "track": "B",
+   "value": 0.8571428571428571
+  },
+  {
+   "metric": "unsupported_claim_rate",
+   "mode": "rag",
+   "track": "B",
+   "value": 0.09987966305655836
+  },
+  {
+   "metric": "over_refusal_rate",
+   "mode": "base",
+   "track": "C",
+   "value": 0.0
+  },
+  {
+   "metric": "abstain_recall",
+   "mode": "base",
+   "track": "C",
+   "value": 0.75
+  },
+  {
+   "metric": "ref_coverage",
+   "mode": "base",
+   "track": "C",
+   "value": 0.3810128066378066
+  },
+  {
+   "metric": "ref_unsupported_claim_rate",
+   "mode": "base",
+   "track": "C",
+   "value": 0.7275835275835275
+  },
+  {
+   "metric": "p95_latency_ms",
+   "mode": "base",
+   "track": "C",
+   "value": 12935.535
+  },
+  {
+   "metric": "median_latency_ms",
+   "mode": "base",
+   "track": "C",
+   "value": 9912.2
+  },
+  {
+   "metric": "over_refusal_rate",
+   "mode": "finetuned",
+   "track": "C",
+   "value": 0.0
+  },
+  {
+   "metric": "abstain_recall",
+   "mode": "finetuned",
+   "track": "C",
+   "value": 0.75
+  },
+  {
+   "metric": "ref_coverage",
+   "mode": "finetuned",
+   "track": "C",
+   "value": 0.45079455266955265
+  },
+  {
+   "metric": "ref_unsupported_claim_rate",
+   "mode": "finetuned",
+   "track": "C",
+   "value": 0.34456272893772893
+  },
+  {
+   "metric": "p95_latency_ms",
+   "mode": "finetuned",
+   "track": "C",
+   "value": 15063.2
+  },
+  {
+   "metric": "median_latency_ms",
+   "mode": "finetuned",
+   "track": "C",
+   "value": 2562.05
+  },
+  {
+   "metric": "over_refusal_rate",
+   "mode": "finetuned_rag",
+   "track": "C",
+   "value": 0.85
+  },
+  {
+   "metric": "abstain_recall",
+   "mode": "finetuned_rag",
+   "track": "C",
+   "value": 0.9928571428571429
+  },
+  {
+   "metric": "ref_coverage",
+   "mode": "finetuned_rag",
+   "track": "C",
+   "value": 0.0
+  },
+  {
+   "metric": "p95_latency_ms",
+   "mode": "finetuned_rag",
+   "track": "C",
+   "value": 15902.18
+  },
+  {
+   "metric": "median_latency_ms",
+   "mode": "finetuned_rag",
+   "track": "C",
+   "value": 1803.6999999999998
+  },
+  {
+   "metric": "citation_validity",
+   "mode": "finetuned_rag",
+   "track": "C",
+   "value": 1.0
+  },
+  {
+   "metric": "citation_support",
+   "mode": "finetuned_rag",
+   "track": "C",
+   "value": 0.8947368421052632
+  },
+  {
+   "metric": "unsupported_claim_rate",
+   "mode": "finetuned_rag",
+   "track": "C",
+   "value": 0.125
+  },
+  {
+   "metric": "injection_canary_leak_rate",
+   "mode": "finetuned_rag",
+   "track": "C",
+   "value": 0.05
+  },
+  {
+   "metric": "over_refusal_rate",
+   "mode": "rag",
+   "track": "C",
+   "value": 0.18333333333333332
+  },
+  {
+   "metric": "abstain_recall",
+   "mode": "rag",
+   "track": "C",
+   "value": 0.9357142857142857
+  },
+  {
+   "metric": "ref_coverage",
+   "mode": "rag",
+   "track": "C",
+   "value": 0.3047321428571429
+  },
+  {
+   "metric": "ref_unsupported_claim_rate",
+   "mode": "rag",
+   "track": "C",
+   "value": 0.22565681444991792
+  },
+  {
+   "metric": "p95_latency_ms",
+   "mode": "rag",
+   "track": "C",
+   "value": 11530.914999999995
+  },
+  {
+   "metric": "median_latency_ms",
+   "mode": "rag",
+   "track": "C",
+   "value": 576.6500000000001
+  },
+  {
+   "metric": "citation_validity",
+   "mode": "rag",
+   "track": "C",
+   "value": 1.0
+  },
+  {
+   "metric": "citation_support",
+   "mode": "rag",
+   "track": "C",
+   "value": 0.8539325842696629
+  },
+  {
+   "metric": "unsupported_claim_rate",
+   "mode": "rag",
+   "track": "C",
+   "value": 0.1377952755905512
+  },
+  {
+   "metric": "injection_canary_leak_rate",
+   "mode": "rag",
+   "track": "C",
+   "value": 0.4
+  },
+  {
+   "metric": "over_refusal_rate",
+   "mode": "base",
+   "track": "B_probe",
+   "value": 0.0
+  },
+  {
+   "metric": "ref_coverage",
+   "mode": "base",
+   "track": "B_probe",
+   "value": 0.4053935786435786
+  },
+  {
+   "metric": "ref_unsupported_claim_rate",
+   "mode": "base",
+   "track": "B_probe",
+   "value": 0.7008107448107448
+  },
+  {
+   "metric": "p95_latency_ms",
+   "mode": "base",
+   "track": "B_probe",
+   "value": 12935.205
+  },
+  {
+   "metric": "median_latency_ms",
+   "mode": "base",
+   "track": "B_probe",
+   "value": 12919.6
+  },
+  {
+   "metric": "over_refusal_rate",
+   "mode": "finetuned",
+   "track": "B_probe",
+   "value": 0.0
+  },
+  {
+   "metric": "ref_coverage",
+   "mode": "finetuned",
+   "track": "B_probe",
+   "value": 0.37885966810966815
+  },
+  {
+   "metric": "ref_unsupported_claim_rate",
+   "mode": "finetuned",
+   "track": "B_probe",
+   "value": 0.36358008658008656
+  },
+  {
+   "metric": "p95_latency_ms",
+   "mode": "finetuned",
+   "track": "B_probe",
+   "value": 15059.035
+  },
+  {
+   "metric": "median_latency_ms",
+   "mode": "finetuned",
+   "track": "B_probe",
+   "value": 7415.35
+  },
+  {
+   "metric": "auroc",
+   "mode": "keras_bigru",
+   "track": "classifier",
+   "value": 0.9335552432144959
+  },
+  {
+   "metric": "auprc",
+   "mode": "keras_bigru",
+   "track": "classifier",
+   "value": 0.7861369611445339
+  },
+  {
+   "metric": "brier",
+   "mode": "keras_bigru",
+   "track": "classifier",
+   "value": 0.08647177294632787
+  },
+  {
+   "metric": "ece",
+   "mode": "keras_bigru",
+   "track": "classifier",
+   "value": 0.07665770700507767
+  },
+  {
+   "metric": "auroc",
+   "mode": "lexical_lr",
+   "track": "classifier",
+   "value": 0.7840565189588912
+  },
+  {
+   "metric": "auprc",
+   "mode": "lexical_lr",
+   "track": "classifier",
+   "value": 0.3767383545001246
+  },
+  {
+   "metric": "brier",
+   "mode": "lexical_lr",
+   "track": "classifier",
+   "value": 0.16493821482077292
+  },
+  {
+   "metric": "ece",
+   "mode": "lexical_lr",
+   "track": "classifier",
+   "value": 0.2134631905304529
+  }
+ ]
+}

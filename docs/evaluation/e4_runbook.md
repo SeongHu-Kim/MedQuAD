@@ -33,6 +33,13 @@ tmux new-session -d -s medquad-e4 'cd /home/hangds/Desktop/SeongHuKim/MedQuAD &&
 ```
 If you want to stop after tier 3 (D-048), use `TIERS="1 2 3"`.
 
+**Actual launch (2026-10-06T12:52:28Z, D-051).** The lead ran it in tmux session `medquad-e4` from the repo root. It used a no-`tee` form so that the script's real exit code is recorded; with `| tee`, the pipeline's status would be tee's:
+```
+LOG=artifacts/logs/e4_full_20261006T125228Z.log
+TIERS="1 2 3 4" bash scripts/evaluation/e4_full.sh >"$LOG" 2>&1; echo "E4_FULL_EXIT=$? <utc>" >>"$LOG"
+```
+The run is finished when `E4_FULL_EXIT=0` appears in the log. A non-zero value means the run stopped early. Report the value first, then resume with the same command.
+
 ## Check progress
 - To attach, run `tmux attach -t medquad-e4`. To detach without stopping the run, press `Ctrl-b d`.
 - To follow the log, run `tail -f artifacts/logs/e4_full_*.log`. It prints one `<mode> done …` line per set×mode and one `TIER_<n>_DONE <utc>` line per tier.

@@ -1,0 +1,84 @@
+--- /tmp/claude-1000/-home-hangds-Desktop-SeongHuKim-MedQuAD/8509dc6a-7edf-42b5-bc59-cbc01100fbfa/scratchpad/score_e4.pre_holmfix.py	2026-10-07 22:23:49.203088698 +0900
++++ scripts/evaluation/score_e4.py	2026-10-07 22:25:08.444307245 +0900
+@@ -29,11 +29,11 @@
+ from typing import Any
+ 
+ from medquad_qa.contracts import RAG_MODES, EvaluationExample, QAResponse
+-from medquad_qa.evaluation import latency, text_metrics
++from medquad_qa.evaluation import latency, qa_report, text_metrics
+ from medquad_qa.evaluation.citation_metrics import aggregate as agg_citations
+ from medquad_qa.evaluation.citation_metrics import score_response
+ from medquad_qa.evaluation.claims import extract_claims, split_sentences
+-from medquad_qa.evaluation.evalset import load_eval_set
++from medquad_qa.evaluation.evalset import load_eval_set, sha256_file
+ from medquad_qa.evaluation.qa_report import is_resource_list_gold, summarize_mode
+ from medquad_qa.evaluation.stats import exact_mcnemar, paired_cluster_bootstrap
+ from medquad_qa.evaluation.support import NLISupportScorer
+@@ -52,6 +52,13 @@
+ ROOT = Path(__file__).resolve().parents[2]
+ MAX_REF_SENTENCES = 12
+ MODE_ORDER = ("base", "rag", "finetuned", "finetuned_rag")
++PRIMARY_PAIRED_METRICS = ("ref_coverage", "answered_mcnemar")
++EXPLORATORY_PAIRED_METRICS = ("ref_unsupported_answered_by_both",)
++
++
++def family_p_values(comps: dict[str, Any], metrics: tuple[str, ...]) -> dict[str, float]:
++    """Raw p-values of one Holm family: '<mode pair>::<metric>' -> p."""
++    return {f"{k}::{mt}": v[mt]["p_value"] for k, v in comps.items() for mt in metrics if mt in v}
+ 
+ 
+ def load_rows(path: Path) -> dict[str, dict[str, Any]]:
+@@ -116,7 +123,23 @@
+             answers[d["record_id"]] = d["answer"]
+     scorer = Scorer(nli, thr, answers)
+     runs = Path(args.runs)
+-    out: dict[str, Any] = {"nli": f"{cfg['model_id']}@{cfg['revision']}", "threshold": thr, "sets": {}}
++    out: dict[str, Any] = {
++        "nli": f"{cfg['model_id']}@{cfg['revision']}",
++        "threshold": thr,
++        "provenance": {
++            # hashes of the scoring code and inputs as read at run time
++            "score_e4_py_sha256": sha256_file(Path(__file__)),
++            "qa_report_py_sha256": sha256_file(Path(qa_report.__file__)),
++            "metrics_config_sha256": sha256_file(ROOT / "configs/evaluation/metrics.json"),
++            "corpus_sha256": sha256_file(ROOT / "data/processed/corpus.jsonl"),
++            "per_item_sha256": {p.name: sha256_file(p) for p in sorted((runs / "per_item").glob("*.jsonl"))},
++            "holm_families": {
++                "primary": list(PRIMARY_PAIRED_METRICS),
++                "exploratory": list(EXPLORATORY_PAIRED_METRICS),
++            },
++        },
++        "sets": {},
++    }
+     failures: list[dict[str, Any]] = []
+     per_item_scores: dict[tuple[str, str], dict[str, dict[str, Any]]] = {}
+ 
+@@ -290,14 +313,12 @@
+                     [not ia[i]["abstained"] for i in both], [not ib[i]["abstained"] for i in both]
+                 )
+             comps[f"{b} vs {a}"] = entry
+-        pv = {
+-            f"{k}::{metric}": v[metric]["p_value"]
+-            for k, v in comps.items()
+-            for metric in ("ref_coverage", "ref_unsupported_answered_by_both", "answered_mcnemar")
+-            if metric in v
+-        }
++
+         set_out["paired"] = comps
+-        set_out["paired_holm_adjusted_p"] = holm(pv)
++        # Pre-declared (primary) family: reference coverage + answered McNemar for each mode pair.
++        set_out["paired_holm_adjusted_p_primary"] = holm(family_p_values(comps, PRIMARY_PAIRED_METRICS))
++        # Added after scoring began (not pre-declared): adjusted within its own family per set.
++        set_out["paired_holm_adjusted_p_exploratory"] = holm(family_p_values(comps, EXPLORATORY_PAIRED_METRICS))
+         out["sets"][set_name] = set_out
+ 
+     out_path = Path(args.out)
+@@ -314,7 +335,7 @@
+     with fail_path.open("w", encoding="utf-8") as fh:
+         for f in failures:
+             fh.write(json.dumps(f, ensure_ascii=False) + "\n")
+-    by = defaultdict(int)
++    by: defaultdict[tuple[str, str], int] = defaultdict(int)
+     for f in failures:
+         by[(f["set"], f["mode"])] += 1
+     print("failure examples:", dict(by))

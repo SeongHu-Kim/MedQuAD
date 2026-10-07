@@ -1,0 +1,90 @@
+{
+ "build_pipeline_s": 11.4,
+ "env": {
+  "HF_HUB_OFFLINE": "1",
+  "MEDQUAD_GATE_MODE": "auto",
+  "MEDQUAD_INDEX_TEXT_MODE": "question_answer",
+  "MEDQUAD_QDRANT_URL": null,
+  "MEDQUAD_RETRIEVER": "dense_fallback"
+ },
+ "evalset_manifest_sha256": "eb4f03ffac7e260133faa949515481966765637f51ab180b5b777df3fe6d4bb9",
+ "evalset_sha256": "db3d51bda0f324805f352328822c024748b6b575a2a4ee67b392e7b83eae6068",
+ "git_sha": "b502e604765b2066b52000991c9b2f550217839b",
+ "limit": null,
+ "mode": "base",
+ "n_errors_this_session": 0,
+ "n_examples": 300,
+ "n_new_rows_this_session": 300,
+ "n_resumed_rows": 0,
+ "n_rows_total": 300,
+ "n_skipped_fixture_items": 0,
+ "notes_prefix": null,
+ "per_item_file": "artifacts/evaluation/e4/runs/per_item/test_track_a__base.jsonl",
+ "platform": "Linux-7.0.0-1019-nvidia-aarch64-with-glibc2.39",
+ "readiness": [
+  {
+   "degraded": false,
+   "detail": null,
+   "name": "corpus",
+   "ok": true,
+   "required": true,
+   "version": "medquad-1.0.0-86e384302357"
+  },
+  {
+   "degraded": false,
+   "detail": null,
+   "name": "retriever:bm25",
+   "ok": true,
+   "required": false,
+   "version": "bm25-qa-d5f777b26f79"
+  },
+  {
+   "degraded": false,
+   "detail": null,
+   "name": "retriever:dense",
+   "ok": true,
+   "required": false,
+   "version": "dense-qa-dc6b6a345fca"
+  },
+  {
+   "degraded": false,
+   "detail": "gate=predictor",
+   "name": "answerability",
+   "ok": true,
+   "required": false,
+   "version": "answerability-lexlr@3defcd00a31f:maxf1-val:0.307172"
+  },
+  {
+   "degraded": false,
+   "detail": null,
+   "name": "generator:base",
+   "ok": true,
+   "required": true,
+   "version": "Qwen/Qwen3-4B-Instruct-2507@cdbee75f17c01a7cc42f958dc650907174af0554"
+  },
+  {
+   "degraded": false,
+   "detail": null,
+   "name": "generator:finetuned",
+   "ok": true,
+   "required": false,
+   "version": "Qwen/Qwen3-4B-Instruct-2507@cdbee75f17c01a7cc42f958dc650907174af0554+lora:sft-main-20261006-081347-3f16e30e"
+  }
+ ],
+ "set": "test_track_a",
+ "smoke_fake_generator": false,
+ "started_at": "2026-10-06T12:52:40+00:00",
+ "top_k": 5,
+ "versions": {
+  "answerability_threshold_version": "answerability-lexlr@3defcd00a31f:maxf1-val:0.307172",
+  "closed_book_prompt_version": "cb-v1+a1f08aaf",
+  "corpus_version": "medquad-1.0.0-86e384302357",
+  "finetuned_model_version": "Qwen/Qwen3-4B-Instruct-2507@cdbee75f17c01a7cc42f958dc650907174af0554+lora:sft-main-20261006-081347-3f16e30e",
+  "index_version": "dense-qa-dc6b6a345fca",
+  "model_version": "Qwen/Qwen3-4B-Instruct-2507@cdbee75f17c01a7cc42f958dc650907174af0554",
+  "prompt_version": "rag-v1+df593554",
+  "retriever": "dense:qa",
+  "safety_rules_version": "safety-v2+43836b6c"
+ },
+ "wall_s": 3360.1
+}
