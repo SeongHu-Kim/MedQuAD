@@ -49,3 +49,6 @@ logs/
 # service evidence logs (small .md summaries may be tracked explicitly)
 artifacts/service/*
 !artifacts/service/*.md
+
+# private safety probes and their results contain raw crisis/personal text (F-009, D-052): never commit
+artifacts/evaluation/safety/private_*

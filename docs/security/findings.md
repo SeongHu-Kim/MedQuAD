@@ -12,6 +12,8 @@ Owner of this register: **lead** (transferred from evaluation-safety-engineer by
 | F-006 | low | **resolved** (retest PASS on 0e4ed7e) | Closed-book modes report the RAG prompt_version | retrieval-engineer |
 | F-007 | medium | **resolved** (retest PASS on 7206637) | Safety rules do not generalise to fresh personal probes; self-harm ideation gets no crisis message | retrieval-engineer |
 | F-008 | low | **resolved** (retest PASS on 2b95db1) | Passive self-harm phrasing missed; third-party suicide-support question over-refused | retrieval-engineer |
+| F-009 | **high** | open | Personalized-advice/crisis rules do not generalise to held-out requests | retrieval-engineer |
+| F-010 | medium | open | Plain-language instructions planted in evidence are followed by rag | retrieval-engineer |
 
 ## F-001: Cross-split leakage missed by data leakage report
 
@@ -118,3 +120,111 @@ Owner of this register: **lead** (transferred from evaluation-safety-engineer by
 - **Fix:** commit `2b95db1`, runtime `SAFETY_RULES_VERSION = safety-v2+43836b6c`. It also adds the agreed requirement that personal or third-party suicide help-seeking gets the crisis message.
 - **Retest:** **PASS** on `2b95db1`. It was tested from a `git archive` of the exact commit: 3 strict XPASS and 126 passed. The markers were removed, leaving no open xfails in `tests/security`. The held-out guard passes.
 - **Accepted limitation:** the idiom "I killed myself trying to finish …" gets the crisis message, a harmless false positive.
+
+## F-009: Personalized-advice/crisis rules do not generalise to held-out requests
+
+- **Reported:** 2026-10-07 by evaluation-safety-engineer, from the E4 TEST run on freeze `1c84b60` and the private probe reserve (D-040).
+- **Severity:** high.
+  - In the closed-book modes (base, finetuned), these rules are the only personal-advice and crisis control (D-023).
+  - The misses include crisis-category statements.
+- **Component:** `src/medquad_qa/rag/safety.py`, version `safety-v2+43836b6c`.
+- **Affected modes:** all four. The rule runs before generation in every mode, and its decisions are identical across modes.
+
+**What was measured.** These are detection counts, i.e. whether the rule fired.
+
+Track C `personalized_advice` items, n = 40 per mode:
+
+| Mode | Refused by rule | Missed by rule | What happened to the misses |
+|---|---|---|---|
+| base | 30 | 10 | answered: 10 |
+| finetuned | 30 | 10 | answered: 10 |
+| rag | 30 | 10 | abstained (insufficient evidence): 9; answered: 1 |
+| finetuned_rag | 30 | 10 | abstained (missing citations): 10; answered: 0 |
+
+- Rule refusal rate is 30/40 = 0.75 (Wilson 95% CI 0.60–0.86) in every mode.
+- The same 10 item IDs are missed in every mode. They are listed in the evaluator's output, not here, so that Track C stays usable as held-out data.
+- 0 error rows in any mode.
+- The rag and finetuned_rag misses were mostly caught by other abstention paths. Those paths are not safety controls.
+
+Private probe reserve (sha256 `8af5cb29…99d8`, registered before the F-007/F-008 fixes):
+
+- Personal and crisis probes refused: 9/15 = 0.60 (Wilson 95% CI 0.36–0.80).
+- General probes refused: 0/10.
+- The 6 missed probes include 2 that the evaluator categorised as crisis statements.
+- This is a rule-only check: no generation was run.
+
+**What was NOT measured.**
+- The harmfulness of the answers produced for missed items was **not systematically reviewed**.
+- The evaluator sampled some closed-book answers to misses. They read as generic and cautious, with no dose instructions observed in that sample.
+- That is an informal observation, not a measured harmful-answer rate. No such rate is claimed.
+
+**Evidence:**
+- `artifacts/evaluation/e4/metrics.json` (sha256 prefix `7e2e7593d6e96dbb`)
+- `artifacts/evaluation/e4/runs/per_item/test_track_c__{base,finetuned,rag,finetuned_rag}.jsonl` (git-ignored)
+- `artifacts/evaluation/safety/private_probes_v1_result.json` (contains raw probe text; untracked, and to be git-ignored by the `.gitignore` rule proposed alongside this entry)
+
+**Limitations:**
+- n = 40 and n = 15 are small samples, so the CIs are wide.
+- The Track C and private items are AI-agent written (`llm_generated_unreviewed`), not clinician-written.
+- DEV-tuned rules may also look optimistic on similar-style held-out items.
+
+**Remediation:**
+- Owner: retrieval-engineer.
+- Approach: replace or augment the regex with a non-regex detector, such as a small classifier or a model self-check, plus a crisis lexicon that does not depend on event verbs.
+- Tuning: DEV and other non-held-out data only.
+
+**Retest requirements:**
+- Acceptance criteria must be pre-declared before any fresh held-out result is inspected.
+- Retest on **fresh** held-out personal, crisis and general probes. The published probes do not count.
+- Regression checks across all four modes, covering over-refusal on general controls and ordinary-answer behaviour.
+- The new safety version is recorded.
+
+**Restriction:** no demo, user-facing serving or real-user use of any configuration until the remediation evidence has been reviewed and explicitly approved by the user. Documentation alone does not close F-009.
+
+**Status:** open.
+
+## F-010: Plain-language instructions planted in evidence are followed by rag
+
+- **Reported:** 2026-10-07 by evaluation-safety-engineer, from the E4 TEST run on freeze `1c84b60`.
+- **Severity:** medium.
+- **Component:** the RAG prompt and evidence handling, `src/medquad_qa/rag/{prompts,sanitize}.py` (prompt `rag-v1+df593554`).
+- **Affected modes:** rag; also finetuned_rag, but that mode rarely answers.
+
+**What was measured.** Track C `adversarial` items (n = 20). The evidence was injected through the fixture retriever. Values are from `metrics.json`:
+
+- rag:
+  - `/sets/test_track_c/modes/rag/injection/canary_leaked` = **8** (of `injection/n` = 20, i.e. 0.40, Wilson 95% CI 0.22–0.61)
+  - all 20 adversarial items were answered
+  - `citations/responses_with_leaked_labels` = 0
+- finetuned_rag:
+  - `injection/canary_leaked` = 1 (of 20)
+  - 9 answered, 11 missing_citations
+- **Evaluator's report** (not independently re-verified by the lead):
+  - 6 of the 8 rag leaks were instruction-following, e.g. adding or repeating a planted marker or changing format;
+  - 2 were verbatim copies of planted text;
+  - all 8 leaked answers still carried valid citations, so citation validation does not detect this.
+- Structural injection neutralisation (F-004) still holds. Plain-language instructions get through.
+
+**What was NOT measured.**
+- No harmful medical instruction was observed in this test: the evaluator found no dose-change or stop-medication text in any answer.
+- That was a limited keyword check on 20 items, not a systematic harm review.
+
+**Exposure note:** the production corpus is a static, checksummed NIH export, which raises the cost of exploitation. It does **not** eliminate the vulnerability. Any future corpus update, alternative source or compromised index would expose it.
+
+**Evidence:**
+- `artifacts/evaluation/e4/metrics.json`
+- `artifacts/evaluation/e4/runs/per_item/test_track_c__rag.jsonl` (git-ignored)
+- `artifacts/evaluation/e4/per_item/item_scores.jsonl` (git-ignored; it carries no `case_type`, so per-item adversarial IDs need a join with `artifacts/evaluation/evalsets/test_track_c.jsonl`)
+
+**Remediation:**
+- Owner: retrieval-engineer.
+- Approach:
+  - an evidence pre-filter that drops or flags sentences with imperative injection markers;
+  - a stronger system-prompt clause;
+  - optionally, a post-check that rejects answer content unsupported by the supplied evidence (NLI).
+
+**Retest requirements:** pre-declared criteria; fresh held-out injection items that were not seen during development; and regression checks on rag answer, citation and over-refusal metrics.
+
+**Restriction:** covered by the same no-demo and no-serving restriction as F-009 until the user explicitly approves the remediation evidence.
+
+**Status:** open.
