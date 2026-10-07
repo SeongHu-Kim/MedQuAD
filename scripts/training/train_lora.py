@@ -10,6 +10,7 @@ Adapter v2 (mixed closed-book + RAG-cited, D-051):
   .venv/bin/python scripts/training/train_lora.py --mix v2 --config configs/training/lora_sft_mixed_v2.yaml \
       --run-kind smoke --max-steps 20 --expect-prompt-version cb-v1+a1f08aaf --expect-rag-prompt-version rag-v1+df593554
   .venv/bin/python scripts/training/train_lora.py --mix v2 ... --build-only     # CPU: build + IDs manifest, no training
+  sft-mix-v2b (option b'): the same commands with --mix-config configs/training/mix_v2b.yaml
 """
 
 from __future__ import annotations
@@ -69,18 +70,20 @@ def _mix_v2(
     embedder = SentenceTransformerEmbedder(
         emb_cfg["model_id"], emb_cfg["revision"], query_prefix=DEFAULT_QUERY_PREFIX, device=emb_cfg["device"]
     )
+    # mix_version and the optional v2b block apply to both the train and the validation-RAG plan
+    shared = {"mix_version": mix.get("mix_version", MIX_VERSION), **mix.get("v2b", {})}
     factory = mixed_data(
         paths["train"],
         paths["validation"],
         embedder,
-        MixPlan(**mix["train"]),
-        MixPlan(**mix["validation_rag"]),
+        MixPlan(**shared, **mix["train"]),
+        MixPlan(**shared, **mix["validation_rag"]),
         max_seq_len=config.max_seq_len,
         closed_book_builder=closed_builder,
         closed_val_max=mix["closed_val_max"],
     )
     return factory, {
-        "mix_version": MIX_VERSION,
+        "mix_version": shared["mix_version"],
         "mix_config": mix,
         "rag_prompt_version": prompts.PROMPT_VERSION,
         "embedder": {

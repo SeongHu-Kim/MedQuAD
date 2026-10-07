@@ -1,0 +1,53 @@
+# Adapter v2c data mix (option D, after the failed sft-mix-v2b sentinel review). Identical to mix_v2b.yaml except:
+# every sentinel shows OFF-TOPIC evidence only (sentinel_same_topic: false), so no sentinel is skipped for lack of
+# same-topic candidates. Answerable prompts keep v2b's same-topic blocks. mix_v2b.yaml stays the v2b provenance.
+mix_version: sft-mix-v2c
+closed_max_seq_len: 1024        # closed-book examples built exactly as in v1
+v2b:                            # applies to both the train and the validation_rag plans
+  sentinel_same_topic: false     # option D: sentinels get off-topic evidence only (on_topic_total == 0)
+  # P(m = 0..4) extra same-topic, different-question_type blocks in answerable prompts. Measured: serving dense:qa
+  # top-5 on 1,570 validation questions with gold retrieved (D-031 topic_key). Sentinels use T = m + 1 on-topic blocks.
+  same_topic_weights: [23.5, 21.5, 17.3, 22.2, 15.5]
+  sentinel_selection: top_score  # no effect when sentinel_same_topic is false
+  jaccard_max: 0.5               # G5: drop same-topic chunks with content-token Jaccard >= 0.5 vs the gold chunk
+  info_qtype: information
+  sentinel_disallowed_qtypes: [information, other, support_groups]  # never drawn as same-topic sentinels
+  sentinel_excluded_qtypes:      # G7: no effect when sentinel_same_topic is false (kept for comparison with v2b)
+    causes: [genetic_changes, inheritance, susceptibility, information]
+    genetic_changes: [causes, inheritance, susceptibility, information]
+    inheritance: [genetic_changes, causes, susceptibility, information]
+    susceptibility: [causes, genetic_changes, inheritance, frequency, information]
+    treatment: [prevention, considerations, research, information]
+    prevention: [treatment, considerations, causes, susceptibility, information]
+    considerations: [treatment, prevention, information]
+    research: [treatment, information]
+    symptoms: [complications, stages, exams_and_tests, outlook, information]
+    exams_and_tests: [symptoms, stages, information]
+    complications: [symptoms, outlook, stages, information]
+    stages: [symptoms, complications, outlook, exams_and_tests, information]
+    outlook: [complications, stages, information]
+    frequency: [susceptibility, information]
+train:
+  n_rag_answerable: 2700
+  n_rag_insufficient: 500        # 450 off-topic sentinels (allowed types) + 50 information-type off-topic sentinels
+  n_sentinel_info: 50            # 10%, fixed by principle (not tuned on any eval set)
+  n_closed_book: 6500
+  k: 5
+  max_target_tokens: 256
+  candidates: 50
+  seed: 20261006
+validation_rag:                  # validation-split pool only; used for validation loss only
+  n_rag_answerable: 224
+  n_rag_insufficient: 32
+  n_sentinel_info: 3
+  n_closed_book: 0
+  k: 5
+  max_target_tokens: 256
+  candidates: 50
+  seed: 20261006
+closed_val_max: 512              # same 512 closed-book validation examples as v1
+embedder:                        # distractor ranking uses serving's dense:qa embedder (D-037); candidate pools are rule-based (D-053)
+  model_id: BAAI/bge-small-en-v1.5
+  revision: 5c38ec7c405ec4b44b94cc5a9bb96e735b38267a
+  index_text_mode: question_answer
+  device: cpu
