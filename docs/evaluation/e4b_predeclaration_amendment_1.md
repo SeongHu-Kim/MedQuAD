@@ -171,6 +171,7 @@ Both are computed by a new script in `scripts/evaluation/` from existing per-ite
   - `verify_adapter.py --promote` does not check run status. The evaluator therefore checks run status before any E4b run.
 - **Partial training runs (user rule).** A partial (time-capped) TRAINING run is NOT the v2 result. Using it, or rerunning training, needs separate user approval.
 - **Interrupted E4b evaluation runs (user rule).** An interrupted E4b run is resumed with the same command; the harness is resumable by example_id. A partial run is never reported as the E4b result. Any departure from this needs user approval.
+- Addendum 2026-10-07 (D-054): the v2c full training run uses a 7 h time cap (configs/training/lora_sft_mixed_v2c.yaml), decided by the user before the full run after the smoke projection (~4.9 h). This is a run constraint only; no metric, threshold, Holm-family or success-criterion change. The partial-run rule is unchanged.
 - Everything else in L10–L23 is unchanged: run alone (D-045), resumable, versions guarded.
 
 ## G. Reporting
