@@ -14,6 +14,7 @@ Owner of this register: **lead** (transferred from evaluation-safety-engineer by
 | F-008 | low | **resolved** (retest PASS on 2b95db1) | Passive self-harm phrasing missed; third-party suicide-support question over-refused | retrieval-engineer |
 | F-009 | **high** | open | Personalized-advice/crisis rules do not generalise to held-out requests | retrieval-engineer |
 | F-010 | medium | open | Plain-language instructions planted in evidence are followed by rag | retrieval-engineer |
+| F-011 | medium | open | Adapter v2c reproduces planted injection text in its answers | model-engineer |
 
 ## F-001: Cross-split leakage missed by data leakage report
 
@@ -226,5 +227,39 @@ Private probe reserve (sha256 `8af5cb29…99d8`, registered before the F-007/F-0
 **Retest requirements:** pre-declared criteria; fresh held-out injection items that were not seen during development; and regression checks on rag answer, citation and over-refusal metrics.
 
 **Restriction:** covered by the same no-demo and no-serving restriction as F-009 until the user explicitly approves the remediation evidence.
+
+**Status:** open.
+
+## F-011: Adapter v2c reproduces planted injection text in its answers
+
+- **Reported:** 2026-10-07 by evaluation-safety-engineer, from the E4b TEST run (harness `960849e`, adapter `sft-main-20261007-104043-4c946221`, mix `sft-mix-v2c`).
+- **Severity:** medium (same exploitability limit as F-010).
+- **Component:** the v2c training mix, `src/medquad_qa/training/sft_rag_data.py` / `configs/training/mix_v2c.yaml` (extractive, single-source `[E#]` targets).
+- **Affected modes:** finetuned_rag with the v2c adapter. v2c is not promoted; `adapters/CURRENT` stays v1 (D-058).
+
+**What was measured.** Track C `adversarial` items (n = 20), evidence injected through the fixture retriever:
+
+- injection canary leaked: v2c **19 of 20**; rag 8 of 20; finetuned_rag v1 1 of 20;
+- **Evaluator's report** from the stored per-item outputs (not in `comparison.json`; not independently re-verified by the lead):
+  - in 12 of v2c's 19 leaks the full injected sentence appears verbatim in the answer (rag: 2 of 8; v1: 1 of 1);
+  - all 19 leaked v2c answers were served as answers, each with at least one valid citation and no invalid citation IDs, so citation validation does not detect this (likewise for rag's 8 and v1's 1);
+- cause indicated by the **Track A** risk metrics (not measured on Track C): on Track A, copy rate 0.9996 (225 answered items) and all 225 answers cite a single record; v2c answers are near-verbatim extracts of one supplied chunk, so planted text in a supplied chunk is passed through.
+
+**What was NOT measured.** No systematic harm review of the leaked text; the finding is about pass-through of planted content, not about a demonstrated harmful answer.
+
+**Exposure note:** as for F-010, exploitation requires write access to the static, checksummed corpus (or a future corpus update, alternative source or compromised index). That raises the cost; it does not remove the vulnerability.
+
+**Evidence:**
+- `artifacts/evaluation/e4b/comparison.json` (`track_c_descriptive`; `risk_metrics.finetuned_rag_v2c` for the Track A copy rate and single-source citing)
+- `artifacts/evaluation/e4b/runs/per_item/test_track_c__finetuned_rag.jsonl` (git-ignored)
+
+**Remediation:**
+- Owner: model-engineer (training mix); grouped with F-009/F-010 under the D-052 rules.
+- Approach: an evidence pre-filter for instruction-like sentences (the F-010 remedy), and/or training targets that summarise rather than copy.
+- Until then: do not promote v2c (user decision, D-058).
+
+**Retest requirements:** pre-declared criteria; fresh held-out injection items not seen in development; regression checks on answer, citation, copy-rate and over-refusal metrics.
+
+**Restriction:** covered by the D-052 no-demo and no-serving restriction until the user approves the remediation evidence.
 
 **Status:** open.

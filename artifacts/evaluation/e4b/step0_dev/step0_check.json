@@ -1,0 +1,116 @@
+{
+ "modes": {
+  "finetuned": {
+   "abstention_reasons": {
+    "answered": 15
+   },
+   "citation_coverage": 0.0,
+   "citations_subset_of_retrieved": true,
+   "error_rows": 0,
+   "invalid_citation_ids_total": 0,
+   "item_wall_s": {
+    "mean_generated": 6.95388,
+    "mean_no_generation": 0.0,
+    "median_all": 5.0756000000000006,
+    "n_generated": 15,
+    "n_no_generation": 0
+   },
+   "label_provenance_preserved": true,
+   "lexical_fallback": 0,
+   "meta": {
+    "evalset_manifest_sha256": "337253d548d2291122a9650a72e4882be8b69ad92f73b96f6217ea39ac39d187",
+    "evalset_sha256": "2864f0c01c0d46b59fe42b118f1c4d589cb6815ab22f6e5e714806d712f6dcd5",
+    "git_sha": "960849e6c5a49b6a921bbfc1565d5c83371fbe91",
+    "n_new_rows_this_session": 15,
+    "n_resumed_rows": 0,
+    "n_rows_total": 15,
+    "versions": {
+     "answerability_threshold_version": "answerability-lexlr@3defcd00a31f:maxf1-val:0.307172",
+     "closed_book_prompt_version": "cb-v1+a1f08aaf",
+     "corpus_version": "medquad-1.0.0-86e384302357",
+     "finetuned_model_version": "Qwen/Qwen3-4B-Instruct-2507@cdbee75f17c01a7cc42f958dc650907174af0554+lora:sft-main-20261007-104043-4c946221",
+     "index_version": "dense-qa-dc6b6a345fca",
+     "model_version": "Qwen/Qwen3-4B-Instruct-2507@cdbee75f17c01a7cc42f958dc650907174af0554",
+     "prompt_version": "rag-v1+df593554",
+     "retriever": "dense:qa",
+     "safety_rules_version": "safety-v2+43836b6c"
+    }
+   },
+   "model_versions": [
+    "Qwen/Qwen3-4B-Instruct-2507@cdbee75f17c01a7cc42f958dc650907174af0554+lora:sft-main-20261007-104043-4c946221"
+   ],
+   "n_rows": 15,
+   "prompt_versions": [
+    "cb-v1+a1f08aaf"
+   ],
+   "retrievers": {
+    "null": 15
+   },
+   "schema_errors": 0,
+   "schema_valid": 15,
+   "unique_ids": 15,
+   "warnings": {}
+  },
+  "finetuned_rag": {
+   "abstention_reasons": {
+    "answered": 11,
+    "insufficient_evidence": 4
+   },
+   "answered_with_valid_citation": 11,
+   "citation_coverage": 0.9622641509433962,
+   "citations_subset_of_retrieved": true,
+   "error_rows": 0,
+   "invalid_citation_ids_total": 0,
+   "item_wall_s": {
+    "mean_generated": 7.393553333333333,
+    "mean_no_generation": 0.0,
+    "median_all": 6.368,
+    "n_generated": 15,
+    "n_no_generation": 0
+   },
+   "label_provenance_preserved": true,
+   "lexical_fallback": 0,
+   "meta": {
+    "evalset_manifest_sha256": "337253d548d2291122a9650a72e4882be8b69ad92f73b96f6217ea39ac39d187",
+    "evalset_sha256": "2864f0c01c0d46b59fe42b118f1c4d589cb6815ab22f6e5e714806d712f6dcd5",
+    "git_sha": "960849e6c5a49b6a921bbfc1565d5c83371fbe91",
+    "n_new_rows_this_session": 15,
+    "n_resumed_rows": 0,
+    "n_rows_total": 15,
+    "versions": {
+     "answerability_threshold_version": "answerability-lexlr@3defcd00a31f:maxf1-val:0.307172",
+     "closed_book_prompt_version": "cb-v1+a1f08aaf",
+     "corpus_version": "medquad-1.0.0-86e384302357",
+     "finetuned_model_version": "Qwen/Qwen3-4B-Instruct-2507@cdbee75f17c01a7cc42f958dc650907174af0554+lora:sft-main-20261007-104043-4c946221",
+     "index_version": "dense-qa-dc6b6a345fca",
+     "model_version": "Qwen/Qwen3-4B-Instruct-2507@cdbee75f17c01a7cc42f958dc650907174af0554",
+     "prompt_version": "rag-v1+df593554",
+     "retriever": "dense:qa",
+     "safety_rules_version": "safety-v2+43836b6c"
+    }
+   },
+   "missing_citations_rate": 0.0,
+   "model_versions": [
+    "Qwen/Qwen3-4B-Instruct-2507@cdbee75f17c01a7cc42f958dc650907174af0554+lora:sft-main-20261007-104043-4c946221"
+   ],
+   "n_rows": 15,
+   "prompt_versions": [
+    "rag-v1+df593554"
+   ],
+   "retrievers": {
+    "dense:qa": 15
+   },
+   "schema_errors": 0,
+   "schema_valid": 15,
+   "unique_ids": 15,
+   "warnings": {}
+  }
+ },
+ "passed": true,
+ "projection_s": {
+  "finetuned": 3059.7072,
+  "finetuned_rag": 3992.5188,
+  "total": 7052.226,
+  "total_hours": 1.9589516666666666
+ }
+}
