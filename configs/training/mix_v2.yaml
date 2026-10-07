@@ -1,0 +1,25 @@
+# Adapter v2 data mix (D-051). Each train question is used in at most one format (seeded hash order).
+mix_version: sft-mix-v2
+closed_max_seq_len: 1024        # closed-book examples built exactly as in v1
+train:
+  n_rag_answerable: 2700
+  n_rag_insufficient: 500        # ~16% of RAG examples -> over-refusal risk, disclosed in the card
+  n_closed_book: 6500
+  k: 5                           # evidence blocks per prompt (serving top_k default)
+  max_target_tokens: 256         # = matched max_new_tokens
+  candidates: 50
+  seed: 20261006
+validation_rag:                  # validation-split pool only; used for validation loss only
+  n_rag_answerable: 224
+  n_rag_insufficient: 32
+  n_closed_book: 0
+  k: 5
+  max_target_tokens: 256
+  candidates: 50
+  seed: 20261006
+closed_val_max: 512              # same 512 closed-book validation examples as v1
+embedder:                        # distractor retrieval = serving's dense:qa (D-037), built in-process per split
+  model_id: BAAI/bge-small-en-v1.5
+  revision: 5c38ec7c405ec4b44b94cc5a9bb96e735b38267a
+  index_text_mode: question_answer
+  device: cpu

@@ -17,6 +17,8 @@ import platform
 import subprocess
 import time
 import urllib.request
+from collections.abc import Callable
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -38,7 +40,6 @@ from medquad_qa.training.sft_data import (
     default_closed_book_messages,
     file_sha256,
     read_records,
-    write_report,
 )
 
 DEFAULT_TRAIN_CONFIG = Path("configs/training/lora_sft.yaml")
@@ -293,17 +294,49 @@ def _disable_adapter_input_casting(model: Any) -> int:
     return n
 
 
-def _write_sft_ids(examples: list[SFTExample], path: Path, split_version: str | None) -> None:
+def _write_sft_ids(rows: list[dict[str, Any]], path: Path, split_version: str | None) -> None:
     """IDs-only list of the records actually trained on (for the evaluator's leakage gate; no text)."""
     with path.open("w", encoding="utf-8") as f:
-        for ex in examples:
-            row = {
-                "record_id": ex.record_id,
-                "split_group_id": ex.split_group_id,
-                "truncated": ex.truncated,
-                "split_version": split_version,
-            }
-            f.write(json.dumps(row) + "\n")
+        for row in rows:
+            f.write(json.dumps({**row, "split_version": split_version}) + "\n")
+
+
+@dataclass
+class PreparedData:
+    """Tokenised training data. ``val_sets`` maps an eval prefix (e.g. 'eval', 'eval_rag') to its examples."""
+
+    train: list[SFTExample]
+    val_sets: dict[str, list[SFTExample]]
+    reports: dict[str, dict[str, Any]]  # name -> JSON-able build report (written as sft_build_<name>.json)
+    id_rows: list[dict[str, Any]]
+    train_sha256: str | None
+    val_id_rows: list[dict[str, Any]] = field(default_factory=list)  # validation-built examples (threshold-ids)
+
+
+DataFactory = Callable[[Any], PreparedData]
+
+
+def closed_book_data(
+    train_path: Path, val_path: Path, max_seq_len: int, message_builder: MessageBuilder, eval_max: int
+) -> DataFactory:
+    """The v1 data path: closed-book examples from the train export; closed-book validation loss."""
+
+    def factory(tokenizer: Any) -> PreparedData:
+        builder = SFTBuilder(tokenizer, max_seq_len=max_seq_len, message_builder=message_builder)
+        train_ex, train_report = build_from_file(builder, train_path)
+        val_ex, val_report = build_from_file(builder, val_path)
+        rows = [
+            {"record_id": e.record_id, "split_group_id": e.split_group_id, "truncated": e.truncated} for e in train_ex
+        ]
+        return PreparedData(
+            train=train_ex,
+            val_sets={"eval": val_ex[:eval_max]},  # export order is deterministic
+            reports={"train": train_report.to_dict(), "val": val_report.to_dict()},
+            id_rows=rows,
+            train_sha256=train_report.input_sha256,
+        )
+
+    return factory
 
 
 # --------------------------------------------------------------------------- main entry
@@ -322,6 +355,7 @@ def run_sft(
     model: Any = None,
     tokenizer: Any = None,
     data_versions: dict[str, Any] | None = None,
+    data_factory: DataFactory | None = None,
 ) -> dict[str, Any]:
     """Train a LoRA adapter on TRAIN-split SFT examples. Returns the run manifest (also written to disk)."""
     from peft import LoraConfig, get_peft_model
@@ -347,12 +381,16 @@ def run_sft(
     use_bf16 = config.bf16 and dev.type == "cuda"
 
     builder = SFTBuilder(tokenizer, max_seq_len=config.max_seq_len, message_builder=message_builder)
-    train_ex, train_report = build_from_file(builder, train_path)
-    val_ex, val_report = build_from_file(builder, val_path)
-    write_report(train_report, run_dir / "sft_build_train.json")
-    write_report(val_report, run_dir / "sft_build_val.json")
-    val_ex = val_ex[: config.eval_max_examples]  # file order is deterministic (export order)
-    _write_sft_ids(train_ex, run_dir / "sft_record_ids.jsonl", (data_versions or {}).get("split_version"))
+    factory = data_factory or closed_book_data(
+        train_path, val_path, config.max_seq_len, message_builder, config.eval_max_examples
+    )
+    data = factory(tokenizer)
+    train_ex = data.train
+    for name, rep_dict in data.reports.items():
+        (run_dir / f"sft_build_{name}.json").write_text(json.dumps(rep_dict, indent=2) + "\n", encoding="utf-8")
+    _write_sft_ids(data.id_rows, run_dir / "sft_record_ids.jsonl", (data_versions or {}).get("split_version"))
+    if data.val_id_rows:
+        _write_sft_ids(data.val_id_rows, run_dir / "val_record_ids.jsonl", (data_versions or {}).get("split_version"))
 
     model.config.use_cache = False
     if config.gradient_checkpointing:
@@ -432,7 +470,7 @@ def run_sft(
         args=targs,
         data_collator=PadCollator(int(tokenizer.pad_token_id)),
         train_dataset=SFTDataset(train_ex),
-        eval_dataset=SFTDataset(val_ex),
+        eval_dataset=SFTDataset(data.val_sets["eval"]),
         callbacks=[callback],
     )
 
@@ -444,21 +482,29 @@ def run_sft(
         "planned_steps": planned_steps,
         "steps_per_epoch": steps_per_epoch,
         "train_examples": len(train_ex),
-        "val_examples_for_loss": len(val_ex),
+        "val_examples_for_loss": {k: len(v) for k, v in data.val_sets.items()},
         "trainable_params": trainable,
         "total_params": total,
-        "train_sha256": train_report.input_sha256,
+        "train_sha256": data.train_sha256,
     }
     tracker.params(params)
     if dev.type == "cuda":
         torch.cuda.reset_peak_memory_stats()
 
-    val_before = trainer.evaluate(metric_key_prefix="eval")["eval_loss"]  # logged at step 0 by the callback
+    def _evaluate() -> dict[str, float]:  # each set is logged by the callback as <prefix>_loss
+        return {
+            name: float(trainer.evaluate(eval_dataset=SFTDataset(ex), metric_key_prefix=name)[f"{name}_loss"])
+            for name, ex in data.val_sets.items()
+        }
+
+    val_before_all = _evaluate()
+    val_before = val_before_all["eval"]
     train_t0 = time.monotonic()
     train_out = trainer.train()
     train_s = time.monotonic() - train_t0
     steps_done = int(trainer.state.global_step)
-    val_after = trainer.evaluate(metric_key_prefix="eval")["eval_loss"]
+    val_after_all = _evaluate()
+    val_after = val_after_all["eval"]
 
     peft_model.save_pretrained(str(adapter_dir))
     _make_world_readable(adapter_dir)  # safetensors writes 0600; the API container (uid 10001) must read it
@@ -473,6 +519,8 @@ def run_sft(
         "base_revision": base.revision,
         "format_version": config.format_version,
         "message_builder": (data_versions or {}).get("message_builder"),
+        "rag_prompt_version": (data_versions or {}).get("rag_prompt_version"),
+        "mix_version": (data_versions or {}).get("mix_version"),
         "tokenizer": _tokenizer_meta(tokenizer, builder),
         "created_at_utc": created.isoformat(timespec="seconds"),
     }
@@ -491,13 +539,12 @@ def run_sft(
         "data": {
             "train_path": str(train_path),
             "val_path": str(val_path),
-            "train_sha256": train_report.input_sha256,
-            "val_sha256": val_report.input_sha256,
+            "train_sha256": data.train_sha256,
+            "val_sha256": file_sha256(val_path),
             "heldout_sha256": {str(p): file_sha256(p) for p in heldout_paths},
             "split_isolation": isolation,
             "versions": data_versions or {},
-            "sft_build_train": train_report.to_dict(),
-            "sft_build_val": val_report.to_dict(),
+            "sft_build": data.reports,
         },
         "training": {
             "device": str(dev),
@@ -517,7 +564,11 @@ def run_sft(
             "final_train_loss_mean": float(train_out.training_loss),
             "val_loss_before": float(val_before),
             "val_loss_after": float(val_after),
-            "val_loss_examples": len(val_ex),
+            "val_loss_examples": len(data.val_sets["eval"]),
+            "val_loss_by_set": {
+                k: {"before": val_before_all[k], "after": val_after_all[k], "examples": len(data.val_sets[k])}
+                for k in data.val_sets
+            },
             "cuda_max_allocated_gib": torch.cuda.max_memory_allocated() / 2**30 if dev.type == "cuda" else None,
             "cuda_max_reserved_gib": torch.cuda.max_memory_reserved() / 2**30 if dev.type == "cuda" else None,
         },
