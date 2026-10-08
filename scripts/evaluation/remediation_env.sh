@@ -7,6 +7,6 @@ unset MEDQUAD_QDRANT_URL MEDQUAD_ADAPTER_DIR || true
 EXPECT_COMMON="--expect retriever=dense:qa --expect index_version=dense-qa-dc6b6a345fca --expect answerability_threshold_version=answerability-lexlr@3defcd00a31f:maxf1-val:0.307172 --expect model_version=Qwen/Qwen3-4B-Instruct-2507@cdbee75f17c01a7cc42f958dc650907174af0554 --expect safety_rules_version=safety-v4+9be5f4d1 --expect prompt_version=rag-v1+df593554 --expect closed_book_prompt_version=cb-v1+a1f08aaf --expect evidence_filter_version=ef-v1+e899826d --expect safety_check_model=Qwen/Qwen3-4B-Instruct-2507@cdbee75f17c01a7cc42f958dc650907174af0554"
 EXPECT_V1="$EXPECT_COMMON --expect finetuned_model_version=Qwen/Qwen3-4B-Instruct-2507@cdbee75f17c01a7cc42f958dc650907174af0554+lora:sft-main-20261006-081347-3f16e30e"
 EXPECT_V2C="$EXPECT_COMMON --expect finetuned_model_version=Qwen/Qwen3-4B-Instruct-2507@cdbee75f17c01a7cc42f958dc650907174af0554+lora:sft-main-20261007-104043-4c946221"
-EXPECT_COMMIT="--expect-commit __SET_AT_FREEZE__"
+EXPECT_COMMIT="--expect-commit a6b7d3ef1d8fbf6586b3297055867bd03c4f14b5"
 PY=".venv/bin/python scripts/evaluation/run_fresh_retest.py"
 ES_DIR=artifacts/evaluation/evalsets
