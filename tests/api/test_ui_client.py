@@ -23,6 +23,11 @@ RESP = {
 }
 
 
+def test_answer_view_shows_evidence_filtered_warning() -> None:
+    v = answer_view({**RESP, "warnings": ["evidence_filtered"], "invalid_citation_ids": []})
+    assert ("warning", "Pipeline warning: evidence_filtered") in v["notices"]
+
+
 def test_answer_view_flags_invalid_citations_and_versions() -> None:
     v = answer_view(RESP)
     assert v["citations"][0]["record_id"] == "mq-0000000000000001"

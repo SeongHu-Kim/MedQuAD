@@ -106,6 +106,44 @@ def test_warning_labels_are_bounded(make_client: ClientFactory) -> None:
     assert "ZQX-4417" not in t
 
 
+def test_evidence_filtered_warning_and_version_are_kept(make_client: ClientFactory) -> None:
+    """D-060: the `evidence_filtered` warning and `evidence_filter_version` key pass through unchanged."""
+    client, fake = make_client(warnings=["evidence_filtered"])
+    base_versions = fake.versions()
+    fake.versions = lambda: {**base_versions, "evidence_filter_version": "evf-v1+0000abcd"}
+    r = client.post("/v1/qa", json=Q)
+    assert r.status_code == 200
+    assert r.json()["warnings"] == ["evidence_filtered"]
+    assert client.get("/v1/info").json()["versions"]["evidence_filter_version"] == "evf-v1+0000abcd"
+    t = client.get("/metrics").text
+    assert value(t, "medquad_qa_warnings_total", mode="rag", warning="evidence_filtered") == 1
+    assert value(t, "medquad_qa_warnings_total", mode="rag", warning="other") == 0
+    assert value(t, "medquad_artifact_info", artifact="evidence_filter_version", version="evf-v1+0000abcd") == 1
+
+
+@pytest.mark.parametrize("mode", ["rag", "base"])
+def test_safety_check_abstention_is_counted_not_an_error(make_client: ClientFactory, mode: str) -> None:
+    """safety-v4 (F-009): a model-check refusal or failure is a normal abstention with a known warning label,
+    and `safety_check_model` passes through to /v1/info and artifact_info."""
+    client, fake = make_client(abstain="personalized_medical_advice", warnings=["safety_check_failed"])
+    base_versions = fake.versions()
+    fake.versions = lambda: {**base_versions, "safety_check_model": "synthetic-safety-clf@0"}
+    r = client.post("/v1/qa", json={**Q, "experiment_mode": mode})
+    assert r.status_code == 200
+    body = r.json()
+    assert body["abstained"] is True and body["abstention_reason"] == "personalized_medical_advice"
+    assert body["warnings"] == ["safety_check_failed"]
+    assert client.get("/v1/info").json()["versions"]["safety_check_model"] == "synthetic-safety-clf@0"
+    t = client.get("/metrics").text
+    assert value(t, "medquad_qa_requests_total", mode=mode, outcome="abstained") == 1
+    assert value(t, "medquad_qa_requests_total", mode=mode, outcome="error") == 0
+    assert value(t, "medquad_qa_abstentions_total", mode=mode, reason="personalized_medical_advice") == 1
+    assert value(t, "medquad_qa_abstentions_total", mode=mode, reason="other") == 0
+    assert value(t, "medquad_qa_warnings_total", mode=mode, warning="safety_check_failed") == 1
+    assert value(t, "medquad_qa_warnings_total", mode=mode, warning="other") == 0
+    assert value(t, "medquad_artifact_info", artifact="safety_check_model", version="synthetic-safety-clf@0") == 1
+
+
 def test_error_metrics(make_client: ClientFactory) -> None:
     from medquad_qa.contracts import GenerationTimeoutError
 

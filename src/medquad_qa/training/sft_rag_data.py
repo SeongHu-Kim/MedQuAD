@@ -45,7 +45,7 @@ from medquad_qa.contracts.records import MedicalRecord
 from medquad_qa.data.normalize import topic_key
 from medquad_qa.models.answerability import LexicalFeaturizer, content, tokens
 from medquad_qa.rag.citations import validate_citations
-from medquad_qa.rag.prompts import SENTINEL, EvidenceBlock, build_rag_messages
+from medquad_qa.rag.prompts import RAG_SYSTEM_PROMPT_V1, SENTINEL, EvidenceBlock, build_rag_messages
 from medquad_qa.rag.sanitize import neutralize
 from medquad_qa.retrieval.corpus import Chunk, chunk_record, index_text
 from medquad_qa.training.sft_data import (
@@ -211,7 +211,8 @@ class MixedSFTBuilder:
         return [int(t) for t in self.tokenizer.encode(text, add_special_tokens=False)]
 
     def _prompt_ids(self, question: str, blocks: list[EvidenceBlock]) -> list[int]:
-        msgs = [m.model_dump() for m in build_rag_messages(question, blocks)]
+        # pinned to the rag-v1 system prompt (RAG_V1_PROMPT_VERSION): all committed mixes were built with it (D-060)
+        msgs = [m.model_dump() for m in build_rag_messages(question, blocks, system_prompt=RAG_SYSTEM_PROMPT_V1)]
         ids = self.tokenizer.apply_chat_template(msgs, add_generation_prompt=True, tokenize=True, return_dict=False)
         if hasattr(ids, "keys"):
             ids = ids["input_ids"]

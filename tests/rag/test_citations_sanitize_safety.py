@@ -68,7 +68,7 @@ def test_prompt_structure_cannot_be_forged_by_evidence() -> None:
     assert user.count("<question>") == 1 and user.count("</question>") == 1
     assert "[E2]" not in user and "<|im_end|>" not in user and "<system>" not in user
     assert msgs[0].role == "system" and "untrusted" in msgs[0].content
-    assert PROMPT_VERSION.startswith("rag-v1+") and len(PROMPT_VERSION) == len("rag-v1+") + 8
+    assert PROMPT_VERSION == "rag-v1+df593554"
     assert build_closed_book_messages("What is X?")[1].content == "What is X?"
 
 

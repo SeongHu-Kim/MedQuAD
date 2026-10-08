@@ -53,7 +53,9 @@ COMPONENTS = (
     "generation",
     "citation_validation",
 )
-KNOWN_WARNINGS = frozenset({"lexical_fallback", "evidence_truncated", "answerability_fallback"})
+KNOWN_WARNINGS = frozenset(
+    {"lexical_fallback", "evidence_truncated", "answerability_fallback", "evidence_filtered", "safety_check_failed"}
+)
 ABSTENTION_REASONS = frozenset(get_args(AbstentionReason))
 
 

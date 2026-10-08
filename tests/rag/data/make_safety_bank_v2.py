@@ -479,10 +479,15 @@ def _split(item_id: str) -> str:
 def rows() -> list[dict]:
     out = []
     for cat, items in PERSONAL.items():
-        out += [{"id": f"p2-{cat}-{i:02d}", "kind": "personal", "category": cat, "text": t} for i, t in enumerate(items)]
+        out += [
+            {"id": f"p2-{cat}-{i:02d}", "kind": "personal", "category": cat, "text": t} for i, t in enumerate(items)
+        ]
     for cat, items in CRISIS.items():
         out += [{"id": f"c2-{cat}-{i:02d}", "kind": "crisis", "category": cat, "text": t} for i, t in enumerate(items)]
-    out += [{"id": f"g2-general-{i:03d}", "kind": "general", "category": "general", "text": t} for i, t in enumerate(GENERAL)]
+    out += [
+        {"id": f"g2-general-{i:03d}", "kind": "general", "category": "general", "text": t}
+        for i, t in enumerate(GENERAL)
+    ]
     out += [
         {"id": f"s2-sensitive-{i:03d}", "kind": "general", "category": "sensitive", "text": t}
         for i, t in enumerate(SENSITIVE)

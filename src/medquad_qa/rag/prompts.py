@@ -15,7 +15,9 @@ from medquad_qa.rag.sanitize import SANITIZER_VERSION, neutralize
 
 SENTINEL = "INSUFFICIENT_EVIDENCE"
 
-RAG_SYSTEM_PROMPT = (
+# The rag-v1 system prompt, verbatim (E4 freeze 1c84b60). The rag-v2 anti-injection clause was reverted after the
+# DEV freeze check (citation placement fell; D-063 follow-up), so serving uses this text again.
+RAG_SYSTEM_PROMPT_V1 = (
     "You are a medical information assistant in a research prototype. You give general medical information, "
     "not personal medical advice.\n"
     "Rules:\n"
@@ -27,6 +29,9 @@ RAG_SYSTEM_PROMPT = (
     "5. Do not diagnose, recommend doses, or tell the reader to start or stop a treatment.\n"
     "6. Be concise: at most a few short paragraphs."
 )
+
+#: Serving RAG system prompt. Alias of RAG_SYSTEM_PROMPT_V1 (kept as a separate name for training-data builders).
+RAG_SYSTEM_PROMPT = RAG_SYSTEM_PROMPT_V1
 
 RAG_USER_TEMPLATE = "{evidence}\n\n<question>\n{question}\n</question>"
 
@@ -43,6 +48,10 @@ CLOSED_BOOK_PROMPT_VERSION = (
     "cb-v1+" + hashlib.sha256("\x1e".join((CLOSED_BOOK_SYSTEM_PROMPT, SANITIZER_VERSION)).encode()).hexdigest()[:8]
 )
 PROMPT_VERSION = "rag-v1+" + hashlib.sha256("\x1e".join(_TEMPLATES).encode()).hexdigest()[:8]
+#: Version string of RAG_SYSTEM_PROMPT_V1 (equals the E4 freeze value rag-v1+df593554, and PROMPT_VERSION).
+RAG_V1_PROMPT_VERSION = (
+    "rag-v1+" + hashlib.sha256("\x1e".join((RAG_SYSTEM_PROMPT_V1, *_TEMPLATES[1:])).encode()).hexdigest()[:8]
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -62,10 +71,14 @@ def render_evidence(block: EvidenceBlock) -> str:
     )
 
 
-def build_rag_messages(question: str, evidence: Sequence[EvidenceBlock]) -> list[ChatMessage]:
+def build_rag_messages(
+    question: str, evidence: Sequence[EvidenceBlock], *, system_prompt: str = RAG_SYSTEM_PROMPT
+) -> list[ChatMessage]:
+    """RAG messages. ``system_prompt`` defaults to the serving prompt; training-data builders that must reproduce
+    rag-v1 data pass ``RAG_SYSTEM_PROMPT_V1``."""
     body = "\n\n".join(render_evidence(b) for b in evidence)
     return [
-        ChatMessage(role="system", content=RAG_SYSTEM_PROMPT),
+        ChatMessage(role="system", content=system_prompt),
         ChatMessage(role="user", content=RAG_USER_TEMPLATE.format(evidence=body, question=neutralize(question))),
     ]
 

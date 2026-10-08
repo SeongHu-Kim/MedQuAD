@@ -18,6 +18,7 @@ from medquad_qa.contracts import (
 )
 from medquad_qa.rag.gate import Gate, HeuristicGate
 from medquad_qa.rag.pipeline import GeneratorProvider, RagPipeline
+from medquad_qa.rag.safety_check import SafetyChecker
 from medquad_qa.rag.settings import RagSettings
 from medquad_qa.retrieval.factory import build_retriever
 
@@ -105,6 +106,12 @@ def build_pipeline(
         component_statuses=statuses,
         generator_status=_default_generator_status() if generator_provider is None else None,
     )
-    if s.preload_generators:
-        pipeline.preload(s.preload_generators)
+    preload = tuple(s.preload_generators)
+    if s.safety_check:
+        # safety-v4: the check always runs on the BASE view (adapter disabled), in every mode
+        pipeline.safety_checker = SafetyChecker(lambda: pipeline.get_generator("base"))
+        if preload and "base" not in preload:
+            preload = ("base", *preload)
+    if preload:
+        pipeline.preload(preload)
     return pipeline

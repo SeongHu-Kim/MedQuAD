@@ -62,8 +62,12 @@ def _mix_v2(
     from medquad_qa.retrieval.settings import DEFAULT_QUERY_PREFIX
     from medquad_qa.training.sft_rag_data import MIX_VERSION, MixPlan, mixed_data
 
-    if args.expect_rag_prompt_version and args.expect_rag_prompt_version != prompts.PROMPT_VERSION:
-        print(f"RAG prompt {prompts.PROMPT_VERSION!r} != {args.expect_rag_prompt_version!r}; aborting", file=sys.stderr)
+    # the SFT builder renders RAG prompts with RAG_SYSTEM_PROMPT_V1, so that is the version the data carries (D-060)
+    if args.expect_rag_prompt_version and args.expect_rag_prompt_version != prompts.RAG_V1_PROMPT_VERSION:
+        print(
+            f"RAG prompt {prompts.RAG_V1_PROMPT_VERSION!r} != {args.expect_rag_prompt_version!r}; aborting",
+            file=sys.stderr,
+        )
         return None, {}
     mix = yaml.safe_load(Path(args.mix_config).read_text(encoding="utf-8"))
     emb_cfg = mix["embedder"]
@@ -85,7 +89,7 @@ def _mix_v2(
     return factory, {
         "mix_version": shared["mix_version"],
         "mix_config": mix,
-        "rag_prompt_version": prompts.PROMPT_VERSION,
+        "rag_prompt_version": prompts.RAG_V1_PROMPT_VERSION,
         "embedder": {
             "model_id": embedder.model_id,
             "revision": embedder.revision,

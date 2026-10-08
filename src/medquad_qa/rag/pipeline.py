@@ -46,6 +46,7 @@ from medquad_qa.contracts import (
 )
 from medquad_qa.rag.budget import EVIDENCE_TRUNCATED, fit_evidence, token_counter_for
 from medquad_qa.rag.citations import build_citations, validate_citations
+from medquad_qa.rag.evidence_filter import EVIDENCE_FILTER_VERSION, EVIDENCE_FILTERED, filter_evidence
 from medquad_qa.rag.gate import Gate, HeuristicGate
 from medquad_qa.rag.prompts import (
     CLOSED_BOOK_PROMPT_VERSION,
@@ -55,6 +56,7 @@ from medquad_qa.rag.prompts import (
     build_rag_messages,
 )
 from medquad_qa.rag.safety import SAFETY_RULES_VERSION, check_question
+from medquad_qa.rag.safety_check import SafetyChecker
 
 log = logging.getLogger(__name__)
 
@@ -84,7 +86,8 @@ class _State:
     done: bool = False
     abstention: AbstentionReason | None = None
     answer: str = ""
-    hits: list[RetrievalHit] = field(default_factory=list)
+    hits: list[RetrievalHit] = field(default_factory=list)  # as retrieved (unfiltered)
+    evidence: list[RetrievalHit] = field(default_factory=list)  # after the evidence filter (F-010)
     supplied: list[RetrievalHit] = field(default_factory=list)
     retriever_name: str | None = None
     warnings: list[str] = field(default_factory=list)
@@ -117,8 +120,11 @@ class RagPipeline:
         max_input_tokens: int = 3072,
         component_statuses: list[ComponentStatus] | None = None,
         generator_status: Callable[[str], ComponentStatus] | None = None,
+        safety_checker: SafetyChecker | None = None,
     ) -> None:
+        """``safety_checker=None`` means rules-only safety (the factory always installs the safety-v4 checker)."""
         self.retriever = retriever
+        self.safety_checker = safety_checker
         self._provider = generator_provider
         self._generators: dict[str, Generator] = {}
         self._generator_errors: dict[str, str] = {}
@@ -191,7 +197,10 @@ class RagPipeline:
         self._notify("on_abstention", state.mode, reason)
 
     def _step_safety(self, state: _State) -> None:
-        decision = check_question(state.request.question)
+        # The model check (if configured) is a separate generate call on the base view, made here, before and
+        # outside any answer generation (the backend lock is not reentrant). Its time lands in "safety_rules".
+        decision = check_question(state.request.question, checker=self.safety_checker)
+        state.warnings.extend(decision.warnings)
         if decision.refuse:
             self._abstain(state, "personalized_medical_advice", decision.message)
 
@@ -208,9 +217,24 @@ class RagPipeline:
         self._notify("on_retrieval", state.mode, state.hits)
         if not state.hits:
             self._abstain(state, "no_relevant_evidence")
+            return
+        # F-010: drop instruction-like sentences before the gate and the prompt see the evidence
+        dropped = False
+        for h in state.hits:
+            fr = filter_evidence(h.evidence_text)
+            if fr.dropped:
+                dropped = True
+                if fr.text:
+                    state.evidence.append(h.model_copy(update={"evidence_text": fr.text}))
+            else:
+                state.evidence.append(h)
+        if dropped:
+            state.warnings.append(EVIDENCE_FILTERED)
+        if not state.evidence:
+            self._abstain(state, "insufficient_evidence")
 
     def _step_gate(self, state: _State) -> None:
-        output, used, warnings = self.gate.evaluate(state.request.question, [h.evidence_text for h in state.hits])
+        output, used, warnings = self.gate.evaluate(state.request.question, [h.evidence_text for h in state.evidence])
         state.gate_output, state.gate_used = output, used
         state.warnings.extend(warnings)
         self._notify("on_gate", state.mode, output, used)
@@ -229,7 +253,7 @@ class RagPipeline:
 
         count, _ = token_counter_for(state.generator)
         limit = int(getattr(state.generator, "max_input_tokens", self.max_input_tokens))
-        supplied, messages, truncated = fit_evidence(state.hits, build, count, limit)
+        supplied, messages, truncated = fit_evidence(state.evidence, build, count, limit)
         if truncated:
             state.warnings.append(EVIDENCE_TRUNCATED)
         if not supplied:
@@ -404,5 +428,7 @@ class RagPipeline:
             "prompt_version": self.prompt_version,
             "closed_book_prompt_version": CLOSED_BOOK_PROMPT_VERSION,
             "safety_rules_version": SAFETY_RULES_VERSION,
+            "evidence_filter_version": EVIDENCE_FILTER_VERSION,
+            "safety_check_model": (base.model_version if base else None) if self.safety_checker else None,
             "answerability_threshold_version": self.gate.threshold_version,
         }

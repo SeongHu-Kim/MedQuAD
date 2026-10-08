@@ -21,6 +21,9 @@ class RagSettings(BaseModel):
     gate_heuristic_path: Path = Path("configs/retrieval/gate_heuristic.json")
     max_input_tokens: int = Field(default=3072, ge=256, description="Used when the generator exposes none.")
     preload_generators: tuple[Literal["base", "finetuned"], ...] = ("base", "finetuned")
+    safety_check: bool = Field(
+        default=True, description="safety-v4 model check (D-062). Code-level switch for tests; no env override."
+    )
 
     @classmethod
     def from_env(cls, **overrides: object) -> RagSettings:

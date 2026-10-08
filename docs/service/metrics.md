@@ -20,7 +20,7 @@ Owner: service-platform-engineer. Code: `src/medquad_qa/observability/`. Scrape 
 | `medquad_qa_citation_failures_total` | counter | mode, kind (`invalid_ids` / `invalid_citations` / `missing_citations`) | QAResponse |
 | `medquad_qa_invalid_citation_ids_total` | counter | mode | count of stripped citation tokens |
 | `medquad_qa_citations_per_response` | histogram | mode | answered responses only |
-| `medquad_qa_warnings_total` | counter | mode, warning (`lexical_fallback` / `evidence_truncated` / `answerability_fallback` / `other`) | QAResponse |
+| `medquad_qa_warnings_total` | counter | mode, warning (`lexical_fallback` / `evidence_truncated` / `answerability_fallback` / `evidence_filtered` / `safety_check_failed` / `other`) | QAResponse |
 | `medquad_qa_input_chars` | histogram | mode | question length after stripping |
 | `medquad_generation_prompt_tokens`, `medquad_generation_completion_tokens` | histogram | mode | `GenerationMeta` |
 | `medquad_generation_finish_total` | counter | mode, reason (`stop` / `length`) | `GenerationMeta` |

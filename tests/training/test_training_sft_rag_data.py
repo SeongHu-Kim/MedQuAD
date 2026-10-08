@@ -11,7 +11,7 @@ from test_training_answerability import _records
 from medquad_qa.contracts.qa import RetrievalHit
 from medquad_qa.contracts.records import MedicalRecord
 from medquad_qa.rag.citations import validate_citations
-from medquad_qa.rag.prompts import SENTINEL
+from medquad_qa.rag.prompts import RAG_SYSTEM_PROMPT_V1, SENTINEL
 from medquad_qa.retrieval.embedding import HashingEmbedder
 from medquad_qa.training.sft_data import IGNORE_INDEX
 from medquad_qa.training.sft_rag_data import MixedSFTBuilder, MixPlan, cited_target
@@ -107,7 +107,8 @@ class _FixedRetriever:
 def _assert_pipeline_parity(
     tok: Any, by_id: dict[str, MedicalRecord], examples: list[Any], rows: list[dict[str, Any]], k: int
 ) -> int:
-    """For every RAG row, RagPipeline.answer() must send the generator exactly the training prompt tokens."""
+    """For every RAG row, RagPipeline.answer() must send the generator exactly the training prompt tokens
+    (the RAG-SFT data is pinned to RAG_SYSTEM_PROMPT_V1, so serving must use that same prompt)."""
     from medquad_qa.contracts.qa import QARequest
     from medquad_qa.models.fake import FakeGenerator
     from medquad_qa.rag.budget import EVIDENCE_TRUNCATED
@@ -155,6 +156,9 @@ def _assert_pipeline_parity(
         assert response.retrieved_record_ids == row["evidence_record_ids"]
         assert len(generator.calls) == 1
         served = [m.model_dump() for m in generator.calls[0]]
+        # serving must use the rag-v1 system prompt the training data was built with (D-060 revert)
+        assert served[0] == {"role": "system", "content": RAG_SYSTEM_PROMPT_V1}
+        assert [m["role"] for m in served] == ["system", "user"]
         served_ids = tok.apply_chat_template(served, add_generation_prompt=True, tokenize=True, return_dict=False)
         served_ids = list(served_ids["input_ids"] if hasattr(served_ids, "keys") else served_ids)
         prompt_len = sum(1 for t in ex.labels if t == IGNORE_INDEX)
