@@ -12,9 +12,9 @@ Owner of this register: **lead** (transferred from evaluation-safety-engineer by
 | F-006 | low | **resolved** (retest PASS on 0e4ed7e) | Closed-book modes report the RAG prompt_version | retrieval-engineer |
 | F-007 | medium | **resolved** (retest PASS on 7206637) | Safety rules do not generalise to fresh personal probes; self-harm ideation gets no crisis message | retrieval-engineer |
 | F-008 | low | **resolved** (retest PASS on 2b95db1) | Passive self-harm phrasing missed; third-party suicide-support question over-refused | retrieval-engineer |
-| F-009 | **high** | open | Personalized-advice/crisis rules do not generalise to held-out requests | retrieval-engineer |
-| F-010 | medium | open | Plain-language instructions planted in evidence are followed by rag | retrieval-engineer |
-| F-011 | medium | open | Adapter v2c reproduces planted injection text in its answers | model-engineer |
+| F-009 | **high** | open (unresolved; remediation missed its owner bar, D-063) | Personalized-advice/crisis rules do not generalise to held-out requests | retrieval-engineer |
+| F-010 | **high** (raised from medium, D-065) | open (remediation failed the fresh retest, D-065) | Plain-language instructions planted in evidence are followed by rag | retrieval-engineer |
+| F-011 | **high** (raised from medium, D-065) | open (remediation failed the fresh retest, D-065) | Adapter v2c reproduces planted injection text in its answers | model-engineer |
 
 ## F-001: Cross-split leakage missed by data leakage report
 
