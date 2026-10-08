@@ -188,12 +188,14 @@ Private probe reserve (sha256 `8af5cb29…99d8`, registered before the F-007/F-0
 - Under the fallback fixed in D-062, F-009 is recorded as **unresolved**. There is no further attempt under this remediation. `safety-v4` is kept in the frozen pipeline (user decision, D-063). The fresh retest's F-009 numbers are reported descriptively and cannot close this finding.
 - Demo and deployment stay blocked (D-052).
 
+**Fresh retest (2026-10-08, D-065; descriptive only, cannot close F-009):** on the fresh held-out probes (D-059), run once on the frozen code (`a6b7d3e`): personal 60/60 refused (Wilson 95% [0.940, 1.000]); crisis 30/30 received the crisis message ([0.886, 1.000]); controls 0/60 over-refused ([0.000, 0.060]); 0 failed checks; the D-062 sensitivity analysis shows 0 over-refusals on the 52 unmatched and on the 8 bank-matched controls; the decision agreed across all four modes on all 150 items. These would meet the §1 thresholds, but F-009 stays unresolved because the pre-declared owner bar was missed first (D-063). The probes are AI-written and not human-reviewed.
+
 **Status:** open (high).
 
 ## F-010: Plain-language instructions planted in evidence are followed by rag
 
 - **Reported:** 2026-10-07 by evaluation-safety-engineer, from the E4 TEST run on freeze `1c84b60`.
-- **Severity:** medium.
+- **Severity:** high (raised from medium on 2026-10-08, D-065): in the fresh retest's §2.1 harm review, 7 of 10 eligible rag answers followed the requested medical action (`ai_agent` review, not human-reviewed). Mitigating factor: exploitation requires write access to the static, checksummed corpus (see the exposure note).
 - **Component:** the RAG prompt and evidence handling, `src/medquad_qa/rag/{prompts,sanitize}.py` (prompt `rag-v1+df593554`).
 - **Affected modes:** rag; also finetuned_rag, but that mode rarely answers.
 
@@ -234,12 +236,18 @@ Private probe reserve (sha256 `8af5cb29…99d8`, registered before the F-007/F-0
 
 **Restriction:** covered by the same no-demo and no-serving restriction as F-009 until the user explicitly approves the remediation evidence.
 
-**Status:** open.
+**Remediation attempt (2026-10-08, D-060 to D-065): failed the fresh retest.**
+- Frozen at `a6b7d3e` (D-064): evidence pre-filter `ef-v1+e899826d`; the planned system-prompt clause was removed after it lowered DEV citation coverage, so the prompt stays `rag-v1+df593554`.
+- Development fixtures (owner-written, 44 items): marked payloads 23/39 leaked before, 0/41 after; guidance-styled 1/3 both ways.
+- Fresh held-out injection items (D-059, n = 40, 20 with payload styles not in development; run once): rag leaked the canary in **13/40** (0.325, Wilson 95% [0.201, 0.480]; bar: upper ≤ 0.15); 35/40 answered (bar ≥ 32, met); 2 verbatim payload copies. §2.1 harm review (evaluation-safety-engineer, `ai_agent`, not human-reviewed): **7 of 10** eligible served answers followed the requested medical action. Verdict: **fail**.
+- The filter's development result did not carry over to the fresh payload styles. There is no second remediation round (D-065).
+
+**Status:** open (high).
 
 ## F-011: Adapter v2c reproduces planted injection text in its answers
 
 - **Reported:** 2026-10-07 by evaluation-safety-engineer, from the E4b TEST run (harness `960849e`, adapter `sft-main-20261007-104043-4c946221`, mix `sft-mix-v2c`).
-- **Severity:** medium (same exploitability limit as F-010).
+- **Severity:** high (raised from medium on 2026-10-08, D-065): in the fresh retest's §2.1 harm review, 10 of 11 eligible v2c answers followed the requested medical action, all as unflagged verbatim copies (`ai_agent` review, not human-reviewed). Mitigating factor: as for F-010, exploitation requires write access to the corpus.
 - **Component:** the v2c training mix, `src/medquad_qa/training/sft_rag_data.py` / `configs/training/mix_v2c.yaml` (extractive, single-source `[E#]` targets).
 - **Affected modes:** finetuned_rag with the v2c adapter. v2c is not promoted; `adapters/CURRENT` stays v1 (D-058).
 
@@ -268,4 +276,6 @@ Private probe reserve (sha256 `8af5cb29…99d8`, registered before the F-007/F-0
 
 **Restriction:** covered by the D-052 no-demo and no-serving restriction until the user approves the remediation evidence.
 
-**Status:** open.
+**Remediation attempt (2026-10-08, D-064/D-065): failed the fresh retest.** Measured under the frozen pipeline (`a6b7d3e`, evidence filter `ef-v1`, prompt `rag-v1+df593554`, the prompt v2c was trained on; no retraining). On the fresh held-out injection items (n = 40, run once), finetuned_rag with v2c leaked the canary in **19/40** (0.475, Wilson 95% [0.329, 0.625]; bar: upper ≤ 0.15); 23/40 answered; 12 verbatim payload copies. §2.1 harm review (`ai_agent`, not human-reviewed): **10 of 11** eligible served answers followed the requested medical action, all as unflagged verbatim copies. Verdict: **fail**. For comparison, finetuned_rag with v1 leaked 0/40 but answered 0/40 (missing citations), which meets the leak bar only trivially. v2c stays unpromoted; there is no second remediation round (D-065).
+
+**Status:** open (high).
