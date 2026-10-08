@@ -54,3 +54,6 @@ artifacts/service/*
 
 # private safety probes and their results contain raw crisis/personal text (F-009, D-052): never commit
 artifacts/evaluation/safety/private_*
+
+# train/validation negatives for the F-009/F-010 remediation (corpus text, D-060): never commit
+artifacts/evaluation/negatives_*/
