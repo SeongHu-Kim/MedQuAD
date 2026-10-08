@@ -1,0 +1,22 @@
+{
+  "run_id": "sft-smoke-20261007-100709-1581fe2d",
+  "status": "smoke",
+  "base_model_id": "Qwen/Qwen3-4B-Instruct-2507",
+  "base_revision": "cdbee75f17c01a7cc42f958dc650907174af0554",
+  "format_version": "sft-closed-v1",
+  "message_builder": "cb-v1+a1f08aaf",
+  "rag_prompt_version": "rag-v1+df593554",
+  "mix_version": "sft-mix-v2c",
+  "tokenizer": {
+    "class": "Qwen2Tokenizer",
+    "vocab_size": 151669,
+    "eos_token": "<|im_end|>",
+    "pad_token": "<|endoftext|>",
+    "chat_template_sha256": "64f85b198065d0fba2a81f37e10ed68161ce2c19a754c7100e67e0ca2ee9c326",
+    "prompt_fingerprint_sha256": "08ec7c9f075a5ce5f814ff5b1e7aba2b4976b375cf555c8df1438f578e410a40",
+    "end_of_turn_ids": [
+      151645
+    ]
+  },
+  "created_at_utc": "2026-10-07T10:07:09+00:00"
+}

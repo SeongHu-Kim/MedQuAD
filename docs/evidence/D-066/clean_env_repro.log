@@ -1,0 +1,42 @@
+== start 2026-10-08T12:11:10Z
+HEAD 79013aa3c5393918100a5de7c86ba6be7a6a2423
+Python 3.12.3
+torch ok
+lock ok
+project ok
+torch 2.14.1+cu130
+nvidia-cusparselt-cu13 0.8.1 is not supported on this platform
+== make lint
+.venv/bin/ruff check src tests
+All checks passed!
+.venv/bin/ruff format --check src tests
+162 files already formatted
+LINT_EXIT=0
+== make test
+........................................................................ [ 53%]
+........................................................................ [ 61%]
+........................................................................ [ 68%]
+........................................................................ [ 76%]
+........................................................................ [ 84%]
+........................................................................ [ 91%]
+........................................................................ [ 99%]
+......                                                                   [100%]
+=============================== warnings summary ===============================
+tests/training/test_training_answerability.py::test_lexical_baseline_trains_and_serves
+tests/training/test_training_answerability.py::test_lexical_baseline_trains_and_serves
+  /tmp/claude-1000/-home-hangds-Desktop-SeongHuKim-MedQuAD/8509dc6a-7edf-42b5-bc59-cbc01100fbfa/scratchpad/cleanrepro/.venv/lib/python3.12/site-packages/sklearn/metrics/_ranking.py:469: UndefinedMetricWarning: Only one class is present in y_true. ROC AUC score is not defined in that case.
+    warnings.warn(
+
+tests/training/test_training_answerability.py::test_lexical_baseline_trains_and_serves
+tests/training/test_training_answerability.py::test_lexical_baseline_trains_and_serves
+  /tmp/claude-1000/-home-hangds-Desktop-SeongHuKim-MedQuAD/8509dc6a-7edf-42b5-bc59-cbc01100fbfa/scratchpad/cleanrepro/.venv/lib/python3.12/site-packages/sklearn/metrics/_ranking.py:1192: UserWarning: No positive class found in y_true, recall is set to one for all thresholds.
+    warnings.warn(
+
+tests/training/test_training_lora_smoke.py::test_lora_smoke_train_and_reload
+  /tmp/claude-1000/-home-hangds-Desktop-SeongHuKim-MedQuAD/8509dc6a-7edf-42b5-bc59-cbc01100fbfa/scratchpad/cleanrepro/.venv/lib/python3.12/site-packages/mlflow/store/tracking/utils/sql_trace_metrics_utils.py:155: SADeprecationWarning: The ``noload`` loader strategy is deprecated and will be removed in a future release.  This option produces incorrect results by returning ``None`` for related items. (deprecated since: 2.1) (This warning originated from the `configure_mappers()` process, which was invoked automatically in response to a user-initiated operation.)
+    _SESSION_TRACE_METADATA = aliased(SqlTraceMetadata)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+942 passed, 6 deselected, 5 warnings in 21.71s
+TEST_EXIT=0
+== end 2026-10-08T12:18:04Z

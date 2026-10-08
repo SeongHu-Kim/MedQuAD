@@ -123,6 +123,7 @@ Current verified status. The "BLOCKED" Docker entries in the session-1 log above
   - Versions: corpus_version `medquad-1.0.0-34d97c16127f`, split_version `split-20261006-c759a1668f89`.
   - The CSV's 16,412 rows reconcile to 16,336 records plus 76 exclusions (5 empty, 48 duplicate copies, 23 non-informative).
   - Splits in records: 13,021 train, 1,648 validation, 1,667 test. Split groups: 3,464 / 471 / 390.
+  - Correction (D-066): these counts are from that pre-freeze build. The frozen build used for every evaluation is corpus `medquad-1.0.0-86e384302357` and split `split-20261006-2f0fb25ee6d8` (D-034): records 13,014 / 1,665 / 1,657, groups 3,338 / 428 / 446 (`data/manifests/split_manifest.meta.json`).
   - The teammate also ran an independent second build, which produced identical sha256 for all files.
 
 - **E3 verified by the lead:** `pytest tests/evaluation -m "not real_model"` shows 38 passed, and ruff and mypy are clean.
@@ -157,7 +158,9 @@ Decisions D-051 to D-064 in `docs/decisions.md` hold the details; commits in bra
 - D-062: `safety-v3` failed the owner holdout; one `safety-v4` model-check attempt with a fixed fallback; bank v2; overlap disclosures [b511194].
 - D-063: `safety-v4` missed the bank-v2 owner bar by one over-refusal; F-009 recorded as unresolved; remediation continues for F-010/F-011 only; `safety-v4` kept in the freeze [f03c01b].
 - D-064: remediation freeze F = `a6b7d3ef` (evidence filter `ef-v1`, `safety-v4`, prompt `rag-v1` after the `rag-v2` clause was removed; retest and regression harness) [a6b7d3e].
-- Next: one fresh retest, the four-mode §3 regression, scoring, comparison and an aggregates-only report, as one phase.
+- D-065: fresh retest run once; F-010/F-011 fail §2 (rag 13/40, v2c 19/40 leaked); F-009 fresh results descriptive only; §3 regression not run by the pre-agreed rule; F-010/F-011 raised to high [69acefd]. E6 report committed [79013aa].
+- D-066: the user accepts F-009, F-010 and F-011 as documented known limitations; S3 and S6 recorded as blocked by D-052; clean-environment reproduction check passed; v2c and D-054 smoke-run manifests committed; ledger corrected.
+- Next: L5 portfolio, then the completion handoff.
 
 ## Resume checklist (session 2)
 
@@ -185,7 +188,7 @@ A task without a status in its ID cell has not started.
 | ID | Task | Depends | Acceptance |
 |---|---|---|---|
 | D1 (COMPLETE: plan received) | Discovery: schema, provenance, license/usage restrictions, plan to lead | — | plan message received |
-| D2 (COMPLETE) | Ingestion + schema mapping → MedicalRecord (raw+normalized) | G1 | real CSV → corpus.jsonl, row count reconciles to 16,412 minus documented exclusions |
+| D2 (COMPLETE; frozen build corpus `86e384302357`, split `2f0fb25ee6d8`: 13,014 / 1,665 / 1,657 records (D-066 correction)) | Ingestion + schema mapping → MedicalRecord (raw+normalized) | G1 | real CSV → corpus.jsonl, row count reconciles to 16,412 minus documented exclusions |
 | D3 (COMPLETE) | Quality audit: missing, malformed, exact/near dups, lengths | D2 | `docs/data/audit_report.md` with actual counts from saved JSON |
 | D4 (COMPLETE: frozen split-20261006-2f0fb25ee6d8, evaluator signed off (D-034)) | Grouping (duplicate + split groups) + deterministic splits + leakage checks | D3, E1 review | split manifest + leakage check script passes; evaluator sign-off |
 | D5 (COMPLETE: exports on the frozen split, sha256 in exports_manifest) | Training/eval exports for model-engineer & evaluator | D4 | export files + checksums in manifest |
@@ -196,10 +199,10 @@ A task without a status in its ID cell has not started.
 |---|---|---|---|
 | R1 (COMPLETE: plan received) | Discovery + retriever/RAG design plan | — | plan received |
 | R2 (COMPLETE: real BM25 indexes bm25-answer-3c6bf6f998cf, bm25-qa-d5f777b26f79) | BM25 retriever (common interface), lexical fallback | G1, fixtures | unit tests on fixtures; runs on real corpus after D2 |
-| R3 (COMPLETE on local mode: 4 real indexes on corpus 86e384302357, 16,336 records / 26,596 chunks, verify ok; server-mode Qdrant build pending S4) | Dense retriever + Qdrant index lifecycle + index manifest | R2, D2 | build/rebuild/verify commands; manifest w/ model rev + corpus_version |
+| R3 (COMPLETE on local mode: 4 real indexes on corpus 86e384302357, 16,336 records / 26,596 chunks, verify ok; a server-mode Qdrant build is not recorded; every evaluation used the embedded local index (D-066)) | Dense retriever + Qdrant index lifecycle + index manifest | R2, D2 | build/rebuild/verify commands; manifest w/ model rev + corpus_version |
 | R4 (COMPLETE: 8 TEST runs on CPU; frozen dense:qa R@1 0.830 / R@5 0.950 / MRR 0.884; GPU and CPU rankings identical) | Hybrid (RRF) + optional reranker; answer-only vs Q+A indexing variants | R3 | all variants run on frozen eval queries |
 | R5 (COMPLETE as of the `1c84b60` freeze (user decision, 2026-10-08); F-010 tracked as a post-E4 follow-up under the remediation, frozen at `a6b7d3e` (D-064)) | LangChain RAG pipeline, prompt templates, citation validation, abstention | R2, M1 | invalid IDs stripped+flagged; injection-in-evidence tests |
-| R6 | Tests, failure cases, docs; respond to E5 review | R2–R5 | tests green; findings resolved/documented |
+| R6 (COMPLETE as documented: `docs/retrieval/r6_closeout.md`; 526 rag/retrieval tests pass; F-009/F-010 open (high), accepted as known limitations (D-066)) | Tests, failure cases, docs; respond to E5 review | R2–R5 | tests green; findings resolved/documented |
 
 ### model-engineer (owns models/, training/, configs/models/, configs/training/, scripts/training/, tests/models/, tests/training/, docs/models/, artifacts/models/)
 | ID | Task | Depends | Acceptance |
@@ -216,10 +219,10 @@ A task without a status in its ID cell has not started.
 |---|---|---|---|
 | S1 (COMPLETE: plan received) | Discovery + service/deploy plan (ARM64 images) | — | plan received |
 | S2 (COMPLETE: offline with FakePipeline) | FastAPI: /v1/qa, /health/live, /health/ready, /metrics; bounds, timeouts, request IDs | G1 | API tests with fake pipeline green |
-| S3 (PARTIAL: Streamlit UI and AppTest tests done; manual smoke against a real answer pending GPU) | Streamlit demo (answer, citations, versions, disclaimer) | S2 | manual smoke against running API |
+| S3 (BLOCKED by D-052 (user decision, D-066): Streamlit UI and AppTest tests done; the manual smoke against a running API was not run, and no exception was granted) | Streamlit demo (answer, citations, versions, disclaimer) | S2 | manual smoke against running API |
 | S4 (COMPLETE: GPU 6.5 GB and CPU 1.8 GB images, in-image CUDA smoke passes, hardened compose) | Dockerfiles + Compose (api, ui, qdrant, mlflow; localhost binds, non-root) | S2, **Docker access** | compose config validates; stack up; health OK |
 | S5 (COMPLETE: metrics, logs, MLflow server smoke, Prometheus scrape up=1, CI workflow (never run on GitHub); local make ci exit 0) | Metrics, structured logs (no raw content by default), MLflow server, CI workflow | S2 | metrics test; CI lint+offline tests locally |
-| S6 (COMPLETE (technical integration): GPU 6-step PASS, rollback drill PASS; finetuned mode pending M4) | Real-artifact integration in stack + runbook (deploy, rollback, troubleshooting) | S4, R5, M2 | real QA request recorded here |
+| S6 (COMPLETE (technical integration) for the pre-fix images: GPU 6-step PASS, rollback drill PASS. Not re-run for the finetuned mode or the remediated code (`a6b7d3e`): BLOCKED by D-052 (user decision, D-066)) | Real-artifact integration in stack + runbook (deploy, rollback, troubleshooting) | S4, R5, M2 | real QA request recorded here |
 
 ### evaluation-safety-engineer (owns evaluation/, configs/evaluation/, scripts/evaluation/, tests/evaluation/, tests/security/, tests/integration/, docs/evaluation/, docs/security/, artifacts/evaluation/)
 | ID | Task | Depends | Acceptance |
@@ -228,8 +231,8 @@ A task without a status in its ID cell has not started.
 | E2 (COMPLETE: 700 frozen items, A 300 / C 240 / probe 100 / dev 60, sha256-pinned, leakage 0 errors; spot-check sheet exported, non-blocking) | Frozen eval set (paraphrases, hard negatives, case types) with label provenance | D4 | manifest w/ checksum; no test-set tuning |
 | E3 (COMPLETE: harness + fixtures + threat model, 38 offline tests) | Metric harness: retrieval, citation validity/support, rubric, abstention, classifier, latency | G1 | unit tests on fixtures |
 | E4 (COMPLETE: E4 v1 results D-055 [2b3593c]; E4b v2c results D-058 [ff211fe]) | Run 4-way comparison (base / rag / finetuned / finetuned_rag) + retriever comparison | E2, E3, R5, M4 | saved metrics + failure examples |
-| E5 (PARTIAL: F-002 and F-007 resolved (D-039, D-041); F-009 high open and unresolved after the remediation attempt (D-063); F-010 and F-011 medium open, remediation frozen at `a6b7d3e` (D-064), fresh retest pending) | Security/safety tests: injection, citations, personalized advice, malformed input, missing artifacts, secrets, logging | R5, S2 | severity-ranked findings + retests |
-| E6 (PENDING: outline approved 2026-10-08; final after the remediation retest; latency not measured unless the user approves the S3 run) | Independent evaluation report | E4, E5 | report citing artifacts |
+| E5 (COMPLETE: severity-ranked findings with retests in `docs/security/findings.md`. F-001 to F-008 resolved; F-009, F-010 and F-011 open (high) after the failed remediation (D-063, D-065), accepted by the user as known limitations (D-066)) | Security/safety tests: injection, citations, personalized advice, malformed input, missing artifacts, secrets, logging | R5, S2 | severity-ranked findings + retests |
+| E6 (COMPLETE: `docs/evaluation/e6_report.md` [79013aa]; API latency not measured, S3 blocked) | Independent evaluation report | E4, E5 | report citing artifacts |
 
 ### lead
 | ID | Task | Depends | Acceptance |

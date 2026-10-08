@@ -1,0 +1,115 @@
+{
+  "run_id": "sft-main-20261007-104043-4c946221",
+  "model_version": "Qwen/Qwen3-4B-Instruct-2507@cdbee75f17c01a7cc42f958dc650907174af0554+lora:sft-main-20261007-104043-4c946221",
+  "adapter_weights_sha256": "1a88b71daf31f84fac831bdd2f1f581c2a243ded3cbb8e2fdfcdf0288add9f5d",
+  "question_source": "validation split, first 5 by record_id",
+  "device": "cuda",
+  "params": {
+    "max_new_tokens": 128,
+    "temperature": 0.0,
+    "top_p": 1.0,
+    "seed": null
+  },
+  "checks": {
+    "adapter_sha256_matches_run_manifest": true,
+    "finetuned_version_has_run_id": true,
+    "shared_backend": true,
+    "all_nonempty": true,
+    "any_output_differs_from_base": true
+  },
+  "passed": true,
+  "samples": [
+    {
+      "validation_record_id": "mq-00064fd51095b816",
+      "base": {
+        "model_version": "Qwen/Qwen3-4B-Instruct-2507@cdbee75f17c01a7cc42f958dc650907174af0554",
+        "prompt_tokens": 59,
+        "completion_tokens": 128,
+        "latency_ms": 6801.563829998486,
+        "finish_reason": "length"
+      },
+      "finetuned": {
+        "model_version": "Qwen/Qwen3-4B-Instruct-2507@cdbee75f17c01a7cc42f958dc650907174af0554+lora:sft-main-20261007-104043-4c946221",
+        "prompt_tokens": 59,
+        "completion_tokens": 91,
+        "latency_ms": 5369.470486009959,
+        "finish_reason": "stop"
+      },
+      "outputs_differ": true
+    },
+    {
+      "validation_record_id": "mq-001d986b49ec3b64",
+      "base": {
+        "model_version": "Qwen/Qwen3-4B-Instruct-2507@cdbee75f17c01a7cc42f958dc650907174af0554",
+        "prompt_tokens": 64,
+        "completion_tokens": 128,
+        "latency_ms": 6480.64802600129,
+        "finish_reason": "length"
+      },
+      "finetuned": {
+        "model_version": "Qwen/Qwen3-4B-Instruct-2507@cdbee75f17c01a7cc42f958dc650907174af0554+lora:sft-main-20261007-104043-4c946221",
+        "prompt_tokens": 64,
+        "completion_tokens": 43,
+        "latency_ms": 2542.762231998495,
+        "finish_reason": "stop"
+      },
+      "outputs_differ": true
+    },
+    {
+      "validation_record_id": "mq-003d891206bdb633",
+      "base": {
+        "model_version": "Qwen/Qwen3-4B-Instruct-2507@cdbee75f17c01a7cc42f958dc650907174af0554",
+        "prompt_tokens": 61,
+        "completion_tokens": 128,
+        "latency_ms": 6479.296506004175,
+        "finish_reason": "length"
+      },
+      "finetuned": {
+        "model_version": "Qwen/Qwen3-4B-Instruct-2507@cdbee75f17c01a7cc42f958dc650907174af0554+lora:sft-main-20261007-104043-4c946221",
+        "prompt_tokens": 61,
+        "completion_tokens": 126,
+        "latency_ms": 7430.33288299921,
+        "finish_reason": "stop"
+      },
+      "outputs_differ": true
+    },
+    {
+      "validation_record_id": "mq-003e5373da9a013c",
+      "base": {
+        "model_version": "Qwen/Qwen3-4B-Instruct-2507@cdbee75f17c01a7cc42f958dc650907174af0554",
+        "prompt_tokens": 66,
+        "completion_tokens": 128,
+        "latency_ms": 6498.910921989591,
+        "finish_reason": "length"
+      },
+      "finetuned": {
+        "model_version": "Qwen/Qwen3-4B-Instruct-2507@cdbee75f17c01a7cc42f958dc650907174af0554+lora:sft-main-20261007-104043-4c946221",
+        "prompt_tokens": 66,
+        "completion_tokens": 128,
+        "latency_ms": 7558.12204600079,
+        "finish_reason": "length"
+      },
+      "outputs_differ": true
+    },
+    {
+      "validation_record_id": "mq-005065b89ce3747e",
+      "base": {
+        "model_version": "Qwen/Qwen3-4B-Instruct-2507@cdbee75f17c01a7cc42f958dc650907174af0554",
+        "prompt_tokens": 59,
+        "completion_tokens": 128,
+        "latency_ms": 6483.680651988834,
+        "finish_reason": "length"
+      },
+      "finetuned": {
+        "model_version": "Qwen/Qwen3-4B-Instruct-2507@cdbee75f17c01a7cc42f958dc650907174af0554+lora:sft-main-20261007-104043-4c946221",
+        "prompt_tokens": 59,
+        "completion_tokens": 45,
+        "latency_ms": 2660.5240649951156,
+        "finish_reason": "stop"
+      },
+      "outputs_differ": true
+    }
+  ],
+  "created_at_utc": "2026-10-07T13:44:32+00:00",
+  "text_samples_file": "reload_samples.jsonl (gitignored: contains dataset question text)"
+}

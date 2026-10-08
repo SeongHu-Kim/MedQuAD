@@ -1,0 +1,32 @@
+{
+  "format_version": "sft-closed-v1",
+  "max_seq_len": 1024,
+  "n_records_in": 1665,
+  "n_examples": 1610,
+  "excluded": {
+    "boilerplate_answer": 55
+  },
+  "n_truncated": 42,
+  "truncated_by_source": {
+    "NIHSeniorHealth": 15,
+    "CancerGov": 13,
+    "GARD": 6,
+    "CDC": 4,
+    "NHLBI": 3,
+    "NIDDK": 1
+  },
+  "examples_by_source": {
+    "NIHSeniorHealth": 103,
+    "CancerGov": 61,
+    "MPlusHealthTopics": 104,
+    "GARD": 501,
+    "CDC": 28,
+    "NHLBI": 61,
+    "NINDS": 118,
+    "GHR": 507,
+    "NIDDK": 127
+  },
+  "answer_tokens_total": 427670,
+  "answer_tokens_dropped_by_truncation": 22257,
+  "input_sha256": null
+}

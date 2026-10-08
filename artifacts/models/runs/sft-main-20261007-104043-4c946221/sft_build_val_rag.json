@@ -1,0 +1,598 @@
+{
+  "mix_version": "sft-mix-v2c",
+  "plan": {
+    "n_rag_answerable": 224,
+    "n_rag_insufficient": 32,
+    "n_closed_book": 0,
+    "k": 5,
+    "max_target_tokens": 256,
+    "candidates": 50,
+    "seed": 20261006,
+    "mix_version": "sft-mix-v2c",
+    "same_topic_weights": [
+      23.5,
+      21.5,
+      17.3,
+      22.2,
+      15.5
+    ],
+    "sentinel_selection": "top_score",
+    "sentinel_excluded_qtypes": {
+      "causes": [
+        "genetic_changes",
+        "inheritance",
+        "susceptibility",
+        "information"
+      ],
+      "genetic_changes": [
+        "causes",
+        "inheritance",
+        "susceptibility",
+        "information"
+      ],
+      "inheritance": [
+        "genetic_changes",
+        "causes",
+        "susceptibility",
+        "information"
+      ],
+      "susceptibility": [
+        "causes",
+        "genetic_changes",
+        "inheritance",
+        "frequency",
+        "information"
+      ],
+      "treatment": [
+        "prevention",
+        "considerations",
+        "research",
+        "information"
+      ],
+      "prevention": [
+        "treatment",
+        "considerations",
+        "causes",
+        "susceptibility",
+        "information"
+      ],
+      "considerations": [
+        "treatment",
+        "prevention",
+        "information"
+      ],
+      "research": [
+        "treatment",
+        "information"
+      ],
+      "symptoms": [
+        "complications",
+        "stages",
+        "exams_and_tests",
+        "outlook",
+        "information"
+      ],
+      "exams_and_tests": [
+        "symptoms",
+        "stages",
+        "information"
+      ],
+      "complications": [
+        "symptoms",
+        "outlook",
+        "stages",
+        "information"
+      ],
+      "stages": [
+        "symptoms",
+        "complications",
+        "outlook",
+        "exams_and_tests",
+        "information"
+      ],
+      "outlook": [
+        "complications",
+        "stages",
+        "information"
+      ],
+      "frequency": [
+        "susceptibility",
+        "information"
+      ]
+    },
+    "sentinel_disallowed_qtypes": [
+      "information",
+      "other",
+      "support_groups"
+    ],
+    "n_sentinel_info": 3,
+    "info_qtype": "information",
+    "jaccard_max": 0.5,
+    "sentinel_same_topic": false
+  },
+  "counts": {
+    "rag_answerable": 223,
+    "rag_insufficient": 31,
+    "closed_book": 0
+  },
+  "skipped": {
+    "too_few_distractors": 2
+  },
+  "distractors_dropped_for_length": 5,
+  "gold_position": {
+    "E1": 47,
+    "E2": 46,
+    "E3": 42,
+    "E4": 46,
+    "E5": 42
+  },
+  "rag_prompt_tokens": {
+    "n": 254,
+    "median": 1210,
+    "p90": 1650,
+    "max": 2011
+  },
+  "closed_book": {
+    "format_version": "sft-closed-v1",
+    "max_seq_len": 1024,
+    "n_records_in": 0,
+    "n_examples": 0,
+    "excluded": {},
+    "n_truncated": 0,
+    "truncated_by_source": {},
+    "examples_by_source": {},
+    "answer_tokens_total": 0,
+    "answer_tokens_dropped_by_truncation": 0,
+    "input_sha256": null
+  },
+  "v2b": {
+    "assignment_skips": {
+      "sentinel_disallowed_qtype": 14
+    },
+    "guard_drops_candidate_chunks": {
+      "answerable": {
+        "G1_same_qtype": 257,
+        "G2_gold_dup_group": 0,
+        "G3_excluded_flags": 0,
+        "G4_text_equal_gold": 0,
+        "G5_gold_jaccard": 5,
+        "G6_coverage_ge_gold": 0,
+        "G7_sentinel_qtype_pair": 0
+      },
+      "sentinel_offtopic": {
+        "G1_same_qtype": 0,
+        "G2_gold_dup_group": 0,
+        "G3_excluded_flags": 0,
+        "G4_text_equal_gold": 0,
+        "G5_gold_jaccard": 0,
+        "G6_coverage_ge_gold": 0,
+        "G7_sentinel_qtype_pair": 0
+      }
+    },
+    "g7_drops_by_pair": {},
+    "qtype_mix_by_format": {
+      "rag_answerable": {
+        "causes": 9,
+        "complications": 1,
+        "considerations": 5,
+        "exams_and_tests": 6,
+        "frequency": 15,
+        "genetic_changes": 11,
+        "information": 64,
+        "inheritance": 19,
+        "other": 1,
+        "outlook": 4,
+        "prevention": 2,
+        "research": 3,
+        "stages": 2,
+        "susceptibility": 3,
+        "symptoms": 38,
+        "treatment": 40
+      },
+      "rag_insufficient": {
+        "exams_and_tests": 1,
+        "frequency": 3,
+        "genetic_changes": 3,
+        "information": 3,
+        "inheritance": 2,
+        "outlook": 2,
+        "research": 2,
+        "susceptibility": 2,
+        "symptoms": 9,
+        "treatment": 4
+      },
+      "closed_book": {}
+    },
+    "on_topic_total_hist": {
+      "rag_answerable": {
+        "0": 1,
+        "1": 75,
+        "2": 50,
+        "3": 33,
+        "4": 43,
+        "5": 21
+      },
+      "rag_insufficient": {
+        "0": 31,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0
+      },
+      "sentinel_same_topic": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0
+      },
+      "sentinel_offtopic": {
+        "0": 28,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0
+      },
+      "sentinel_info_offtopic": {
+        "0": 3,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0
+      }
+    },
+    "sentinel_same_topic_zero_on_topic_after_length_drops": 0,
+    "plan_vs_realised": {
+      "answerable": {
+        "planned": 224,
+        "assigned": 224,
+        "realised": 223
+      },
+      "sentinel_offtopic": {
+        "planned": 29,
+        "assigned": 29,
+        "realised": 28
+      },
+      "sentinel_info_offtopic": {
+        "planned": 3,
+        "assigned": 3,
+        "realised": 3
+      },
+      "closed_book": {
+        "planned": 0,
+        "assigned": 0,
+        "realised": 0
+      }
+    },
+    "same_topic_drawn_hist": {
+      "rag_answerable": {
+        "0": 52,
+        "1": 54,
+        "2": 40,
+        "3": 46,
+        "4": 31
+      },
+      "rag_insufficient": {
+        "0": 31
+      },
+      "sentinel_same_topic": {},
+      "sentinel_offtopic": {
+        "0": 28
+      },
+      "sentinel_info_offtopic": {
+        "0": 3
+      }
+    },
+    "same_topic_realised_final_hist": {
+      "rag_answerable": {
+        "0": 76,
+        "1": 50,
+        "2": 33,
+        "3": 43,
+        "4": 21
+      },
+      "rag_insufficient": {
+        "0": 31
+      },
+      "sentinel_same_topic": {},
+      "sentinel_offtopic": {
+        "0": 28
+      },
+      "sentinel_info_offtopic": {
+        "0": 3
+      }
+    },
+    "zero_candidate": {
+      "rag_answerable": 30,
+      "rag_insufficient": 31,
+      "sentinel_same_topic": 0,
+      "sentinel_offtopic": 28,
+      "sentinel_info_offtopic": 3
+    },
+    "zero_candidate_by_sentinel_qtype": {
+      "exams_and_tests": 1,
+      "frequency": 3,
+      "genetic_changes": 3,
+      "information": 3,
+      "inheritance": 2,
+      "outlook": 2,
+      "research": 2,
+      "susceptibility": 2,
+      "symptoms": 9,
+      "treatment": 4
+    },
+    "length_drops": {
+      "offgroup": 5
+    },
+    "cue_check": {
+      "all": {
+        "n": 254,
+        "rule_accuracy": 0.9960629921259843,
+        "majority_baseline": 0.8779527559055118,
+        "counts_by_on_topic_total": {
+          "0": {
+            "rag_answerable": 1,
+            "rag_insufficient": 31
+          },
+          "1": {
+            "rag_answerable": 75
+          },
+          "2": {
+            "rag_answerable": 50
+          },
+          "3": {
+            "rag_answerable": 33
+          },
+          "4": {
+            "rag_answerable": 43
+          },
+          "5": {
+            "rag_answerable": 21
+          }
+        }
+      },
+      "excluding_zero_candidate": {
+        "n": 193,
+        "rule_accuracy": 1.0,
+        "majority_baseline": 1.0,
+        "counts_by_on_topic_total": {
+          "1": {
+            "rag_answerable": 46
+          },
+          "2": {
+            "rag_answerable": 50
+          },
+          "3": {
+            "rag_answerable": 33
+          },
+          "4": {
+            "rag_answerable": 43
+          },
+          "5": {
+            "rag_answerable": 21
+          }
+        }
+      },
+      "per_sentinel_qtype": {
+        "exams_and_tests": {
+          "n": 7,
+          "rule_accuracy": 1.0,
+          "majority_baseline": 0.8571428571428571,
+          "counts_by_on_topic_total": {
+            "0": {
+              "rag_insufficient": 1
+            },
+            "2": {
+              "rag_answerable": 3
+            },
+            "3": {
+              "rag_answerable": 1
+            },
+            "4": {
+              "rag_answerable": 1
+            },
+            "5": {
+              "rag_answerable": 1
+            }
+          }
+        },
+        "frequency": {
+          "n": 18,
+          "rule_accuracy": 1.0,
+          "majority_baseline": 0.8333333333333334,
+          "counts_by_on_topic_total": {
+            "0": {
+              "rag_insufficient": 3
+            },
+            "1": {
+              "rag_answerable": 5
+            },
+            "2": {
+              "rag_answerable": 5
+            },
+            "3": {
+              "rag_answerable": 2
+            },
+            "4": {
+              "rag_answerable": 3
+            }
+          }
+        },
+        "genetic_changes": {
+          "n": 14,
+          "rule_accuracy": 1.0,
+          "majority_baseline": 0.7857142857142857,
+          "counts_by_on_topic_total": {
+            "0": {
+              "rag_insufficient": 3
+            },
+            "1": {
+              "rag_answerable": 1
+            },
+            "2": {
+              "rag_answerable": 6
+            },
+            "4": {
+              "rag_answerable": 4
+            }
+          }
+        },
+        "information": {
+          "n": 67,
+          "rule_accuracy": 1.0,
+          "majority_baseline": 0.9552238805970149,
+          "counts_by_on_topic_total": {
+            "0": {
+              "rag_insufficient": 3
+            },
+            "1": {
+              "rag_answerable": 27
+            },
+            "2": {
+              "rag_answerable": 12
+            },
+            "3": {
+              "rag_answerable": 9
+            },
+            "4": {
+              "rag_answerable": 9
+            },
+            "5": {
+              "rag_answerable": 7
+            }
+          }
+        },
+        "inheritance": {
+          "n": 21,
+          "rule_accuracy": 1.0,
+          "majority_baseline": 0.9047619047619048,
+          "counts_by_on_topic_total": {
+            "0": {
+              "rag_insufficient": 2
+            },
+            "1": {
+              "rag_answerable": 3
+            },
+            "2": {
+              "rag_answerable": 4
+            },
+            "3": {
+              "rag_answerable": 4
+            },
+            "4": {
+              "rag_answerable": 6
+            },
+            "5": {
+              "rag_answerable": 2
+            }
+          }
+        },
+        "outlook": {
+          "n": 6,
+          "rule_accuracy": 1.0,
+          "majority_baseline": 0.6666666666666666,
+          "counts_by_on_topic_total": {
+            "0": {
+              "rag_insufficient": 2
+            },
+            "2": {
+              "rag_answerable": 1
+            },
+            "4": {
+              "rag_answerable": 3
+            }
+          }
+        },
+        "research": {
+          "n": 5,
+          "rule_accuracy": 1.0,
+          "majority_baseline": 0.6,
+          "counts_by_on_topic_total": {
+            "0": {
+              "rag_insufficient": 2
+            },
+            "2": {
+              "rag_answerable": 2
+            },
+            "3": {
+              "rag_answerable": 1
+            }
+          }
+        },
+        "susceptibility": {
+          "n": 5,
+          "rule_accuracy": 1.0,
+          "majority_baseline": 0.6,
+          "counts_by_on_topic_total": {
+            "0": {
+              "rag_insufficient": 2
+            },
+            "3": {
+              "rag_answerable": 1
+            },
+            "4": {
+              "rag_answerable": 1
+            },
+            "5": {
+              "rag_answerable": 1
+            }
+          }
+        },
+        "symptoms": {
+          "n": 47,
+          "rule_accuracy": 1.0,
+          "majority_baseline": 0.8085106382978723,
+          "counts_by_on_topic_total": {
+            "0": {
+              "rag_insufficient": 9
+            },
+            "1": {
+              "rag_answerable": 21
+            },
+            "2": {
+              "rag_answerable": 6
+            },
+            "3": {
+              "rag_answerable": 5
+            },
+            "4": {
+              "rag_answerable": 3
+            },
+            "5": {
+              "rag_answerable": 3
+            }
+          }
+        },
+        "treatment": {
+          "n": 44,
+          "rule_accuracy": 1.0,
+          "majority_baseline": 0.9090909090909091,
+          "counts_by_on_topic_total": {
+            "0": {
+              "rag_insufficient": 4
+            },
+            "1": {
+              "rag_answerable": 13
+            },
+            "2": {
+              "rag_answerable": 6
+            },
+            "3": {
+              "rag_answerable": 8
+            },
+            "4": {
+              "rag_answerable": 8
+            },
+            "5": {
+              "rag_answerable": 5
+            }
+          }
+        }
+      }
+    }
+  }
+}
