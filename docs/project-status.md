@@ -241,5 +241,5 @@ A task without a status in its ID cell has not started.
 | L1 | Phase 0 discovery | — | **COMPLETE** (this file) |
 | L2 | Contracts, pyproject/lock, Makefile, CLAUDE.md, architecture docs | L1 | **COMPLETE**: contracts v1.1.1 (14 tests pass), requirements.lock, Makefile (`make test` runs), CLAUDE.md, docs/architecture/{overview,contracts}.md. Stack targets wait on service-platform-engineer scripts |
 | L3 | Spawn team, review plans, START IMPLEMENTATION | L2 | **COMPLETE**: genuine team `session-412b5373` with 5 in-process members; acknowledgments received; G1 released (D-020 to D-024) |
-| L4 | Integration arbitration, commits, decision log | L3 | — |
+| L4 | Integration arbitration, commits, decision log | L3 | **COMPLETE**: integration arbitration, lead commits, decision log D-001 to D-067 |
 | L5 | Portfolio: README, diagram, skill matrix, tech report, demo script, talking points | E6 | **COMPLETE** (D-067): `README.md`, `docs/portfolio/` |
