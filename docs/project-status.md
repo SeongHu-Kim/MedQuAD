@@ -160,7 +160,8 @@ Decisions D-051 to D-064 in `docs/decisions.md` hold the details; commits in bra
 - D-064: remediation freeze F = `a6b7d3ef` (evidence filter `ef-v1`, `safety-v4`, prompt `rag-v1` after the `rag-v2` clause was removed; retest and regression harness) [a6b7d3e].
 - D-065: fresh retest run once; F-010/F-011 fail §2 (rag 13/40, v2c 19/40 leaked); F-009 fresh results descriptive only; §3 regression not run by the pre-agreed rule; F-010/F-011 raised to high [69acefd]. E6 report committed [79013aa].
 - D-066: the user accepts F-009, F-010 and F-011 as documented known limitations; S3 and S6 recorded as blocked by D-052; clean-environment reproduction check passed; v2c and D-054 smoke-run manifests committed; ledger corrected.
-- Next: L5 portfolio, then the completion handoff.
+- D-067: L5 portfolio (README, `docs/portfolio/`); safety-v4 execution order clarified.
+- Next: the completion handoff (spec §15).
 
 ## Resume checklist (session 2)
 
@@ -241,4 +242,4 @@ A task without a status in its ID cell has not started.
 | L2 | Contracts, pyproject/lock, Makefile, CLAUDE.md, architecture docs | L1 | **COMPLETE**: contracts v1.1.1 (14 tests pass), requirements.lock, Makefile (`make test` runs), CLAUDE.md, docs/architecture/{overview,contracts}.md. Stack targets wait on service-platform-engineer scripts |
 | L3 | Spawn team, review plans, START IMPLEMENTATION | L2 | **COMPLETE**: genuine team `session-412b5373` with 5 in-process members; acknowledgments received; G1 released (D-020 to D-024) |
 | L4 | Integration arbitration, commits, decision log | L3 | — |
-| L5 | Portfolio: README, diagram, skill matrix, tech report, demo script, talking points | E6 | — |
+| L5 | Portfolio: README, diagram, skill matrix, tech report, demo script, talking points | E6 | **COMPLETE** (D-067): `README.md`, `docs/portfolio/` |
