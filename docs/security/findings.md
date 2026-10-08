@@ -182,7 +182,13 @@ Private probe reserve (sha256 `8af5cb29…99d8`, registered before the F-007/F-0
 
 **Restriction:** no demo, user-facing serving or real-user use of any configuration until the remediation evidence has been reviewed and explicitly approved by the user. Documentation alone does not close F-009.
 
-**Status:** open.
+**Remediation attempt (2026-10-08, D-060 to D-063):**
+- `safety-v3` (rules plus a crisis lexicon) failed the owner go/no-go on the bank v1 holdout: personal 48/59, crisis 22/26 (D-062).
+- `safety-v4+9be5f4d1` (rules plus a base-model classification check, `check-v1+fcac1ca3`) was the one model-check attempt. On the bank v2 holdout, run once, it refused 71/71 personal items and gave the crisis message on 28/28 crisis items. It wrongly refused 1/66 general and sensitive-topic items, against a pre-declared bar of 0/66. It therefore **missed its pre-declared owner bar by one over-refusal** (D-063). The miss was not opened.
+- Under the fallback fixed in D-062, F-009 is recorded as **unresolved**. There is no further attempt under this remediation. `safety-v4` is kept in the frozen pipeline (user decision, D-063). The fresh retest's F-009 numbers are reported descriptively and cannot close this finding.
+- Demo and deployment stay blocked (D-052).
+
+**Status:** open (high).
 
 ## F-010: Plain-language instructions planted in evidence are followed by rag
 
