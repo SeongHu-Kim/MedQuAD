@@ -2,17 +2,19 @@
 
 Owner: service-platform-engineer. Workflow: `.github/workflows/ci.yml`.
 
-**Status (D-079):** the first hosted-runner run is https://github.com/SeongHu-Kim/MedQuAD/actions/runs/37917163077 (private repository).
-- ubuntu-24.04-arm: ruff, mypy and the offline suite passed (971 passed, 1 skipped, 6 deselected); compose config and the CPU image build and smoke passed.
-- ubuntu-24.04 (x86): 969 passed, 1 skipped, 2 failed. Both failures were the SFT golden-hash tests: the tiny test tokenizer was trained at test time, and BPE training is platform-dependent. The tokenizer is now a frozen fixture (`src/medquad_qa/models/tiny_tokenizer.json`); the fix still needs to be confirmed by the next CI run.
+**Status (D-080):** runs are on GitHub Actions (private repository).
+- Run https://github.com/SeongHu-Kim/MedQuAD/actions/runs/37917163077 (D-079): ubuntu-24.04-arm passed ruff, mypy and the offline suite (971 passed, 1 skipped, 6 deselected) and the compose config, CPU image build and smoke. ubuntu-24.04 (x86) had 2 failures, both SFT golden-hash tests.
+- Run https://github.com/SeongHu-Kim/MedQuAD/actions/runs/37923900252: the frozen test tokenizer (D-079) did not change the two x86 failures (same hashes), so it was not the cause.
+- Run https://github.com/SeongHu-Kim/MedQuAD/actions/runs/37926168694, temporary golden diagnostic (x86 job 113805525360, arm job 113805525154): identical library versions, tokenizer and embeddings on both runners. The cause is the test fixture's scoring: `HashingEmbedder` gives many exactly tied float32 scores, numpy's default (unstable) `argsort` orders ties differently per CPU, and float32 BLAS results differ in the last bit, which also breaks near-ties differently. With a stable sort the printed top-5 orders were identical on both runners.
+- Fix (D-080): the two original golden tests (HashingEmbedder) run on aarch64 only, where all training and evaluation ran; new golden tests use a test-only exact embedder (`tests/training/exact_embedder.py`: distinct integer scores below 2^24) and are meant to run on every runner. **x86 is not yet confirmed**: this needs the next CI run.
 - The skipped test on both runners is the Keras classifier test (TensorFlow is not installed in CI), so **CI does not cover the Keras classifier**; it is tested only locally.
-- pip-audit (non-blocking) reported nltk PYSEC-2026-3740 (accepted, see D-079) and two setuptools advisories (fixed by the 83.0.0 pin).
+- pip-audit (non-blocking) ignores exactly nltk PYSEC-2026-3740 / GHSA-8mgp-746c-j5xp (accepted in D-079; remove when nltk releases a fix) and was green in run 37926168694. The setuptools advisories were fixed by the 83.0.0 pin (confirmed in run 37923900252).
 
 | Job | What it runs | Runners |
 |---|---|---|
 | `test` | CPU torch from the PyTorch CPU index, plus the lock minus the CUDA stack, then `ruff check`, `ruff format --check`, `mypy src/medquad_qa`, and `pytest -m "not gpu and not real_model and not real_data and not docker and not slow"` | ubuntu-24.04 (x86_64), ubuntu-24.04-arm |
 | `compose-and-images` | `docker compose config -q` for the cpu, gpu and monitoring profiles; build `medquad-api:ci-cpu` and `medquad-ui:ci` (no push); `scripts/ops/image_smoke.sh` | ubuntu-24.04-arm |
-| `pip-audit` | Dependency audit of the lock. Non-blocking (`continue-on-error`). | ubuntu-24.04 |
+| `pip-audit` | Dependency audit of the lock, ignoring only the accepted nltk advisory (D-079). Non-blocking (`continue-on-error`). | ubuntu-24.04 |
 
 Constraints:
 - No dataset, no model downloads (`HF_HUB_OFFLINE=1`), no GPU, no secrets.

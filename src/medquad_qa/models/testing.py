@@ -24,8 +24,8 @@ _CORPUS = [
 
 
 _SPECIALS = ["<|endoftext|>", "<|im_start|>", "<|im_end|>"]
-# Frozen copy of the tokenizer _train_tiny_tokenizer() produced on aarch64 (D-079). BPE training is
-# platform-dependent (x86 CI produced different golden hashes), so tests load this file instead of training.
+# Frozen copy of the tokenizer _train_tiny_tokenizer() produced on aarch64 (D-079), so tests do not depend on BPE
+# training at test time. It was not the cause of the x86 golden-hash differences (argsort tie order, D-080).
 TINY_TOKENIZER_JSON = Path(__file__).with_name("tiny_tokenizer.json")
 
 

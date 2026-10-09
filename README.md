@@ -74,7 +74,7 @@ GUI는 4가지 모드(base, rag, finetuned, finetuned_rag)를 제공하며, 어�
 | **4. RAG 파이프라인** | **LangChain-core**, Qwen/Qwen3-4B-Instruct-2507 (생성 모델), 안전 규칙 safety-v4, 증거 필터 ef-v1 | 안전 규칙 → 검색 → 증거 필터 → 답변 가능성 판별 → 답변 생성 → 인용 검증 |
 | **5. 서비스** | **FastAPI**, **Streamlit** (데모 화면), **Docker Compose** (로컬 전용) | API와 화면 구성, 컨테이너로 실행 |
 | **6. 평가·보안** | DeBERTa NLI (자동 채점), pytest (오프라인 테스트 972개, 보안 테스트 150개 통과; D-071 기준, D-066 재현 검사 때는 942개) | 사전 선언 평가, 통계 검정 (Holm 보정, bootstrap, McNemar, Wilson 구간), 주입 공격·개인 조언 보안 테스트 |
-| **7. MLOps·재현성** | **MLflow** (실험 기록), **Prometheus** (모니터링), Git·GitHub (비공개), ruff·mypy, requirements.lock | 버전 고정, 체크섬, 결정 기록 (docs/decisions.md, D-001부터), 새 환경 재현 검사. GitHub Actions CI: ARM64 통과 (x86은 첫 실행에서 테스트 픽스처 문제로 2개 실패, 수정 후 재실행 전. Keras 분류기는 CI에서 검사하지 않음, D-079) |
+| **7. MLOps·재현성** | **MLflow** (실험 기록), **Prometheus** (모니터링), Git·GitHub (비공개), ruff·mypy, requirements.lock | 버전 고정, 체크섬, 결정 기록 (docs/decisions.md, D-001부터), 새 환경 재현 검사. GitHub Actions CI: ARM64 통과 (x86에서는 테스트용 합성 데이터의 동점 점수가 CPU마다 다르게 정렬되어 골든 해시 테스트 2개가 실패함. 원래 테스트는 ARM64 전용으로 두고 모든 플랫폼에서 도는 테스트를 추가했으며, x86 통과는 다음 CI 실행에서 확인 예정. Keras 분류기는 CI에서 검사하지 않음, D-079·D-080) |
 
 - **하드웨어:** NVIDIA GB10 (CUDA 13, 통합 메모리 128 GB, 사용 가능 121 GiB). 유료 클라우드는 사용하지 않았습니다.
 - **개발 방식:** Claude Code 에이전트 팀이 역할을 나눠 작업했습니다 (데이터, 검색, 모델, 서비스, 평가·보안 + lead). 모든 커밋과 GPU 실행은 사용자가 승인했습니다.

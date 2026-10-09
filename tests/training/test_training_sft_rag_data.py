@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+import platform
 import re
 from typing import Any
 
+import numpy as np
 import pytest
+from exact_embedder import ExactTieBreakEmbedder
 from test_training_answerability import _records
 
 from medquad_qa.contracts.qa import RetrievalHit
@@ -17,6 +20,25 @@ from medquad_qa.training.sft_data import IGNORE_INDEX
 from medquad_qa.training.sft_rag_data import MixedSFTBuilder, MixPlan, cited_target
 
 PLAN = MixPlan(n_rag_answerable=8, n_rag_insufficient=4, n_closed_book=6, k=3, max_target_tokens=400)
+
+# The historical goldens were computed with HashingEmbedder, whose float32 scores have many exact ties; numpy's
+# unstable argsort orders ties differently per CPU, and BLAS rounding differs in the last bit (D-080, CI run
+# 37926168694). They stay pinned on aarch64, where all training and evaluation ran; the exact-embedder goldens
+# below run everywhere.
+aarch64_only = pytest.mark.skipif(
+    platform.machine() not in ("aarch64", "arm64"),
+    reason="HashingEmbedder golden hashes are pinned on aarch64, where all training and evaluation ran (D-080)",
+)
+
+
+def _rows_hash(examples: Any, rows: Any) -> str:
+    import hashlib
+    import json
+
+    h = hashlib.sha256()
+    for ex, row in zip(examples, rows, strict=True):
+        h.update(json.dumps([row, ex.input_ids, ex.labels], sort_keys=True).encode())
+    return h.hexdigest()
 
 
 def _build(tok: Any, plan: MixPlan = PLAN, max_seq_len: int = 4096) -> tuple[Any, Any, Any, Any]:
@@ -180,6 +202,7 @@ def test_train_serve_rag_prompt_parity_through_pipeline(tiny_tokenizer: Any) -> 
 V2_GOLDEN_SHA256 = "89ba82c48335f2a4e2c523b8446c172559a6bbf7235c81e0b1c7826b44954074"  # pre-v2b code, same fixture
 
 
+@aarch64_only
 def test_v2_output_unchanged_when_v2b_keys_absent(tiny_tokenizer: Any) -> None:
     import hashlib
     import json
@@ -480,6 +503,7 @@ V2B_GOLDEN_ROWS_SHA256 = "b54243c7e9af27cec272335e8f220c661d7360d02898a283c1c97f
 V2B_GOLDEN_REPORT_SHA256 = "057b401ffa8567f1238cec736caa522526b19f1f021cc09f722b6a56764d6e35"
 
 
+@aarch64_only
 def test_v2b_output_unchanged_by_v2c_switch(tiny_tokenizer: Any) -> None:
     import hashlib
     import json
@@ -533,3 +557,62 @@ def test_v2c_config_matches_v2b_except_sentinel_switch() -> None:
     assert c["mix_version"] == "sft-mix-v2c" and c["v2b"].pop("sentinel_same_topic") is False
     b.pop("mix_version"), c.pop("mix_version")
     assert b == c
+
+
+# ---------------------------------------------------------------------------------------------- exact-embedder pins
+# Same fixtures and builder, but scores are exact distinct integers (exact_embedder.py), so the ranking cannot
+# depend on the CPU, BLAS kernel or sort implementation. These goldens run on every platform (D-080); computed
+# on aarch64, x86 confirmation pending the next CI run.
+EXACT_V2_GOLDEN_SHA256 = "24674a021a5517757640a560763ab184472fcd2a08dfad86c2854acbc47b8b98"
+EXACT_V2B_GOLDEN_ROWS_SHA256 = "ba05a39ebd267673c9ea0372bd83538bc535c607baf9d56e3cf43ab48a62faef"
+EXACT_V2B_GOLDEN_REPORT_SHA256 = V2B_GOLDEN_REPORT_SHA256  # report has no evidence choice
+
+
+class _RecordingExact(ExactTieBreakEmbedder):
+    def __init__(self) -> None:
+        super().__init__()
+        self.docs: list[np.ndarray] = []
+        self.queries: list[np.ndarray] = []
+
+    def encode_documents(self, texts: list[str]) -> np.ndarray:
+        self.docs.append(super().encode_documents(texts))
+        return self.docs[-1]
+
+    def encode_queries(self, texts: list[str]) -> np.ndarray:
+        self.queries.append(super().encode_queries(texts))
+        return self.queries[-1]
+
+
+@pytest.mark.parametrize("fixture", ["v2", "v2b"])
+def test_exact_embedder_scores_are_exact_and_tie_free(tiny_tokenizer: Any, fixture: str) -> None:
+    emb = _RecordingExact()
+    builder = MixedSFTBuilder(tiny_tokenizer, emb, max_seq_len=4096)
+    builder.build(*((_records("tr", 15, 0), PLAN) if fixture == "v2" else (_v2b_records(), _v2b_plan())))
+    (doc,), (qv,) = emb.docs, emb.queries
+    scores = qv @ doc.T
+    exact = qv.astype(np.float64) @ doc.astype(np.float64).T
+    assert np.array_equal(scores, exact) and scores.max() < 2**24  # float32 sums are exact integers
+    assert np.array_equal(np.stack([doc @ q for q in qv]), scores)  # the v2b row-wise path agrees
+    for row in scores:
+        assert len(np.unique(row)) == len(row)  # no ties
+        assert np.array_equal(np.argsort(-row), np.argsort(-row, kind="stable"))
+
+
+def test_v2_exact_embedder_golden(tiny_tokenizer: Any) -> None:
+    examples, report, rows = MixedSFTBuilder(tiny_tokenizer, ExactTieBreakEmbedder(), max_seq_len=4096).build(
+        _records("tr", 15, 0), PLAN
+    )
+    assert _rows_hash(examples, rows) == EXACT_V2_GOLDEN_SHA256
+    assert report.to_dict()["mix_version"] == "sft-mix-v2"
+
+
+def test_v2b_exact_embedder_golden(tiny_tokenizer: Any) -> None:
+    import hashlib
+    import json
+
+    examples, report, rows = MixedSFTBuilder(tiny_tokenizer, ExactTieBreakEmbedder(), max_seq_len=4096).build(
+        _v2b_records(), _v2b_plan()
+    )
+    assert _rows_hash(examples, rows) == EXACT_V2B_GOLDEN_ROWS_SHA256
+    report_json = json.dumps(report.to_dict(), sort_keys=True, default=str).encode()
+    assert hashlib.sha256(report_json).hexdigest() == EXACT_V2B_GOLDEN_REPORT_SHA256
