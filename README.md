@@ -225,3 +225,9 @@ GUI는 4가지 모드(base, rag, finetuned, finetuned_rag)를 제공하며, 어�
 **한계:** 다만 rag는 답변의 정확도(reference coverage) 자체를 높이지는 못했고, 답할 수 있는 질문의 약 19%를 잘못 거부했습니다 (Track A 57/300). 4B 모델의 미세조정은 측정할 수 있는 이득이 없었고, 인용 형식을 학습한 모델(v2c)은 근거를 그대로 베끼는 부작용을 보였습니다. 새 안전 규칙은 좋은 결과에도 불구하고, 미리 정한 내부 기준을 1문항 차이로 놓쳐 규칙상 미해결로 남았습니다. 무엇보다 근거 문서에 숨겨진 지시문을 통한 **주입 공격은 해결하지 못했습니다** (rag 13/40). 이 때문에 어떤 모드도 실제 사용에는 적합하지 않습니다.
 
 이 프로젝트의 핵심 성과는 결과를 보기 전에 기준을 정하고, **좋은 결과와 나쁜 결과를 모두 정직하게 기록**했다는 점입니다.
+
+## 12. 참고 자료
+
+1. **데이터셋 (Kaggle):** MedQuAD: Medical Question-Answer for AI Research.
+   https://www.kaggle.com/datasets/pythonafroz/medquad-medical-question-answer-for-ai-research
+2. **인용 논문 (데이터셋 안내에 따른 인용):** Ben Abacha, A., & Demner-Fushman, D. (2019). A Question-Entailment Approach to Question Answering. *BMC Bioinformatics*, 20(1), 511. https://doi.org/10.1186/s12859-019-3119-4
