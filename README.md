@@ -31,13 +31,13 @@ GUI는 4가지 모드(base, rag, finetuned, finetuned_rag)를 제공하며, 어�
 - 실제로 힘든 상황이라면 이 시스템이 아닌 전문 기관에 연락하세요: 자살예방상담전화 109 (24시간), 응급 상황은 119.
 
 **접속 방법**
-1. **초대 요청:** rickseonghukim@gmail.com 으로 "https://github.com/SeongHu-Kim/MedQuAD 저장소에 안내된 GUI를 이용하고 싶으며, Tailscale 비공개 초대 링크가 필요합니다"라는 내용의 이메일을 보냅니다. 이름이나 다른 정보는 필요하지 않습니다.
+1. **초대 요청:** rickseonghukim@gmail.com 으로 https://github.com/SeongHu-Kim/MedQuAD 저장소에 안내된 GUI를 이용하고 싶으며, Tailscale 비공개 초대 링크가 필요합니다라는 내용의 이메일을 보냅니다. 이름이나 다른 정보는 필요하지 않습니다.
 2. **초대 링크 받기:** 운영자가 답장으로 Tailscale 초대 링크를 보내 드립니다. 링크는 1인 1회용이며 30일 안에 사용해야 합니다. 다른 사람에게 전달하지 마세요.
 3. **초대 수락:** 초대 링크를 열고, 사용할 계정(Google, Microsoft, GitHub 등)으로 로그인해 수락합니다.
 4. **앱 설치:** https://tailscale.com/download 에서 사용하는 기기(Windows, macOS, Linux, Android, iPhone)에 맞는 Tailscale 앱을 설치합니다.
 5. **앱 로그인:** 앱을 열고 초대를 수락할 때 사용한 계정으로 로그인합니다.
 6. **네트워크 연결:** 앱의 네트워크(tailnet) 목록에서 **seonghu-kim.github**(SeongHu-Kim@github)를 선택하고, 상태가 **Connected**인지 확인합니다.
-7. **GUI 접속:** 브라우저에서 **https://promaxgb10-bddf.tail386012.ts.net**을 엽니다. 처음 접속은 시간이 조금 걸릴 수 있습니다.
+7. **GUI 접속:** 브라우저에서 https://promaxgb10-bddf.tail386012.ts.net 을 엽니다. 처음 접속은 시간이 조금 걸릴 수 있습니다.
 8. **사용:** 왼쪽에서 모드를 고르고, "예시 질문"을 누르거나 **영어로** 질문을 입력한 뒤 "질문하기 (Ask)"를 누릅니다.
 9. **종료:** 이용이 끝나면 앱에서 연결을 끄면 됩니다.
 
