@@ -90,7 +90,7 @@ GUI는 4가지 모드(base, rag, finetuned, finetuned_rag)를 제공하며, 어�
 
 | 단계 | 판정 | 근거 | 남은 한계 |
 |---|---|---|---|
-| **1. 데이터** | ✅ | 제외한 76개 행의 이유를 모두 기록. 독립적으로 다시 만든 결과가 완전히 동일. 첫 누출 검사는 실패(F-001)했지만, 수정 후 재검사 통과 | 데이터 라이선스·버전 미확인 |
+| **1. 데이터** | ✅ | 제외한 76개 행의 이유를 모두 기록. 독립적으로 다시 만든 결과가 완전히 동일. 첫 누출 검사는 실패(F-001)했지만, 수정 후 재검사 통과 | 데이터 버전 미확인 (라이선스는 Kaggle 표기상 CC BY-SA 4.0) |
 | **2. 검색 인덱스** | ✅ | 8가지 방식 중 dense:qa가 최고 (R@5 0.950) | 인덱스에 원래 질문이 들어 있어 수치가 낙관적 (AI 작성 질문에서는 0.92) |
 | **3. 학습** | ⚠️ | 수행은 성공 (v1 790/790, v2c 607/607 steps 완료). 하지만 정확도 향상 없음. v1은 인용을 못 하고, v2c는 근거를 베낌 | 더 좋은 분류기(BiGRU 0.961) 대신 LR(0.826)을 서비스에 사용 |
 | **4. RAG 파이프라인** | ⚠️ | 인용 유효성 1.000. 가상 질환·범위 밖 질문은 100% 거부. 새 안전 규칙은 처음 보는 문항에서 기준을 모두 충족했지만 참고용 수치이며, 규칙상 미해결 (D-063) | 답할 수 있는 질문의 약 19%를 잘못 거부 (Track A 57/300; Track C 60문항 기준 0.183). 주입 공격 미해결 |
@@ -214,7 +214,7 @@ GUI는 4가지 모드(base, rag, finetuned, finetuned_rag)를 제공하며, 어�
 - 정확도는 MedQuAD 정답과의 자동 일치도일 뿐, 임상적으로 검증하지 않았습니다. 인용 지지도도 NLI 모델의 자동 판정입니다.
 - 개발 중 lead 에이전트가 보호된 평가 문항 정보 일부를 열람했고, 이를 기록·공개했습니다 (D-053).
 - API 응답 속도와, 수정 후 4개 모드 회귀 검사는 실행하지 않았습니다.
-- MedQuAD 데이터의 라이선스와 버전은 확인하지 못했습니다.
+- MedQuAD 데이터의 라이선스는 Kaggle 페이지 표기상 CC BY-SA 4.0입니다 (2026-10-09 운영자 확인; 원 배포본과 대조하지는 않음). 데이터 버전은 확인하지 못했습니다.
 
 ## 11. 결론
 
@@ -231,3 +231,5 @@ GUI는 4가지 모드(base, rag, finetuned, finetuned_rag)를 제공하며, 어�
 1. **데이터셋 (Kaggle):** MedQuAD: Medical Question-Answer for AI Research.
    https://www.kaggle.com/datasets/pythonafroz/medquad-medical-question-answer-for-ai-research
 2. **인용 논문 (데이터셋 안내에 따른 인용):** Ben Abacha, A., & Demner-Fushman, D. (2019). A Question-Entailment Approach to Question Answering. *BMC Bioinformatics*, 20(1), 511. https://doi.org/10.1186/s12859-019-3119-4
+3. **데이터 라이선스:** CC BY-SA 4.0 (Kaggle 페이지 표기).
+   https://creativecommons.org/licenses/by-sa/4.0/
