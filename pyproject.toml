@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "medquad-qa"
 version = "0.1.0"
 description = "MedQuAD Evidence-Grounded Medical QA — non-clinical research prototype"
-readme = "README.md"
+readme = "README_en.md"
 requires-python = ">=3.12,<3.13"
 license = { text = "MIT" }
 # Core deps only. ML/service extras are added after the architecture gate (see docs/decisions.md).

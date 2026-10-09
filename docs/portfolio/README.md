@@ -4,7 +4,7 @@ Owner: lead. These documents summarise committed evidence; where they disagree w
 
 | Deliverable (spec §14) | Document |
 |---|---|
-| Concise README with quick start and actual status | [`README.md`](../../README.md) |
+| Concise README with quick start and actual status | [`README_en.md`](../../README_en.md) (Korean one-page summary: [`README.md`](../../README.md)) |
 | Architecture diagram | [architecture.md](architecture.md) |
 | Data card | [`docs/data/data_card.md`](../data/data_card.md) |
 | Model cards | [`docs/models/generator_card.md`](../models/generator_card.md), [`docs/models/answerability_card.md`](../models/answerability_card.md) |
