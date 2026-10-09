@@ -1,6 +1,6 @@
 # CI for MedQuAD QA. Owner: service-platform-engineer.
 # Offline only: no dataset, no model downloads, no GPU, no secrets, nothing pushed or published.
-# This repository has no remote yet; the local equivalent is `make ci` (see docs/operations/ci.md).
+# Runs on GitHub Actions for this private repository; the local equivalent is `make ci` (see docs/operations/ci.md).
 name: ci
 
 on:
@@ -79,4 +79,37 @@ jobs:
       - run: |
           pip install pip-audit
           grep -viE '^(torch|triton|nvidia-)' requirements.lock > /tmp/lock-audit.txt
-          pip-audit -r /tmp/lock-audit.txt --no-deps --progress-spinner off
+          # D-079: nltk 3.10.3 PYSEC-2026-3740 (alias GHSA-8mgp-746c-j5xp) is accepted; nltk is not imported by
+          # project code, only via rouge_score (rougeL, no stemmer). Remove this ignore when nltk releases a fix.
+          pip-audit -r /tmp/lock-audit.txt --no-deps --progress-spinner off \
+            --ignore-vuln PYSEC-2026-3740 --ignore-vuln GHSA-8mgp-746c-j5xp
+
+  golden-diagnostic:
+    # TEMPORARY (D-079 follow-up): compares the SFT golden-hash fixture between x86 and arm64. Remove in D-080.
+    name: golden diagnostic (${{ matrix.runner }}, temporary)
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 30
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-24.04, ubuntu-24.04-arm]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install (same as the test job)
+        run: |
+          python -m venv .venv
+          .venv/bin/pip install --index-url https://download.pytorch.org/whl/cpu "torch==2.14.1+cpu"
+          grep -viE '^(torch|triton|nvidia-)' requirements.lock > /tmp/lock-no-torch.txt
+          .venv/bin/pip install -c /tmp/lock-no-torch.txt -e ".[ml,retrieval,api,ui,tracking,eval,dev]"
+      - name: Diagnostic (DIAG lines)
+        env:
+          HF_HUB_OFFLINE: "1"
+        run: .venv/bin/python scripts/ci/golden_diag.py
+      - name: The two golden tests
+        env:
+          HF_HUB_OFFLINE: "1"
+        run: .venv/bin/pytest -q tests/training/test_training_sft_rag_data.py -k "unchanged"
