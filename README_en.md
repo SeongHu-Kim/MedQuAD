@@ -74,7 +74,7 @@ The project went through the following 7 stages.
 | **4. RAG pipeline** | **LangChain-core**, Qwen/Qwen3-4B-Instruct-2507 (generation model), safety rules safety-v4, evidence filter ef-v1 | Safety rules → retrieval → evidence filter → answerability check → answer generation → citation validation |
 | **5. Service** | **FastAPI**, **Streamlit** (demo interface), **Docker Compose** (local only) | API and interface, run in containers |
 | **6. Evaluation · Security** | DeBERTa NLI (automatic scoring), pytest (972 offline tests and 150 security tests passing; as of D-071, 942 at the D-066 reproduction check) | Pre-declared evaluation, statistical tests (Holm correction, bootstrap, McNemar, Wilson intervals), injection-attack and personal-advice security tests |
-| **7. MLOps · Reproducibility** | **MLflow** (experiment tracking), **Prometheus** (monitoring), Git · GitHub (private), ruff · mypy, requirements.lock | Pinned versions, checksums, decision records (docs/decisions.md, from D-001), clean-environment reproduction check |
+| **7. MLOps · Reproducibility** | **MLflow** (experiment tracking), **Prometheus** (monitoring), Git · GitHub (private), ruff · mypy, requirements.lock | Pinned versions, checksums, decision records (docs/decisions.md, from D-001), clean-environment reproduction check. GitHub Actions CI: ARM64 passing (x86 had 2 failures from a test-fixture problem on the first run; fixed but not yet re-run. The Keras classifier is not checked in CI, D-079) |
 
 - **Hardware:** NVIDIA GB10 (CUDA 13, 128 GB unified memory, 121 GiB usable). No paid cloud was used.
 - **Development:** a Claude Code agent team worked in separate roles (data, retrieval, model, service, evaluation · security + lead). Every commit and GPU run was approved by the user.

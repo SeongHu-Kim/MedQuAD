@@ -61,6 +61,10 @@ dev = [
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+# Frozen test tokenizer used by medquad_qa.models.testing (D-079); without this a wheel install omits it.
+"medquad_qa.models" = ["tiny_tokenizer.json"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-ra --strict-markers"

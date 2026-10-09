@@ -23,19 +23,33 @@ _CORPUS = [
 ]
 
 
-def build_tiny_tokenizer() -> object:
-    """Byte-level BPE trained on a few synthetic sentences, with ChatML special tokens."""
-    from tokenizers import Tokenizer, decoders, models, pre_tokenizers, trainers
-    from transformers import PreTrainedTokenizerFast
+_SPECIALS = ["<|endoftext|>", "<|im_start|>", "<|im_end|>"]
+# Frozen copy of the tokenizer _train_tiny_tokenizer() produced on aarch64 (D-079). BPE training is
+# platform-dependent (x86 CI produced different golden hashes), so tests load this file instead of training.
+TINY_TOKENIZER_JSON = Path(__file__).with_name("tiny_tokenizer.json")
 
-    specials = ["<|endoftext|>", "<|im_start|>", "<|im_end|>"]
+
+def _train_tiny_tokenizer() -> object:
+    """Byte-level BPE trained on a few synthetic sentences; used only to regenerate TINY_TOKENIZER_JSON."""
+    from tokenizers import Tokenizer, decoders, models, pre_tokenizers, trainers
+
     tok = Tokenizer(models.BPE())
     tok.pre_tokenizer = pre_tokenizers.ByteLevel(add_prefix_space=False)
     tok.decoder = decoders.ByteLevel()
     trainer = trainers.BpeTrainer(
-        vocab_size=400, special_tokens=specials, initial_alphabet=pre_tokenizers.ByteLevel.alphabet()
+        vocab_size=400, special_tokens=_SPECIALS, initial_alphabet=pre_tokenizers.ByteLevel.alphabet()
     )
     tok.train_from_iterator(_CORPUS * 4, trainer=trainer)
+    return tok
+
+
+def build_tiny_tokenizer() -> object:
+    """Byte-level BPE with ChatML special tokens, loaded from the frozen TINY_TOKENIZER_JSON (D-079)."""
+    from tokenizers import Tokenizer
+    from transformers import PreTrainedTokenizerFast
+
+    specials = _SPECIALS
+    tok = Tokenizer.from_file(str(TINY_TOKENIZER_JSON))
     fast = PreTrainedTokenizerFast(
         tokenizer_object=tok,
         eos_token="<|im_end|>",  # noqa: S106
