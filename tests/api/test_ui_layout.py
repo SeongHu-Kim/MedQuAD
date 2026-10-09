@@ -73,7 +73,7 @@ def _texts(node: Any) -> list[str]:
     for e in _walk(node):
         v = (
             getattr(e, "label", None)
-            if type(e).__name__ in ("Radio", "Slider", "Expander")
+            if type(e).__name__ in ("Radio", "Slider", "Expander", "Button")
             else getattr(e, "value", "")
         )
         out.append(f"{type(e).__name__}:{v}")
@@ -89,7 +89,9 @@ def test_sidebar_order(sent: list[dict[str, Any]]) -> None:
     assert not at.exception
     items = _texts(at.sidebar)
     order = [
-        _index(items, "Radio:모드 선택"),
+        _index(items, "Header:모드 선택"),
+        _index(items, "Button:**기본 모델 (base):**"),
+        _index(items, "Button:**미세조정 + 검색 (finetuned_rag):**"),
         _index(items, "Slider:근거 레코드 수 (top_k)"),
         _index(items, "Header:예시 질문"),
         _index(items, "Header:서비스 상태"),
@@ -101,7 +103,7 @@ def test_sidebar_order(sent: list[dict[str, Any]]) -> None:
 
 def test_main_panel_order_after_asking_an_example(sent: list[dict[str, Any]]) -> None:
     at = AppTest.from_file(APP, default_timeout=30).run()
-    at.radio[0].set_value(MODE_LABELS["base"]).run()
+    at.button(key="mode_base").click().run()
     at.button(key="example_0_0").click().run()  # 일반 질문: base expects an uncited answer
     at.button(key="ask").click().run()
     assert not at.exception
@@ -123,9 +125,45 @@ def test_main_panel_order_after_asking_an_example(sent: list[dict[str, Any]]) ->
 @pytest.mark.parametrize("mode", ["base", "rag", "finetuned", "finetuned_rag"])
 def test_api_receives_unchanged_mode_values(sent: list[dict[str, Any]], mode: str) -> None:
     at = AppTest.from_file(APP, default_timeout=30).run()
-    at.radio[0].set_value(MODE_LABELS[mode]).run()
+    at.button(key=f"mode_{mode}").click().run()
     at.text_area(key="question").input("A synthetic question?").run()
     at.button(key="ask").click().run()
     assert not at.exception
     assert sent[-1]["experiment_mode"] == mode
     assert set(sent[-1]) == {"question", "experiment_mode", "top_k"}
+
+
+def test_mode_buttons_default_selection_and_labels(sent: list[dict[str, Any]]) -> None:
+    at = AppTest.from_file(APP, default_timeout=30).run()
+    assert not at.exception
+    assert at.session_state["mode"] == "rag"  # default when available
+    types = {m: at.button(key=f"mode_{m}").proto.type for m in MODE_LABELS}
+    assert types == {"base": "secondary", "rag": "primary", "finetuned": "secondary", "finetuned_rag": "secondary"}
+    assert at.button(key="mode_base").label == "**기본 모델 (base):**  \n검색 없음 (closed-book)"
+    at.button(key="mode_finetuned").click().run()
+    assert at.session_state["mode"] == "finetuned"
+    assert at.button(key="mode_finetuned").proto.type == "primary"
+    assert at.button(key="mode_rag").proto.type == "secondary"
+
+
+def test_unavailable_modes_disabled_and_default_falls_back(monkeypatch: pytest.MonkeyPatch) -> None:
+    real = httpx.Client
+    info = {**INFO, "available_modes": ["base", "finetuned"]}  # rag unavailable
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.url.path == "/v1/info":
+            return httpx.Response(200, json=info)
+        return httpx.Response(200, json={"status": "ready"})
+
+    def fake_client(*args: object, **kwargs: object) -> httpx.Client:
+        kwargs["transport"] = httpx.MockTransport(handler)
+        return real(*args, **kwargs)  # type: ignore[arg-type]
+
+    monkeypatch.setattr(ui_client.httpx, "Client", fake_client)
+    at = AppTest.from_file(APP, default_timeout=30).run()
+    assert not at.exception
+    assert at.session_state["mode"] == "base"  # first available mode when rag is unavailable
+    for m in ("rag", "finetuned_rag"):
+        b = at.button(key=f"mode_{m}")
+        assert b.disabled and "[사용 불가]" in b.label
+    assert not at.button(key="mode_finetuned").disabled

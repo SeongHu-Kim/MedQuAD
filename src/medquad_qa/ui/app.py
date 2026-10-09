@@ -27,6 +27,39 @@ def _client() -> ApiClient:
     return ApiClient()
 
 
+MODE_KEY = "mode"
+
+
+def _mode_label(label: str, available: bool) -> str:
+    """Two-line label: bold "Korean name (identifier):" then the description (display only, D-071)."""
+    title, _, desc = label.partition(": ")
+    return f"**{title}:**  \n{desc}{'' if available else '  [사용 불가]'}"
+
+
+def _select_mode(mode: str) -> None:
+    st.session_state[MODE_KEY] = mode
+
+
+def _mode_buttons(options: list[tuple[str, str, bool]]) -> str:
+    """One full-width button per mode; returns the selected API value (base / rag / finetuned / finetuned_rag)."""
+    available = [m for m, _, ok in options if ok]
+    if st.session_state.get(MODE_KEY) not in available:
+        default = "rag" if "rag" in available else (available[0] if available else options[0][0])
+        st.session_state[MODE_KEY] = default
+    selected: str = st.session_state[MODE_KEY]
+    for m, label, ok in options:
+        st.button(
+            _mode_label(label, ok),
+            key=f"mode_{m}",
+            type="primary" if m == selected else "secondary",
+            disabled=not ok,
+            on_click=_select_mode,
+            args=(m,),
+            use_container_width=True,
+        )
+    return selected
+
+
 def _fill_question(text: str) -> None:
     st.session_state[QUESTION_KEY] = text
 
@@ -83,10 +116,8 @@ def main() -> None:
     with st.sidebar:
         avail = info.data.get("available_modes", []) if info.ok else []
         options = mode_options(avail)
-        labels = [f"{label}{'' if ok else '  [사용 불가]'}" for _, label, ok in options]
-        default = next((i for i, (m, _, ok) in enumerate(options) if m == "rag" and ok), 0)
-        choice = st.radio("모드 선택", labels, index=default)
-        mode = options[labels.index(choice)][0]  # the API value (base / rag / finetuned / finetuned_rag)
+        st.header("모드 선택")
+        mode = _mode_buttons(options)  # the API value (base / rag / finetuned / finetuned_rag)
         top_k = st.slider("근거 레코드 수 (top_k)", 1, 20, 5, disabled=mode not in ("rag", "finetuned_rag"))
         groups = load_examples()
         _examples_panel(groups)

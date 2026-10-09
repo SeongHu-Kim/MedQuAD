@@ -62,8 +62,9 @@ def test_page_renders_disclaimer_and_modes(mocked_api: None) -> None:
     at = AppTest.from_file(APP, default_timeout=30).run()
     assert not at.exception
     assert any("의료 조언이 아니며" in w.value and "개인 건강 정보를 입력하지 마세요" in w.value for w in at.warning)
-    labels = at.radio[0].options
-    assert any("finetuned" in o and "[사용 불가]" in o for o in labels)
+    assert not at.radio  # modes are selectable buttons, not a radio (D-071)
+    ft = at.button(key="mode_finetuned")
+    assert ft.disabled and "[사용 불가]" in ft.label
 
 
 def test_ask_shows_answer_citations_and_invalid_warning(mocked_api: None) -> None:
