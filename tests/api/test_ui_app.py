@@ -69,7 +69,7 @@ def test_page_renders_disclaimer_and_modes(mocked_api: None) -> None:
 def test_ask_shows_answer_citations_and_invalid_warning(mocked_api: None) -> None:
     at = AppTest.from_file(APP, default_timeout=30).run()
     at.text_area[0].input("What is synthetic X?").run()
-    at.button[0].click().run()
+    at.button(key="ask").click().run()
     assert not at.exception
     md = " ".join(m.value for m in at.markdown)
     assert "Synthetic answer" in md and "![img](" not in md
