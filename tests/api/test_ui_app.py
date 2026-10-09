@@ -61,9 +61,9 @@ def mocked_api(monkeypatch: pytest.MonkeyPatch) -> None:
 def test_page_renders_disclaimer_and_modes(mocked_api: None) -> None:
     at = AppTest.from_file(APP, default_timeout=30).run()
     assert not at.exception
-    assert any("Not medical advice" in w.value for w in at.warning)
+    assert any("의료 조언이 아니며" in w.value and "개인 건강 정보를 입력하지 마세요" in w.value for w in at.warning)
     labels = at.radio[0].options
-    assert any("finetuned" in o and "[unavailable]" in o for o in labels)
+    assert any("finetuned" in o and "[사용 불가]" in o for o in labels)
 
 
 def test_ask_shows_answer_citations_and_invalid_warning(mocked_api: None) -> None:
@@ -73,7 +73,7 @@ def test_ask_shows_answer_citations_and_invalid_warning(mocked_api: None) -> Non
     assert not at.exception
     md = " ".join(m.value for m in at.markdown)
     assert "Synthetic answer" in md and "![img](" not in md
-    assert any("did not match" in w.value for w in at.warning)
+    assert any("일치하지 않아" in w.value for w in at.warning)
     assert any("mq-0000000000000001" in e.label for e in at.expander)
 
 
@@ -81,4 +81,4 @@ def test_unreachable_api_shows_error(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("MEDQUAD_API_URL", "http://127.0.0.1:9")
     at = AppTest.from_file(APP, default_timeout=30).run()
     assert not at.exception
-    assert any("unreachable" in e.value for e in at.error)
+    assert any("연결할 수 없습니다" in e.value for e in at.error)

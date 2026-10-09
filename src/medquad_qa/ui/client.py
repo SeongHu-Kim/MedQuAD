@@ -11,12 +11,14 @@ from typing import Any
 
 import httpx
 
+# Display text only (D-070): the keys are the experiment_mode values sent to the API and never change.
 MODE_LABELS: dict[str, str] = {
-    "base": "base: base model, no retrieval (closed-book)",
-    "rag": "rag: base model + retrieved evidence (citations)",
-    "finetuned": "finetuned: LoRA fine-tuned model, no retrieval (closed-book)",
-    "finetuned_rag": "finetuned_rag: LoRA fine-tuned model + retrieved evidence (citations)",
+    "base": "기본 모델 (base): 검색 없음 (closed-book)",
+    "rag": "검색 기반 모델 (rag): 기본 모델 + 검색된 근거 (인용 포함)",
+    "finetuned": "미세조정 모델 (finetuned): LoRA 미세조정, 검색 없음 (closed-book)",
+    "finetuned_rag": "미세조정 + 검색 (finetuned_rag): LoRA 미세조정 모델 + 검색된 근거 (인용 포함)",
 }
+CLOSED_BOOK_NOTE = "closed-book 모드: 근거를 검색하지 않으므로 답변에 인용이 없습니다."
 RAG_MODES = frozenset({"rag", "finetuned_rag"})
 DEFAULT_TIMEOUT_S = 130.0  # a little above the API's 120 s backstop
 
@@ -41,7 +43,7 @@ class ApiClient:
         try:
             r = self._client.get(path, timeout=5.0)
         except httpx.HTTPError as exc:
-            return ApiResult(False, 0, error=f"API unreachable ({type(exc).__name__})")
+            return ApiResult(False, 0, error=f"API에 연결할 수 없습니다 ({type(exc).__name__})")
         return _result(r)
 
     def info(self) -> ApiResult:
@@ -55,9 +57,9 @@ class ApiClient:
         try:
             r = self._client.post("/v1/qa", json=payload)
         except httpx.TimeoutException:
-            return ApiResult(False, 0, error="The request timed out.")
+            return ApiResult(False, 0, error="요청 시간이 초과되었습니다.")
         except httpx.HTTPError as exc:
-            return ApiResult(False, 0, error=f"API unreachable ({type(exc).__name__})")
+            return ApiResult(False, 0, error=f"API에 연결할 수 없습니다 ({type(exc).__name__})")
         return _result(r)
 
 
@@ -96,21 +98,21 @@ def answer_view(resp: dict[str, Any]) -> dict[str, Any]:
     ]
     notices: list[tuple[str, str]] = []
     if resp.get("abstained"):
-        notices.append(("info", f"The system abstained: {resp.get('abstention_reason') or 'unspecified'}."))
+        notices.append(
+            ("info", f"시스템이 답변을 거부했습니다 (abstained): {resp.get('abstention_reason') or '미지정'}")
+        )
     if resp.get("invalid_citation_ids"):
         notices.append(
             (
                 "warning",
-                f"{len(resp['invalid_citation_ids'])} citation(s) produced by the model did not match the supplied "
-                "evidence and were removed.",
+                f"모델이 생성한 인용 {len(resp['invalid_citation_ids'])}건이 제공된 근거와 일치하지 않아 "
+                "제거되었습니다.",
             )
         )
     if mode in RAG_MODES and not resp.get("abstained") and not citations:
-        notices.append(("warning", "This RAG answer has no valid citation."))
-    if mode not in RAG_MODES:
-        notices.append(("info", "Closed-book mode: no evidence was retrieved, so the answer has no citations."))
+        notices.append(("warning", "이 RAG 답변에는 유효한 인용이 없습니다."))
     for w in resp.get("warnings", []):
-        notices.append(("warning", f"Pipeline warning: {w}"))
+        notices.append(("warning", f"파이프라인 경고: {w}"))
     versions = {
         k: resp.get(k)
         for k in ("model_version", "corpus_version", "index_version", "prompt_version", "retriever")
@@ -123,6 +125,7 @@ def answer_view(resp: dict[str, Any]) -> dict[str, Any]:
         "abstained": bool(resp.get("abstained")),
         "citations": citations,
         "notices": notices,
+        "mode_note": CLOSED_BOOK_NOTE if mode not in RAG_MODES else "",
         "versions": versions,
         "latency_ms": resp.get("latency_ms"),
         "component_latency_ms": resp.get("component_latency_ms", {}),

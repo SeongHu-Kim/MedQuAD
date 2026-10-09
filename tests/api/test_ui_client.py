@@ -25,33 +25,37 @@ RESP = {
 
 def test_answer_view_shows_evidence_filtered_warning() -> None:
     v = answer_view({**RESP, "warnings": ["evidence_filtered"], "invalid_citation_ids": []})
-    assert ("warning", "Pipeline warning: evidence_filtered") in v["notices"]
+    assert ("warning", "파이프라인 경고: evidence_filtered") in v["notices"]
 
 
 def test_answer_view_flags_invalid_citations_and_versions() -> None:
     v = answer_view(RESP)
     assert v["citations"][0]["record_id"] == "mq-0000000000000001"
-    assert any("did not match" in t for _, t in v["notices"])
+    assert any("일치하지 않아" in t for _, t in v["notices"])
     assert any("lexical_fallback" in t for _, t in v["notices"])
     assert v["versions"]["index_version"] == "idx0"
-    assert v["mode_label"].startswith("rag:")
+    assert v["mode_label"].startswith("검색 기반 모델 (rag)")
+    assert v["mode_note"] == ""
 
 
 def test_answer_view_closed_book_and_abstention() -> None:
     v = answer_view({**RESP, "experiment_mode": "base", "citations": [], "invalid_citation_ids": [], "warnings": []})
-    assert any("Closed-book" in t for _, t in v["notices"])
+    assert "closed-book" in v["mode_note"]
+    assert not any("closed-book" in t for _, t in v["notices"])
     v = answer_view({**RESP, "abstained": True, "abstention_reason": "insufficient_evidence", "citations": []})
     assert any("insufficient_evidence" in t for _, t in v["notices"])
 
 
 def test_rag_answer_without_citation_warns() -> None:
     v = answer_view({**RESP, "citations": [], "invalid_citation_ids": []})
-    assert any("no valid citation" in t for _, t in v["notices"])
+    assert any("유효한 인용이 없습니다" in t for _, t in v["notices"])
 
 
 def test_mode_options_marks_unavailable() -> None:
     opts = mode_options(["base", "rag"])
     assert [m for m, _, _ in opts] == ["base", "rag", "finetuned", "finetuned_rag"]
+    assert [label for _, label, _ in opts][0] == "기본 모델 (base): 검색 없음 (closed-book)"
+    assert all(f"({m})" in label for m, label, _ in opts)  # Korean label + unchanged identifier
     assert [ok for _, _, ok in opts] == [True, True, False, False]
 
 
@@ -76,4 +80,4 @@ def test_client_maps_errors_and_unreachable() -> None:
 
     c2 = ApiClient("http://api.test", transport=httpx.MockTransport(down))
     r2 = c2.ready()
-    assert not r2.ok and r2.status == 0 and "unreachable" in (r2.error or "")
+    assert not r2.ok and r2.status == 0 and "연결할 수 없습니다" in (r2.error or "")
