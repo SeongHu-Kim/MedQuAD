@@ -11,8 +11,8 @@ freeze disclosures, each quoted together with its source artifact.
 | File | `medquad.csv` at the repo root (never modified; gitignored) |
 | Integrity | sha256 pinned in `configs/data/build.yaml` and checked on every build; recorded in `data/manifests/source_dataset.json` |
 | Columns | `question`, `answer`, `source`, `focus_area` (the header is validated exactly) |
-| Origin | A Kaggle CSV export of MedQuAD (Ben Abacha & Demner-Fushman, 2019), compiled from NIH websites (GARD, GHR, NIDDK, NINDS, MedlinePlus, NIHSeniorHealth, CancerGov, NHLBI, CDC) |
-| Kaggle owner/slug | **Not verifiable** from the file. Stored as `kaggle_dataset_ref = null` |
+| Origin | A Kaggle CSV export of MedQuAD (Ben Abacha & Demner-Fushman, 2019; full reference under [References](#references)), compiled from NIH websites (GARD, GHR, NIDDK, NINDS, MedlinePlus, NIHSeniorHealth, CancerGov, NHLBI, CDC) |
+| Kaggle owner/slug | **Owner's statement (D-076):** the owner downloaded the CSV from https://www.kaggle.com/datasets/pythonafroz/medquad-medical-question-answer-for-ai-research. This is not verifiable from the file itself. The build config and manifests keep `kaggle_dataset_ref = null`, because that field enters every record's provenance and changing it would change the frozen corpus outputs |
 | Licence | **Unverified.** Local research use only. Do not redistribute the dataset or its text. Tracked files contain IDs and topics only (D-015) |
 | Missing metadata | No source URLs, document IDs or original MedQuAD question types. `source_url` and `source_document_id` are always `null` (D-004) |
 
@@ -112,3 +112,8 @@ blocking check.
   not repaired, so that medical content is never altered.
 - Medical content dates from the original crawl and may be outdated. This is a research prototype, not
   clinical guidance.
+
+## References
+
+- Ben Abacha, A., & Demner-Fushman, D. (2019). A Question-Entailment Approach to Question Answering. *BMC Bioinformatics*, 20(1), 511. https://doi.org/10.1186/s12859-019-3119-4
+- Dataset page (owner's statement, D-076): https://www.kaggle.com/datasets/pythonafroz/medquad-medical-question-answer-for-ai-research
